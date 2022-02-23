@@ -10,7 +10,7 @@ import os
 class codedbots(object):
     def __init__(self):
         self.s = requests.Session()
-        self.license = 'D6F14C4B819299513A0EA25A1FC704919BD0F9CF92C0E2780A8B28577D1515EF'
+        self.license = os.getenv('BOT_TOKEN')
         if len(self.license) != 64:
             print('license invalid')
             exit(1)

@@ -43,6 +43,7 @@ class Base(object, metaclass=ABCMeta):
         self.setRegion(1)
         # self.s.proxies.update({'http': 'http://127.0.0.1:8888','https': 'http://127.0.0.1:8888',})
         self.setDevice(1)
+        self.current_ap = 0
 
     def setProxy(self, proxy):
         proxy = 'http://' + proxy
@@ -143,6 +144,7 @@ class Base(object, metaclass=ABCMeta):
                 self.log('t_player_id:%s player_rank:%s' % (res['result']['t_player_id'], res['result']['player_rank']))
             self.pid = res['result']['t_player_id']
         if 'result' in res and 'after_t_status' in res['result']:
+            self.current_ap = int(res['result']['after_t_status']['act'])
             self.log('%s / %s rank:%s' % (
                 res['result']['after_t_status']['act'], res['result']['after_t_status']['act_max'],
                 res['result']['after_t_status']['rank']))

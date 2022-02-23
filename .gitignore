@@ -4,3 +4,4 @@ venv
 .idea
 .envrc
 bot.py
+.env

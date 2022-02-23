@@ -145,6 +145,11 @@ class API(BaseAPI):
         self.log('doing quest:%s [%s]' % (stage['name'], m_stage_id))
         if stage['exp'] == 0:
             return self.battle_story(m_stage_id)
+
+        if stage['act'] > self.current_ap:
+            self.log('not enough ap')
+            return
+
         help_players = self.battle_help_list()['result']['help_players'][0]
         start = self.battle_start(m_stage_id=m_stage_id, help_t_player_id=help_players['t_player_id'],
                                   help_t_character_id=help_players['t_character']['id'], act=stage['act'],
