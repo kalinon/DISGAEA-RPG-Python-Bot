@@ -10,6 +10,7 @@ class Battle(Player, metaclass=ABCMeta):
         self.min_rank = 0
         self.min_item_level = 0
         self.min_item_rank = 0
+        self.min_item_rarity = 0
         self.only_weapons = False
         self.auto_rebirth = False
 
@@ -24,6 +25,9 @@ class Battle(Player, metaclass=ABCMeta):
 
     def minItemRank(self, i):
         self.min_item_rank = int(i)
+
+    def minItemRarity(self, i):
+        self.min_item_rarity = int(i)
 
     def onlyWeapons(self, i):
         self.only_weapons = bool(i)
@@ -68,15 +72,16 @@ class Battle(Player, metaclass=ABCMeta):
                          "total_receive_damage": 0, "equipment_id": equipment_id, "killed_character_num": 0,
                          "t_raid_status_id": 0, "battle_type": battle_type, "result": result, "innocent_dead_flg": 0,
                          "tower_attack_num": 0, "max_once_damage": int(random.uniform(10000, 10000000) * 10),
-                         "mission_status": "1,1,1", "command_count": command_count, "prinny_bomb_num": 0})
+                        #  "mission_status": "1,1,1",
+                        #  "common_battle_result": "eyJhbGciOiJIUzI1NiJ9.eyJoZmJtNzg0a2hrMjYzOXBmIjoiMSwxLDEiLCJ5cGIyODJ1dHR6ejc2Mnd4IjoyNTkxNjg1OTc1MjQsImRwcGNiZXc5bXo4Y3V3d24iOjAsInphY3N2NmpldjRpd3pqem0iOjAsImt5cXluaTNubm0zaTJhcWEiOjAsImVjaG02dGh0emNqNHl0eXQiOjAsImVrdXN2YXBncHBpazM1amoiOjAsInhhNWUzMjJtZ2VqNGY0eXEiOjR9.4NWzKTpAs-GrjbFt9M6eEJEbEviUf5xvrYPGiIL4V0k",
+                         "command_count": command_count, "prinny_bomb_num": 0})
         return data
 
     def getbattle_exp_data(self, start):
         res = []
         for d in start['result']['enemy_list']:
             for r in d:
-                res.append(
-                    {"finish_member_ids": self.deck, "finish_type": random.choice([1, 2, 3]), "m_enemy_id": d[r]})
+                res.append({"finish_member_ids": self.deck, "finish_type": random.choice([1, 2, 3]), "m_enemy_id": d[r]})
         return res
 
     def battle_story(self, m_stage_id):
@@ -108,6 +113,8 @@ class Battle(Player, metaclass=ABCMeta):
     def weapon_filter(self, e):
         if self.get_item_rank(e) < self.min_item_rank:
             return False
+        if e['rarity_value'] < self.min_item_rarity:
+            return False
         if e['lv_max'] < self.min_item_level:
             return False
         if e['lv'] >= e['lv_max']:
@@ -116,6 +123,8 @@ class Battle(Player, metaclass=ABCMeta):
 
     def equip_filter(self, e):
         if self.get_item_rank(e) < self.min_item_rank:
+            return False
+        if e['rarity_value'] < self.min_item_rarity:
             return False
         if e['lv_max'] < self.min_item_level:
             return False

@@ -41,7 +41,7 @@ class Base(object, metaclass=ABCMeta):
         self.s = requests.Session()
         self.s.verify = False
         self.setRegion(1)
-        # self.s.proxies.update({'http': 'http://127.0.0.1:8888','https': 'http://127.0.0.1:8888',})
+        # self.s.proxies.update({'http': 'http://127.0.0.1:8080','https': 'http://127.0.0.1:8080',})
         self.setDevice(1)
         self.current_ap = 0
 
@@ -57,7 +57,7 @@ class Base(object, metaclass=ABCMeta):
             self.region = 1
         else:
             self.mainurl = 'https://disgaea-game-live-en.boltrend.com/'
-            self.version = '1.0.254'
+            self.version = '2.16.4'
             self.region = 2
 
     def setDevice(self, r):
@@ -174,7 +174,7 @@ class Base(object, metaclass=ABCMeta):
         self.s.headers.clear()
         if i == 0:
             if self.region == 2:
-                self.s.headers.update({'X-Unity-Version': '2018.4.3f1', 'Accept-Language': 'en-us', 'X_CHANNEL': '1',
+                self.s.headers.update({'X-Unity-Version': '2018.4.20f1', 'Accept-Language': 'en-us', 'X_CHANNEL': '1',
                                        'Content-Type': 'application/x-haut-hoiski',
                                        'User-Agent': 'en/17 CFNetwork/1206 Darwin/20.1.0', 'X-OS-TYPE': '1',
                                        'X-APP-VERSION': self.version, 'X-Crypt-Iv': self.thisiv, 'Accept': '*/*'})
@@ -197,7 +197,7 @@ class Base(object, metaclass=ABCMeta):
         elif i == 1:
             if self.region == 2:
                 self.s.headers.update(
-                    {'X-Unity-Version': '2018.4.3f1', 'X-Crypt-Iv': self.thisiv, 'Accept-Language': 'en-us',
+                    {'X-Unity-Version': '2018.4.20f1', 'X-Crypt-Iv': self.thisiv, 'Accept-Language': 'en-us',
                      'X_CHANNEL': '1', 'Content-Type': 'application/x-haut-hoiski',
                      'User-Agent': 'en/17 CFNetwork/1206 Darwin/20.1.0', 'X-OS-TYPE': '1',
                      'X-APP-VERSION': self.version})

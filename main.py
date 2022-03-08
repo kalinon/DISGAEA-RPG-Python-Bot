@@ -11,7 +11,6 @@ requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 head = {'version_check': 0, 'signup': 1, 'login': 1, 'rpc': 2}
 
-
 class API(BaseAPI):
     def __init__(self):
         super().__init__()
@@ -107,7 +106,7 @@ class API(BaseAPI):
         self.trophy_beginner_missions()
         self.getmail()
         self.getmail()
-        self.getfreegacha()
+        # self.getfreegacha()
 
     def addAccount(self):
         self.player_stone_sum()

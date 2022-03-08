@@ -17,7 +17,7 @@ a.dologin()
 a.wait(1)
 
 
-def farm_item_world(team=1, min_rarity=40, min_rank=0, min_item_rank=0, min_item_level=0, only_weapons=False):
+def farm_item_world(team=1, min_rarity=40, min_rank=0, min_item_rank=0, min_item_level=0, min_item_rarity=0, only_weapons=False):
     a.onlyWeapons(only_weapons)
     # Change the party: 1-9
     a.setTeamNum(team)
@@ -29,13 +29,15 @@ def farm_item_world(team=1, min_rarity=40, min_rank=0, min_item_rank=0, min_item
     a.minItemLevel(min_item_level)
     # Only upgrade items with the following rank
     a.minItemRank(min_item_rank)
+    # Only upgrade items with the following rarity
+    a.minItemRarity(min_item_rarity)
+
     # This runs item-world to level all your items.
     a.upgradeItems()
-
 
 a.get_mail_and_rewards()
 # Will enable auto reincarnation
 a.autoRebirth(True)
 # This will sell all non-equipped items that's below given rarity and rank.
 a.sellItems(maxrarity=39, maxrank=39, keep_max_lvl=True)
-farm_item_world(team=2, min_rarity=70, min_rank=40, min_item_rank=40, min_item_level=0, only_weapons=False)
+farm_item_world(team=2, min_rarity=70, min_rank=40, min_item_rank=40, min_item_level=0, min_item_rarity=0, only_weapons=False)
