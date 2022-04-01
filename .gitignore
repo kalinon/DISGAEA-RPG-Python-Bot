@@ -5,3 +5,5 @@ venv
 .envrc
 bot.py
 .env
+sp_nesh_auto_account.xml
+examples/decode.py

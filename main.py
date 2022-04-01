@@ -11,6 +11,7 @@ requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 head = {'version_check': 0, 'signup': 1, 'login': 1, 'rpc': 2}
 
+
 class API(BaseAPI):
     def __init__(self):
         super().__init__()
@@ -164,26 +165,17 @@ class API(BaseAPI):
     def upgradeItems(self):
         self.player_innocents()
         self.player_weapons()
-        self.upgrade_weapons(self.weapons)
+        self.upgrade_items(self.weapons, equipment_type=1)
         self.player_equipments()
-        self.upgrade_equipment(self.equipments)
+        self.upgrade_items(self.equipments, equipment_type=2)
 
-    def upgrade_weapons(self, weapons):
-        for w in filter(self.weapon_filter, weapons):
+    def upgrade_items(self, items, equipment_type):
+        for w in filter(self.weapon_filter, items):
             self.trophy_get_reward_repetition()
             self.getmail()
             self.log_upgrade_item(w)
             while 1:
-                if not self.doItemWorld(w['id'], equipment_type=1):
-                    break
-
-    def upgrade_equipment(self, equipments):
-        for e in filter(self.equip_filter, equipments):
-            self.trophy_get_reward_repetition()
-            self.getmail()
-            self.log_upgrade_item(e)
-            while 1:
-                if not self.doItemWorld(e['id'], equipment_type=2):
+                if not self.doItemWorld(w['id'], equipment_type=equipment_type):
                     break
 
     def log_upgrade_item(self, w):

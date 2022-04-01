@@ -72,8 +72,8 @@ class Battle(Player, metaclass=ABCMeta):
                          "total_receive_damage": 0, "equipment_id": equipment_id, "killed_character_num": 0,
                          "t_raid_status_id": 0, "battle_type": battle_type, "result": result, "innocent_dead_flg": 0,
                          "tower_attack_num": 0, "max_once_damage": int(random.uniform(10000, 10000000) * 10),
-                        #  "mission_status": "1,1,1",
-                        #  "common_battle_result": "eyJhbGciOiJIUzI1NiJ9.eyJoZmJtNzg0a2hrMjYzOXBmIjoiMSwxLDEiLCJ5cGIyODJ1dHR6ejc2Mnd4IjoyNTkxNjg1OTc1MjQsImRwcGNiZXc5bXo4Y3V3d24iOjAsInphY3N2NmpldjRpd3pqem0iOjAsImt5cXluaTNubm0zaTJhcWEiOjAsImVjaG02dGh0emNqNHl0eXQiOjAsImVrdXN2YXBncHBpazM1amoiOjAsInhhNWUzMjJtZ2VqNGY0eXEiOjR9.4NWzKTpAs-GrjbFt9M6eEJEbEviUf5xvrYPGiIL4V0k",
+                         #  "mission_status": "1,1,1",
+                         #  "common_battle_result": "eyJhbGciOiJIUzI1NiJ9.eyJoZmJtNzg0a2hrMjYzOXBmIjoiMSwxLDEiLCJ5cGIyODJ1dHR6ejc2Mnd4IjoyNTkxNjg1OTc1MjQsImRwcGNiZXc5bXo4Y3V3d24iOjAsInphY3N2NmpldjRpd3pqem0iOjAsImt5cXluaTNubm0zaTJhcWEiOjAsImVjaG02dGh0emNqNHl0eXQiOjAsImVrdXN2YXBncHBpazM1amoiOjAsInhhNWUzMjJtZ2VqNGY0eXEiOjR9.4NWzKTpAs-GrjbFt9M6eEJEbEviUf5xvrYPGiIL4V0k",
                          "command_count": command_count, "prinny_bomb_num": 0})
         return data
 
@@ -81,7 +81,8 @@ class Battle(Player, metaclass=ABCMeta):
         res = []
         for d in start['result']['enemy_list']:
             for r in d:
-                res.append({"finish_member_ids": self.deck, "finish_type": random.choice([1, 2, 3]), "m_enemy_id": d[r]})
+                res.append(
+                    {"finish_member_ids": self.deck, "finish_type": random.choice([1, 2, 3]), "m_enemy_id": d[r]})
         return res
 
     def battle_story(self, m_stage_id):
@@ -110,27 +111,40 @@ class Battle(Player, metaclass=ABCMeta):
                 stuff[k] = i
         return ', '.join(res)
 
-    def weapon_filter(self, e):
-        if self.get_item_rank(e) < self.min_item_rank:
+    def item_filter(self, e, i_filter=None):
+        if i_filter is None:
+            i_filter = {
+                'min_item_rank': self.min_item_rank,
+                'min_item_rarity': self.min_item_rarity,
+                'min_item_level': self.min_item_level,
+                'lv_max': False,
+            }
+
+        if self.get_item_rank(e) < i_filter['min_item_rank']:
             return False
-        if e['rarity_value'] < self.min_item_rarity:
+        if e['rarity_value'] < i_filter['min_item_rarity']:
             return False
-        if e['lv_max'] < self.min_item_level:
+        if e['lv_max'] < i_filter['min_item_level']:
             return False
-        if e['lv'] >= e['lv_max']:
+        if i_filter['lv_max'] is False and e['lv'] >= e['lv_max']:
             return False
         return True
 
+    def weapon_filter(self, e):
+        return self.item_filter(e, {
+            'min_item_rank': self.min_item_rank,
+            'min_item_rarity': self.min_item_rarity,
+            'min_item_level': self.min_item_level,
+            'lv_max': False,
+        })
+
     def equip_filter(self, e):
-        if self.get_item_rank(e) < self.min_item_rank:
-            return False
-        if e['rarity_value'] < self.min_item_rarity:
-            return False
-        if e['lv_max'] < self.min_item_level:
-            return False
-        if e['lv'] >= e['lv_max']:
-            return False
-        return True
+        return self.item_filter(e, {
+            'min_item_rank': self.min_item_rank,
+            'min_item_rarity': self.min_item_rarity,
+            'min_item_level': self.min_item_level,
+            'lv_max': False,
+        })
 
     def tower_start(self, m_tower_no):
         data = self.rpc('tower/start', {"t_deck_no": self.teamNum(), "m_tower_no": m_tower_no})

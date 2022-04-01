@@ -123,6 +123,7 @@ class Base(object, metaclass=ABCMeta):
                     return None
                 return self.callAPI(url, data)
             else:
+                print(res)
                 self.log('server returned error: %s' % (res['api_error']['message']))
         # exit(1)
         if 'password' in res:
@@ -258,17 +259,23 @@ class Base(object, metaclass=ABCMeta):
     def getmail(self):
         did = set()
         while (1):
-            ids = self.present_index(conditions=[0, 1, 2, 3, 4, 99], order=1)['result']['_items']
-            msgs = []
-            for i in ids:
-                if i['id'] in did:    continue
-                msgs.append(i['id'])
-                did.add(i['id'])
-            if len(msgs) >= 1:
-                self.present_receive(receive_ids=msgs[0:len(msgs) if len(msgs) <= 20 else 20],
-                                     conditions=[0, 1, 2, 3, 4, 99], order=1)
+            data = self.present_index(conditions=[0, 1, 2, 3, 4, 99], order=1)
+            if 'result' in data:
+                ids = data['result']['_items']
+                msgs = []
+                for i in ids:
+                    if i['id'] in did:    continue
+                    msgs.append(i['id'])
+                    did.add(i['id'])
+                if len(msgs) >= 1:
+                    self.present_receive(receive_ids=msgs[0:len(msgs) if len(msgs) <= 20 else 20],
+                                         conditions=[0, 1, 2, 3, 4, 99], order=1)
+                else:
+                    break
             else:
+                self.log("Unable to get mail")
                 break
+
 
     def present_receive(self, receive_ids, conditions, order):
         data = self.rpc('present/receive', {"receive_ids": receive_ids, "conditions": conditions, "order": order})

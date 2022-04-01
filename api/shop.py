@@ -44,27 +44,35 @@ class Shop(Player, metaclass=ABCMeta):
     #   legendary = 9-10
     #   rare = 5-8
     #   common = 1-4
-    def sellItems(self, max_rarity=40, max_rank=100, keep_max_lvl=False, only_max_lvl=False, max_innocent_rank=10, max_innocent_type=8):
+    def sellItems(self, max_rarity=40, max_rank=100, keep_max_lvl=False, only_max_lvl=False, max_innocent_rank=10,
+                  max_innocent_type=8):
         self.player_equipments()
         self.player_weapons()
+        selling, skipping = self.filter_items(keep_max_lvl, max_innocent_rank, max_innocent_type, max_rank, max_rarity,
+                                              only_max_lvl)
+
+        self.log('skipping %s items' % skipping)
+        if len(selling) >= 1:
+            self.shop_sell_equipment(selling)
+
+    def filter_items(self, keep_max_lvl, max_innocent_rank, max_innocent_type, max_rank, max_rarity, only_max_lvl):
         selling = []
         skipping = 0
         for w in self.weapons:
-            if not self.can_sell_item(w, max_rarity, max_rank, keep_max_lvl, only_max_lvl, max_innocent_rank, max_innocent_type):
+            if not self.can_sell_item(w, max_rarity, max_rank, keep_max_lvl, only_max_lvl, max_innocent_rank,
+                                      max_innocent_type):
                 skipping += 1
                 continue
             self.log_sell(w)
             selling.append({'eqtype': 1, 'eqid': w['id']})
         for w in self.equipments:
-            if not self.can_sell_item(w, max_rarity, max_rank, keep_max_lvl, only_max_lvl, max_innocent_rank, max_innocent_type):
+            if not self.can_sell_item(w, max_rarity, max_rank, keep_max_lvl, only_max_lvl, max_innocent_rank,
+                                      max_innocent_type):
                 skipping += 1
                 continue
             self.log_sell(w)
             selling.append({'eqtype': 2, 'eqid': w['id']})
-
-        self.log('skiping %s items' % skipping)
-        if len(selling) >= 1:
-            self.shop_sell_equipment(selling)
+        return selling, skipping
 
     def log_sell(self, w):
         item = self.getWeapon(w['m_weapon_id']) if 'm_weapon_id' in w else self.getEquip(w['m_equipment_id'])
@@ -74,7 +82,7 @@ class Shop(Player, metaclass=ABCMeta):
              w['lv_max'], w['lock_flg'])
         )
 
-    def can_sell_item(self, w, max_rarity=39, max_rank=99, keep_max_lvl=False, only_max_lvl=False, max_innocent_rank=8,
+    def can_sell_item(self, w, max_rarity=99, max_rank=39, keep_max_lvl=False, only_max_lvl=False, max_innocent_rank=8,
                       max_innocent_type=8):
         if keep_max_lvl and w['lv'] == w['lv_max']:
             self.log('skip due to lv_max')
