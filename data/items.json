@@ -1168,7 +1168,7 @@
   },
   {
     "icon_no": 1904,
-    "name": "1 & D2 Summon Ticket",
+    "name": "1&D2 Summon Ticket",
     "effect_value": [
       210001
     ],
@@ -1180,7 +1180,7 @@
   },
   {
     "icon_no": 1905,
-    "name": "2 & 3 Summon Ticket",
+    "name": "2&3 Summon Ticket",
     "effect_value": [
       210002
     ],
@@ -1192,7 +1192,7 @@
   },
   {
     "icon_no": 1906,
-    "name": "4 & 5 Summon Ticket",
+    "name": "4&5 Summon Ticket",
     "effect_value": [
       210003
     ],
@@ -1332,7 +1332,7 @@
     "item_type": 19,
     "max_num": 999,
     "id": 1999,
-    "description": "1 Year Anniversary! A summon ticket for the Biggest Badass Celebration event."
+    "description": "1 Year Anniversary! A summon ticket for the Most Badass Celebration event."
   },
   {
     "icon_no": 2001,
@@ -1476,7 +1476,7 @@
     "item_type": 20,
     "max_num": 99999999,
     "id": 2012,
-    "description": "Summer! Ocean! Scary Seaside Resort \nOpening?! Exclusive PT"
+    "description": "Summer! Sea! Scary Seaside Resort \nOpening?! Exclusive PT"
   },
   {
     "icon_no": 2006,
@@ -1632,7 +1632,7 @@
     "item_type": 20,
     "max_num": 99999999,
     "id": 2025,
-    "description": "Luxurious Celebration Party Exclusive PT"
+    "description": "Spectacular Celebration Party Exclusive PT"
   },
   {
     "icon_no": 2026,
@@ -1668,7 +1668,7 @@
     "item_type": 20,
     "max_num": 99999999,
     "id": 2028,
-    "description": "Unfailing Divination! Kitsune Talisman Exclusive PT"
+    "description": "Bullseye! Divining Kyuubi Exclusive PT"
   },
   {
     "icon_no": 2006,
@@ -1704,7 +1704,7 @@
     "item_type": 20,
     "max_num": 99999999,
     "id": 2031,
-    "description": "Re:Zero - Starting Life in A Netherworld Dedicated Pts"
+    "description": "Re:Zero - Starting Life in the Netherworld Dedicated Pts"
   },
   {
     "icon_no": 2032,
@@ -2032,7 +2032,7 @@
   },
   {
     "icon_no": 2601,
-    "name": "Reminiscence Sphere",
+    "name": "Remembrance Sphere",
     "effect_value": [
       1
     ],
@@ -2040,7 +2040,7 @@
     "item_type": 26,
     "max_num": 99999,
     "id": 2601,
-    "description": "A mysterious item that can be used to redeem rewards at the Reminiscence Exchange"
+    "description": "A mysterious item that can be used to redeem rewards at the Remembrance Exchange"
   },
   {
     "icon_no": 2801,
@@ -5331,7 +5331,7 @@
   },
   {
     "icon_no": 2701,
-    "name": "Dias Crystal",
+    "name": "Diez Crystal",
     "effect_value": [
       100
     ],
@@ -5339,7 +5339,7 @@
     "item_type": 27,
     "max_num": 9999,
     "id": 2700066,
-    "description": "A crystal used for Dias' Nether Enhancement."
+    "description": "A crystal used for Diez' Nether Enhancement."
   },
   {
     "icon_no": 2701,
@@ -5403,7 +5403,7 @@
   },
   {
     "icon_no": 2701,
-    "name": "Merlin Crystal",
+    "name": "Marlene Crystal",
     "effect_value": [
       100
     ],
@@ -5411,7 +5411,7 @@
     "item_type": 27,
     "max_num": 9999,
     "id": 2700072,
-    "description": "A crystal used for Merlin's Nether Enhancement."
+    "description": "A crystal used for Marlene's Nether Enhancement."
   },
   {
     "icon_no": 2701,
@@ -5451,7 +5451,7 @@
   },
   {
     "icon_no": 2701,
-    "name": "Bathrobe Yukimaru Crystal",
+    "name": "Yukata Yukimaru Crystal",
     "effect_value": [
       100
     ],
@@ -5459,7 +5459,7 @@
     "item_type": 27,
     "max_num": 9999,
     "id": 2700076,
-    "description": "A crystal used for Bathrobe Yukimaru's Nether Enhancement."
+    "description": "A crystal used for Yukata Yukimaru's Nether Enhancement."
   },
   {
     "icon_no": 2701,
@@ -5607,7 +5607,7 @@
   },
   {
     "icon_no": 2701,
-    "name": "Cute Merlin Crystal",
+    "name": "Cute Mei Ling Crystal",
     "effect_value": [
       100
     ],
@@ -5615,7 +5615,7 @@
     "item_type": 27,
     "max_num": 9999,
     "id": 2700089,
-    "description": "A crystal used for Cute Merlin's Nether Enhancement."
+    "description": "A crystal used for Cute Mei Ling's Nether Enhancement."
   },
   {
     "icon_no": 2701,
@@ -5739,7 +5739,7 @@
   },
   {
     "icon_no": 2701,
-    "name": "Xmas Adell Crystal",
+    "name": "Santa Adell Crystal",
     "effect_value": [
       100
     ],
@@ -5747,11 +5747,11 @@
     "item_type": 27,
     "max_num": 9999,
     "id": 2700101,
-    "description": "A crystal used for Xmas Adell's Nether Enhancement."
+    "description": "A crystal used for Santa Adell's Nether Enhancement."
   },
   {
     "icon_no": 2701,
-    "name": "Xmas Rozalin Crystal",
+    "name": "Santa Rozalin Crystal",
     "effect_value": [
       100
     ],
@@ -5759,7 +5759,7 @@
     "item_type": 27,
     "max_num": 9999,
     "id": 2700102,
-    "description": "A crystal used for Xmas Rozalin's Nether Enhancement."
+    "description": "A crystal used for Santa Rozalin's Nether Enhancement."
   },
   {
     "icon_no": 2701,
@@ -5871,7 +5871,7 @@
   },
   {
     "icon_no": 2701,
-    "name": "Priere Crystal",
+    "name": "Prier Crystal",
     "effect_value": [
       100
     ],
@@ -5879,7 +5879,7 @@
     "item_type": 27,
     "max_num": 9999,
     "id": 2700112,
-    "description": "A crystal used for Priere's Nether Enhancement."
+    "description": "A crystal used for Prier's Nether Enhancement."
   },
   {
     "icon_no": 2701,
