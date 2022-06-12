@@ -16,7 +16,7 @@ class Shop(Player, metaclass=ABCMeta):
         return data
 
     def shop_buy_equipment(self, item_type, itemid):
-        data = self.rpc('shop/buy_equipment', {"item_type": item_type, "id": itemid})
+        data = self.rpc('shop/buy_equipment', {"item_type": item_type, "ids": [itemid]})
         return data
 
     def shop_change_equipment_items(self, shop_rank=1):
