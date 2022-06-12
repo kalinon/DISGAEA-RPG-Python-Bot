@@ -141,8 +141,11 @@ class Items(Shop):
             for i in selling:
                 e = self.get_equipment_by_id(i['eqid']) or self.get_weapon_by_id(i['eqid'])
                 self.log_donate(e)
-                self.remove_innocents(e)
-                items.append(i['eqid'])
+                try:
+                    self.remove_innocents(e)
+                    items.append(i['eqid'])
+                except:
+                    e = None
 
         for batch in (items[i:i + 20] for i in range(0, len(items), 20)):
             self.kingdom_weapon_equipment_entry(equip_ids=batch)

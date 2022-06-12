@@ -260,7 +260,7 @@ class Base(object, metaclass=ABCMeta):
         did = set()
         while (1):
             data = self.present_index(conditions=[0, 1, 2, 3, 4, 99], order=1)
-            if 'result' in data:
+            if data and 'result' in data:
                 ids = data['result']['_items']
                 msgs = []
                 for i in ids:
