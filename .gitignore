@@ -3,7 +3,7 @@ __pycache__/*
 venv
 .idea
 .envrc
-bot.py
+#bot.py
 .env
 sp_nesh_auto_account.xml
 examples/decode.py
