@@ -26,8 +26,7 @@ for code in codes:
 def farm_event_stage(times, stage_id, team):
     a.setTeamNum(team)
     for i in range(times):
-        a.doQuest(stage_id)
-        a.raid_check_and_send()
+        do_quest(stage_id)
 
 
 def farm_item_world(team=1, min_rarity=40, min_rank=0, min_item_rank=0, min_item_level=0, only_weapons=False):
@@ -52,7 +51,7 @@ def do_gate(gate, team):
     max = int(gate['challenge_max'])
     while current < max:
         a.setTeamNum(team)
-        a.doQuest(gate['m_stage_id'])
+        do_quest(gate['m_stage_id'])
         current += 1
 
 
@@ -93,8 +92,7 @@ def clear_event(area_lt):
         for i in area_lt:
             new_lt = [x for x in dic if x["m_area_id"] == i and x["rank"] == k]
             for c in new_lt:
-                a.doQuest(c['id'])
-                a.raid_check_and_send()
+                do_quest(c['id'])
 
 
 def use_ap(stage_id):
@@ -117,6 +115,11 @@ def clear_inbox():
             print("- inbox is empty or didnt change")
             break
         last_id = new_last_id
+
+
+def do_quest(stage_id):
+    a.doQuest(stage_id)
+    a.raid_check_and_send()
 
 
 def loop(team=9, rebirth=False, farm_stage_id=313515):
