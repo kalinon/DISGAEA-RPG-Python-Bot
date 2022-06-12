@@ -179,3 +179,25 @@ class Battle(Player, metaclass=ABCMeta):
                     if hasattr(self, 'minrare') and start['result']['reward_rarity'][j] < self.minrare:
                         return 5
         return 1
+
+    def raid_send_help_request(self, raid_id):
+        data = self.rpc('raid/help', {"t_raid_status_id": raid_id})
+        return data
+
+    def raid_get_all_bosses(self):
+        data = self.rpc('raid/index', {})
+        return data['result']['t_raid_statuses']
+
+    # Will check for raid bosses and will send help requests if active ones are found.
+    def raid_check_and_send(self):
+        all_bosses = self.raid_get_all_bosses()
+        self.log("Number of raid bosses found %d" % len(all_bosses))
+        for i in all_bosses:
+            if not i['is_discoverer']:
+                if i['current_battle_count'] < 1:
+                    print('There is a shared boss to fight')
+                continue
+            if not i['is_send_help']:
+                sharing_result = self.raid_send_help_request(i['id'])
+                self.log("Shared boss with %s users" % sharing_result['result']['send_help_count'])
+
