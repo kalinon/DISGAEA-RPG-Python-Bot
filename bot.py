@@ -1,5 +1,4 @@
 import os
-import random
 
 from main import API
 from data import data as gamedata
@@ -24,7 +23,7 @@ for code in codes:
     a.boltrend_exchange_code(code)
 
 
-def farm_event(times, stage_id, team):
+def farm_event_stage(times, stage_id, team):
     a.setTeamNum(team)
     for i in range(times):
         a.doQuest(stage_id)
@@ -80,6 +79,13 @@ def daily():
     do_gates(gates_data, gem_team=7, hl_team=8)
 
 
+# Will return an array of event area ids based on the event id.
+# clear_event([1132101, 1132102, 1132103, 1132104, 1132105])
+def get_event_areas(event_id):
+    tmp = event_id * 1000
+    return [tmp + 101, tmp + 102, tmp + 103, tmp + 104, tmp + 105]
+
+
 def clear_event(area_lt):
     dic = gamedata['stages']
     rank = [1, 2, 3]
@@ -88,12 +94,13 @@ def clear_event(area_lt):
             new_lt = [x for x in dic if x["m_area_id"] == i and x["rank"] == k]
             for c in new_lt:
                 a.doQuest(c['id'])
+                a.raid_check_and_send()
 
 
 def use_ap(stage_id):
     print("- using ap")
     times = int(a.current_ap / 30)
-    farm_event(stage_id=stage_id, team=5, times=times)
+    farm_event_stage(stage_id=stage_id, team=5, times=times)
 
 
 def clear_inbox():
@@ -145,11 +152,15 @@ daily()
 
 # a.autoRebirth(True)
 # a.setTeamNum(9)
-clear_event([1132101, 1132102, 1132103, 1132104, 1132105])
+
+# # Uncomment to clear a new event area. Provide the first 4 digits of the m_area_id.
+# clear_event(get_event_areas(1132))
 
 # 1132105312 - misc stage
 # 1090105310 - Extra+ (HL)
 # 1090105311 - Extra+ (EXP)
 # 1090105312 - Extra+ (1★)
+# farm_event_stage(1, 1090105312, team=9)
+
+# Full loop
 loop(team=9, rebirth=True, farm_stage_id=1132105312)
-# clear_inbox()
