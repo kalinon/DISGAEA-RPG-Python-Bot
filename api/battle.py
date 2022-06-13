@@ -202,3 +202,78 @@ class Battle(Player, metaclass=ABCMeta):
             if not i['is_send_help']:
                 sharing_result = self.raid_send_help_request(i['id'])
                 self.log("Shared boss with %s users" % sharing_result['result']['send_help_count'])
+
+    def axel_context_battle_start(self, act, m_character_id, t_character_ids):
+        data = self.rpc('character_contest/start',
+                        {"act": act, "m_character_id": m_character_id, "t_character_ids": t_character_ids})
+        return data
+
+    def axel_context_battle_end(self, m_character_id, battle_exp_data, common_battle_result):
+        data = self.rpc('battle/end', {
+            "m_stage_id": 0,
+            "m_tower_no": 0,
+            "equipment_id": 0,
+            "equipment_type": 0,
+            "innocent_dead_flg": 0,
+            "t_raid_status_id": 0,
+            "raid_battle_result": "",
+            "m_character_id": m_character_id,
+            "division_battle_result": "",
+            "battle_type": 7,
+            "result": 1,
+            "battle_exp_data": battle_exp_data,
+            "common_battle_result": common_battle_result,
+            "skip_party_update_flg": True
+        })
+        return data
+
+    def do_axel_contest(self, unit_id, highest_stage_to_clear=1000):
+        unit = self.find_character_by_id(unit_id)
+        if unit is None:
+            self.log("Unit not found. Exiting...")
+            return
+        c = self.getChar(unit['m_character_id'])
+        unit_name = ''
+        if c is not None:
+            unit_name = c['name']
+        last_cleared_stage = unit['contest_stage']
+        self.log(f"Started Axel Contest for {unit_name} - Last cleared stage: {last_cleared_stage}")
+
+        while last_cleared_stage < highest_stage_to_clear:
+            start = self.axel_context_battle_start(self.get_axel_stage_energy_cost(last_cleared_stage),
+                                                   unit['m_character_id'], [unit_id])
+            end = self.axel_context_battle_end(
+                unit['m_character_id'],
+                self.get_battle_exp_data_axel_contest(start, [unit_id]),
+                "eyJhbGciOiJIUzI1NiJ9.eyJoZmJtNzg0a2hrMjYzOXBmIjoiIiwieXBiMjgydXR0eno3NjJ3eCI6ODY4MTY2ODE1OCwiZHBwY2JldzltejhjdXd3biI6MCwiemFjc3Y2amV2NGl3emp6bSI6NCwia3lxeW5pM25ubTNpMmFxYSI6MCwiZWNobTZ0aHR6Y2o0eXR5dCI6MCwiZWt1c3ZhcGdwcGlrMzVqaiI6MCwieGE1ZTMyMm1nZWo0ZjR5cSI6MH0.NudHEcTQfUUuOaNr9vsFiJkQwaw4nTL6yjK93jXzqLY"
+            )
+            last_cleared_stage = end['result']['after_t_character_collections'][0]['contest_stage']
+            self.log(f"Cleared stage for {last_cleared_stage} for unit {unit_name}.")
+
+        self.log(f"Finished running Axel Contest for {unit_name} - Last cleared stage: {last_cleared_stage}")
+
+    def get_battle_exp_data_axel_contest(self, start, unitID):
+        res = []
+        for d in start['result']['enemy_list']:
+            for r in d:
+                res.append({
+                    "finish_member_ids": unitID,
+                    "finish_type": 1,
+                    "m_enemy_id": d[r]
+                })
+        return res
+
+    def get_axel_stage_energy_cost(self, last_cleared_stage):
+        if last_cleared_stage < 49:
+            return 1
+        if last_cleared_stage < 99:
+            return 2
+        if last_cleared_stage < 199:
+            return 3
+        if last_cleared_stage < 299:
+            return 4
+        if last_cleared_stage < 399:
+            return 5
+        if last_cleared_stage < 499:
+            return 6
+        return 7

@@ -157,3 +157,22 @@ class Player(Base):
     def player_badges(self):
         data = self.rpc('player/badges', {})
         return data
+
+    def find_character_by_id(self, unit_id):
+        self.log("Looking for character with id: %s" % unit_id)
+        iterate_next_page = True
+
+        page_index = 1
+        m_character_id = 0
+        while iterate_next_page:
+            characters_in_page = self.player_characters(updated_at=0, page=page_index)['result']['_items']
+            for i in characters_in_page:
+                if i['id'] == unit_id:
+                    m_character_id = i['m_character_id']
+                    break
+            page_index += 1
+            iterate_next_page = m_character_id == 0 and len(characters_in_page) == 100
+
+        all_collections = self.player_character_collections()['result']['_items']
+        c = next((x for x in all_collections if x['m_character_id'] == m_character_id), None)
+        return c
