@@ -162,12 +162,15 @@ class API(BaseAPI):
         res = self.parseReward(end)
         return res
 
-    def upgradeItems(self):
+    def upgradeItems(self, only_weapons=False):
         self.player_innocents()
+
         self.player_weapons()
         self.upgrade_items(self.weapons, equipment_type=1)
-        self.player_equipments()
-        self.upgrade_items(self.equipments, equipment_type=2)
+
+        if only_weapons is False:
+            self.player_equipments()
+            self.upgrade_items(self.equipments, equipment_type=2)
 
     def upgrade_items(self, items, equipment_type):
         for w in filter(self.weapon_filter, items):
@@ -197,8 +200,10 @@ class API(BaseAPI):
             self.log('missing equip')
             return
         start = self.item_world_start(equipment_id, equipment_type=equipment_type)
-        if 'result' not in start:
+
+        if start is None or 'result' not in start:
             return False
+
         result = self.parseStart(start)
         end = self.battle_end(battle_exp_data=self.getbattle_exp_data(start), m_stage_id=0, battle_type=5,
                               result=result, command_count=9, equipment_type=equipment_type, equipment_id=equipment_id)

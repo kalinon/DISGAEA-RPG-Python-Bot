@@ -6,9 +6,12 @@ class Player(Base):
         super().__init__()
         self.gems = []
         self.deck = []
+        self.items = []
         self.weapons = []
         self.equipments = []
         self.innocents = []
+        self.characters = []
+        self.character_collections = []
 
     def player_sync(self):
         data = self.rpc('player/sync', {})
@@ -23,7 +26,19 @@ class Player(Base):
         return data
 
     def player_characters(self, updated_at=None, page=None):
+        if not hasattr(self, 'characters') or page == 1:
+            self.characters = []
         data = self.rpc('player/characters', {"updated_at": updated_at, "page": page})
+        if len(data['result']['_items']) <= 0:    return data
+        self.characters = self.characters + data['result']['_items']
+        return self.player_characters(updated_at, page + 1)
+
+    def player_character_collections(self, refresh=True):
+        if not hasattr(self, 'character_collections') or refresh:
+            self.character_collections = []
+        data = self.rpc('player/character_collections', {})
+        if len(data['result']['_items']) <= 0:    return data
+        self.character_collections = self.character_collections + data['result']['_items']
         return data
 
     def player_weapons(self, updated_at=0, page=1):
@@ -94,10 +109,6 @@ class Player(Base):
         data = self.rpc('player/boosts', {})
         return data
 
-    def player_character_collections(self):
-        data = self.rpc('player/character_collections', {})
-        return data
-
     def player_decks(self):
         data = self.rpc('player/decks', {})
         self.deck = [data['result']['_items'][self.t_deck_no]['t_character_ids'][x] for x in
@@ -158,21 +169,44 @@ class Player(Base):
         data = self.rpc('player/badges', {})
         return data
 
-    def find_character_by_id(self, unit_id):
-        self.log("Looking for character with id: %s" % unit_id)
-        iterate_next_page = True
-
-        page_index = 1
+    def char_stage_info(self, unit_id, use_cache=False):
+        self.log("Looking for character stage info, with id: %s" % unit_id)
         m_character_id = 0
-        while iterate_next_page:
-            characters_in_page = self.player_characters(updated_at=0, page=page_index)['result']['_items']
-            for i in characters_in_page:
-                if i['id'] == unit_id:
-                    m_character_id = i['m_character_id']
-                    break
-            page_index += 1
-            iterate_next_page = m_character_id == 0 and len(characters_in_page) == 100
+        for i in self.characters:
+            if i['id'] == unit_id:
+                m_character_id = i['m_character_id']
+                break
 
-        all_collections = self.player_character_collections()['result']['_items']
-        c = next((x for x in all_collections if x['m_character_id'] == m_character_id), None)
+        if len(self.character_collections) <= 0 or use_cache is False:
+            self.player_character_collections(refresh=True)
+
+        c = next((x for x in self.character_collections if x['m_character_id'] == m_character_id), None)
         return c
+
+    def find_character_for_axel_contest(self, highestStageToClear):
+        self.player_character_collections(refresh=True)
+        self.log("Looking for character for axel contest")
+        for char in self.characters:
+            char_stages = self.char_stage_info(char['id'], True)
+            if char_stages is not None and char_stages['contest_stage'] < highestStageToClear:
+                char_info = self.getChar(char['m_character_id'])
+                if 'name' in char_info:
+                    return char['id']
+        return None
+
+    def find_characters_for_axel_contest(self, highestStageToClear):
+        self.player_character_collections(refresh=True)
+        self.log("Looking for characters for axel contest")
+        cs = []
+
+        if len(self.characters) <= 0:
+            self.log('No characters found')
+            exit(1)
+
+        for char in self.characters:
+            char_stages = self.char_stage_info(char['id'], True)
+            if char_stages is not None and char_stages['contest_stage'] < highestStageToClear:
+                char_info = self.getChar(char['m_character_id'])
+                if 'name' in char_info:
+                    cs.append(char)
+        return cs

@@ -1,7 +1,8 @@
 import os
 
 from main import API
-from data import data as gamedata
+
+# from data import data as gamedata
 
 a = API()
 # a.setProxy("127.0.0.1:8080")
@@ -29,8 +30,7 @@ def farm_event_stage(times, stage_id, team):
         do_quest(stage_id)
 
 
-def farm_item_world(team=1, min_rarity=40, min_rank=0, min_item_rank=0, min_item_level=0, only_weapons=False):
-    a.onlyWeapons(only_weapons)
+def farm_item_world(team=1, min_rarity=0, min_rank=0, min_item_rank=0, min_item_level=0, only_weapons=False):
     # Change the party: 1-9
     a.setTeamNum(team)
     # This changes the minimum rarity of equipments found in the item-world. 1 = common, 40 = rare, 70 = Legendary
@@ -42,7 +42,7 @@ def farm_item_world(team=1, min_rarity=40, min_rank=0, min_item_rank=0, min_item
     # Only upgrade items with the following rank
     a.minItemRank(min_item_rank)
     # This runs item-world to level all your items.
-    a.upgradeItems()
+    a.upgradeItems(only_weapons=only_weapons)
 
 
 def do_gate(gate, team):
@@ -72,8 +72,19 @@ def do_gates(gates_data, gem_team=7, hl_team=8):
             do_gate(gate, team)
 
 
-def daily():
+def daily(bts=False, team=9):
     a.get_mail_and_rewards()
+
+    if bts:
+        a.setTeamNum(team)
+        # Do BTS Events
+        # 1132201101 - BTS Extra -EASY-
+        # 1132201102 - BTS Extra -NORMAL-
+        # 1132201103 - BTS Extra -HARD-
+        for _ in range(10):
+            do_quest(1132201103)
+
+    # Do gates
     gates_data = a.player_gates()['result']
     do_gates(gates_data, gem_team=7, hl_team=8)
 
@@ -86,7 +97,7 @@ def get_event_areas(event_id):
 
 
 def clear_event(area_lt):
-    dic = gamedata['stages']
+    dic = a.stages()
     rank = [1, 2, 3]
     for k in rank:
         for i in area_lt:
@@ -107,9 +118,11 @@ def clear_inbox():
     last_id = None
     while len(ids) > 0:
         a.getmail()
-        a.sellItems(max_rarity=69, max_rank=40, keep_max_lvl=True, only_max_lvl=False, max_innocent_rank=8,
-                    max_innocent_type=8)
+        a.sellItems(max_rarity=69, max_rank=40, keep_max_lvl=True, only_max_lvl=False,
+                    max_innocent_rank=8, max_innocent_type=8)
         ids = a.present_index(conditions=[0, 1, 2, 3, 4, 99], order=1)['result']['_items']
+        if len(ids) == 0:
+            break
         new_last_id = ids[-1]
         if new_last_id == last_id:
             print("- inbox is empty or didnt change")
@@ -127,6 +140,7 @@ def loop(team=9, rebirth=False, farm_stage_id=313515):
     a.setTeamNum(team)
 
     if a.current_ap >= 6000:
+        a.do_axel_contest_multiple_characters(1)
         use_ap(stage_id=farm_stage_id)
 
     for i in range(30):
@@ -150,8 +164,11 @@ def loop(team=9, rebirth=False, farm_stage_id=313515):
     clear_inbox()
 
 
+# clear_inbox()
+# a.do_axel_contest_multiple_characters(2)
+
 # Daily tasks
-daily()
+daily(bts=True)
 
 # a.autoRebirth(True)
 # a.setTeamNum(9)

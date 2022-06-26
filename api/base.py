@@ -276,7 +276,6 @@ class Base(object, metaclass=ABCMeta):
                 self.log("Unable to get mail")
                 break
 
-
     def present_receive(self, receive_ids, conditions, order):
         data = self.rpc('present/receive', {"receive_ids": receive_ids, "conditions": conditions, "order": order})
         return data
@@ -399,9 +398,9 @@ class Base(object, metaclass=ABCMeta):
 
     def getChar(self, i):
         for s in gamedata['characters']:
-            if 'm_character_id' not in s:
+            if 'id' not in s:
                 continue
-            if i == s['m_character_id']:
+            if i == s['id']:
                 return s
         return {'class_name': 'MISSING'}
 

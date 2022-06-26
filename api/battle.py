@@ -11,7 +11,6 @@ class Battle(Player, metaclass=ABCMeta):
         self.min_item_level = 0
         self.min_item_rank = 0
         self.min_item_rarity = 0
-        self.only_weapons = False
         self.auto_rebirth = False
 
     def autoRebirth(self, i):
@@ -28,9 +27,6 @@ class Battle(Player, metaclass=ABCMeta):
 
     def minItemRarity(self, i):
         self.min_item_rarity = int(i)
-
-    def onlyWeapons(self, i):
-        self.only_weapons = bool(i)
 
     def battle_status(self):
         data = self.rpc('battle/status', {})
@@ -171,9 +167,6 @@ class Battle(Player, metaclass=ABCMeta):
                         (item['name'], start['result']['reward_rarity'][j], rank)
                     )
 
-                    # Only farm weapons
-                    if self.only_weapons and equipment_type != 3:
-                        return 5
                     if hasattr(self, 'min_item_rank') and rank < self.min_rank:
                         return 5
                     if hasattr(self, 'minrare') and start['result']['reward_rarity'][j] < self.minrare:
@@ -227,31 +220,6 @@ class Battle(Player, metaclass=ABCMeta):
         })
         return data
 
-    def do_axel_contest(self, unit_id, highest_stage_to_clear=1000):
-        unit = self.find_character_by_id(unit_id)
-        if unit is None:
-            self.log("Unit not found. Exiting...")
-            return
-        c = self.getChar(unit['m_character_id'])
-        unit_name = ''
-        if c is not None:
-            unit_name = c['name']
-        last_cleared_stage = unit['contest_stage']
-        self.log(f"Started Axel Contest for {unit_name} - Last cleared stage: {last_cleared_stage}")
-
-        while last_cleared_stage < highest_stage_to_clear:
-            start = self.axel_context_battle_start(self.get_axel_stage_energy_cost(last_cleared_stage),
-                                                   unit['m_character_id'], [unit_id])
-            end = self.axel_context_battle_end(
-                unit['m_character_id'],
-                self.get_battle_exp_data_axel_contest(start, [unit_id]),
-                "eyJhbGciOiJIUzI1NiJ9.eyJoZmJtNzg0a2hrMjYzOXBmIjoiIiwieXBiMjgydXR0eno3NjJ3eCI6ODY4MTY2ODE1OCwiZHBwY2JldzltejhjdXd3biI6MCwiemFjc3Y2amV2NGl3emp6bSI6NCwia3lxeW5pM25ubTNpMmFxYSI6MCwiZWNobTZ0aHR6Y2o0eXR5dCI6MCwiZWt1c3ZhcGdwcGlrMzVqaiI6MCwieGE1ZTMyMm1nZWo0ZjR5cSI6MH0.NudHEcTQfUUuOaNr9vsFiJkQwaw4nTL6yjK93jXzqLY"
-            )
-            last_cleared_stage = end['result']['after_t_character_collections'][0]['contest_stage']
-            self.log(f"Cleared stage for {last_cleared_stage} for unit {unit_name}.")
-
-        self.log(f"Finished running Axel Contest for {unit_name} - Last cleared stage: {last_cleared_stage}")
-
     def get_battle_exp_data_axel_contest(self, start, unitID):
         res = []
         for d in start['result']['enemy_list']:
@@ -277,3 +245,51 @@ class Battle(Player, metaclass=ABCMeta):
         if last_cleared_stage < 499:
             return 6
         return 7
+
+    def do_axel_contest(self, char, highest_stage_to_clear=1000):
+        char_id = char['id']
+        unit = self.char_stage_info(char_id)
+        if unit is None:
+            self.log("Unit not found. Exiting...")
+            return
+
+        char_def = self.getChar(unit['m_character_id'])
+        if char_def is not None and 'name' in char_def:
+            unit_name = char_def['name']
+        else:
+            self.log('No name found for unit with id: %s' % unit['m_character_id'])
+            return
+
+        last_cleared_stage = unit['contest_stage']
+        self.log(f"Started Axel Contest for {unit_name} - Last cleared stage: {last_cleared_stage}")
+
+        while last_cleared_stage < highest_stage_to_clear:
+            start = self.axel_context_battle_start(self.get_axel_stage_energy_cost(last_cleared_stage),
+                                                   unit['m_character_id'], [char_id])
+            end = self.axel_context_battle_end(
+                unit['m_character_id'],
+                self.get_battle_exp_data_axel_contest(start, [char_id]),
+                "eyJhbGciOiJIUzI1NiJ9.eyJoZmJtNzg0a2hrMjYzOXBmIjoiIiwieXBiMjgydXR0eno3NjJ3eCI6ODY4MTY2ODE1OCwiZHBwY2JldzltejhjdXd3biI6MCwiemFjc3Y2amV2NGl3emp6bSI6NCwia3lxeW5pM25ubTNpMmFxYSI6MCwiZWNobTZ0aHR6Y2o0eXR5dCI6MCwiZWt1c3ZhcGdwcGlrMzVqaiI6MCwieGE1ZTMyMm1nZWo0ZjR5cSI6MH0.NudHEcTQfUUuOaNr9vsFiJkQwaw4nTL6yjK93jXzqLY"
+            )
+            last_cleared_stage = end['result']['after_t_character_collections'][0]['contest_stage']
+            self.log(f"Cleared stage for {last_cleared_stage} for unit {unit_name}.")
+
+        self.log(f"Finished running Axel Contest for {unit_name} - Last cleared stage: {last_cleared_stage}")
+
+    def do_axel_contest_multiple_characters(self, number_of_characters, highest_stage_to_clear=1000):
+        unit_count = 0
+        units = self.find_characters_for_axel_contest(highest_stage_to_clear)
+        if len(units) <= 0:
+            self.log("Unable to find characters for axel contest")
+            return
+
+        while unit_count < number_of_characters and len(units) > 0:
+            char = units.pop()
+            char_def = self.getChar(char['m_character_id'])
+            if char_def is not None and 'name' in char_def:
+                self.log(f"Found char {char['id']} - {char_def['name']}")
+                self.do_axel_contest(char, highest_stage_to_clear)
+                unit_count += 1
+                self.log(f"Completed {unit_count} out of {number_of_characters} characters")
+            else:
+                continue
