@@ -135,7 +135,10 @@ class Items(Shop):
         self.player_innocents()
 
         items = []
+        weaps = []
+
         selling, skipping = self.filter_items(False, max_innocent_rank, max_innocent_type, max_rank, max_rarity, True)
+
         self.log('donate - skipping %s items' % skipping)
         if len(selling) > 0:
             for i in selling:
@@ -143,12 +146,17 @@ class Items(Shop):
                 self.log_donate(e)
                 try:
                     self.remove_innocents(e)
-                    items.append(i['eqid'])
+                    if i['eqtype'] == 1:
+                        weaps.append(i['eqid'])
+                    if i['eqtype'] == 2:
+                        items.append(i['eqid'])
                 except:
                     e = None
 
         for batch in (items[i:i + 20] for i in range(0, len(items), 20)):
             self.kingdom_weapon_equipment_entry(equip_ids=batch)
+        for batch in (weaps[i:i + 20] for i in range(0, len(weaps), 20)):
+            self.kingdom_weapon_equipment_entry(weap_ids=batch)
 
     def log_donate(self, w):
         item = self.getWeapon(w['m_weapon_id']) if 'm_weapon_id' in w else self.getEquip(w['m_equipment_id'])
