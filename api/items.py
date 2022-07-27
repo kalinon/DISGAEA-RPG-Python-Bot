@@ -207,3 +207,8 @@ class Items(Shop):
         self.log('refine success on item: "%s" rarity: %s rank: %s lv: %s lv_max: %s locked: %s' % (
             item['name'], w['rarity_value'], self.get_item_rank(w), w['lv'],
             w['lv_max'], w['lock_flg']))
+
+    def etna_get_all_rewards(self):
+        # trophy/get_reward_daily_request
+        data = self.rpc("trophy/get_reward_daily_request", {'receive_all': 1, 'id': 0})
+        return data

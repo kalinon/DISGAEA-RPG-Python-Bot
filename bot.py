@@ -188,6 +188,8 @@ def loop(team=9, rebirth=False, farm_stage_id=313515, only_weapons=False):
         print("- donate equipment")
         a.etna_donate(max_rarity=69, max_innocent_rank=8, max_innocent_type=5)
         a.etna_donate(max_rarity=69, max_innocent_rank=4, max_innocent_type=8)
+        refine_items(min_rarity=95, min_rank=40)
+        a.etna_get_all_rewards()
 
         print("- selling items")
         a.sellItems(max_rarity=69, max_rank=40, keep_max_lvl=False, only_max_lvl=True, max_innocent_rank=8,
@@ -197,7 +199,6 @@ def loop(team=9, rebirth=False, farm_stage_id=313515, only_weapons=False):
             use_ap(stage_id=farm_stage_id)
 
     clear_inbox()
-    refine_items(min_rarity=95, min_rank=40)
 
 
 # clear_inbox()
