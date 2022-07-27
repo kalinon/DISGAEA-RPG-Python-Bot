@@ -10,7 +10,7 @@ a.sess = os.getenv('DRPG_TOKEN')
 a.uin = os.getenv('DRPG_UIN')
 a.setRegion(2)
 a.setDevice(2)
-a.dologin()
+a.quick_login()
 
 codes = [
     # "drpgxhayzink",

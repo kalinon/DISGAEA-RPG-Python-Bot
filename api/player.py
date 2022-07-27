@@ -117,6 +117,8 @@ class Player(Base):
 
     def player_index(self):
         data = self.rpc('player/index', {})
+        if 'result' in data:
+            self.current_ap = int(data['result']['status']['act'])
         return data
 
     def player_agendas(self):
