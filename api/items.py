@@ -2,6 +2,27 @@ from api.shop import Shop
 
 
 class Items(Shop):
+    # Returns a list of player items with matching m_item_id
+    def get_item_by_m_item_id(self, m_item_id):
+        items = []
+        for i in self.items:
+            if i['m_item_id'] == m_item_id:
+                items.append(i)
+        return items
+
+    def get_item_by_id(self, iid):
+        for i in self.items:
+            if i['id'] == iid:
+                return i
+        return None
+
+    def update_item_counts(self, result):
+        if 't_items' in result:
+            for item in result['t_items']:
+                if 'id' in item['id']:
+                    index = self.items.index(self.get_item_by_id(item['id']))
+                    self.items[index] = item
+
     def remove_innocents(self, e):
         innos = self.get_item_innocents(e)
         if len(innos) > 0:
@@ -165,3 +186,31 @@ class Items(Shop):
             (item['name'], w['rarity_value'], self.get_item_rank(w), w['lv'],
              w['lv_max'], w['lock_flg'])
         )
+
+    def workshop_refine(self, w):
+        item = self.getWeapon(w['m_weapon_id']) if 'm_weapon_id' in w else self.getEquip(w['m_equipment_id'])
+        item_id = w['id']
+        item_type = 3 if 'm_weapon_id' in w else 4
+        success_type = 0
+
+        self.log('performing refine on item: "%s" rarity: %s rank: %s lv: %s lv_max: %s locked: %s' % (
+            item['name'], w['rarity_value'], self.get_item_rank(w), w['lv'],
+            w['lv_max'], w['lock_flg']))
+
+        while success_type != 1:
+            # prinny steel 3201
+            steel = self.get_item_by_m_item_id('3201')[0]
+            if steel['num'] > 0:
+                data = self.rpc("weapon_equipment/rarity_up", {'item_type': item_type, 'id': item_id})
+                self.update_item_counts(data['results'])
+
+                if 'success_type' in data['result']:
+                    success_type = data['result']['success_type']
+
+                    # Update the weapon/equip
+                    if 't_weapon' in data['result']:
+                        index = self.weapons.index(w)
+                        self.weapons[index] = data['result']['t_weapon']
+                    elif 't_equipment' in data['result']:
+                        index = self.equipments.index(w)
+                        self.equipments[index] = data['result']['t_equipment']
