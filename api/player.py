@@ -62,6 +62,20 @@ class Player(Base):
         self.equipments = self.equipments + data['result']['_items']
         return self.player_equipments(updated_at, page + 1)
 
+    def player_update_equip_detail(self, e, innos=None):
+        if innos is None:
+            innos = []
+
+        equip_type = 1 if self.get_weapon_by_id(e['id']) else 2
+        data = self.rpc("player/update_equip_detail", {
+            't_equip_id': e['id'],
+            'equip_type': equip_type,
+            'lock_flg': e['lock_flg'],
+            'innocent_auto_obey_flg': e['innocent_auto_obey_flg'],
+            'change_innocent_list': innos
+        })
+        self.update_equip(data['result'])
+
     # innocent_type
     #   1 = HP
     #   2 = ATK
@@ -97,6 +111,10 @@ class Player(Base):
         data = self.rpc('player/clear_stages', {"updated_at": updated_at, "page": page})
         return data
 
+    def player_stage_missions(self, updated_at, page):
+        data = self.rpc('player/stage_missions', {"updated_at": updated_at, "page": page})
+        return data
+
     def player_index(self):
         data = self.rpc('player/index', {})
         return data
@@ -119,10 +137,19 @@ class Player(Base):
         data = self.rpc('player/home_customizes', {})
         return data
 
-    def player_items(self):
-        data = self.rpc('player/items', {})
-        self.items = data['result']['_items']
-        return data
+    # def player_items(self, updated_at, page):
+    #     data = self.rpc('player/items', {"updated_at": updated_at, "page": page})
+    #     self.items = data['result']['_items']
+    #     return data
+
+    def player_items(self, updated_at=0, page=1):
+        if not hasattr(self, 'items') or page == 1:
+            self.items = []
+        data = self.rpc('player/items', {"updated_at": updated_at, "page": page})
+        if len(data['result']['_items']) <= 0:
+            return data
+        self.items = self.items + data['result']['_items']
+        return self.player_items(updated_at, page + 1)
 
     def player_stone_sum(self):
         data = self.rpc('player/stone_sum', {})

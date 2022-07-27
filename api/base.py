@@ -373,6 +373,10 @@ class Base(object, metaclass=ABCMeta):
                          "database_version": "0"})
         return data
 
+    def memory_index(self):
+        data = self.rpc('memory/index', {})
+        return data
+
     @abstractmethod
     def player_decks(self):
         pass

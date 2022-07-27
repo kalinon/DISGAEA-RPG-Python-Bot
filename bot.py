@@ -46,7 +46,7 @@ def farm_item_world(team=1, min_rarity=0, min_rank=0, min_item_rank=0, min_item_
 
 
 def do_gate(gate, team):
-    print("- running gate {}".format(gate['m_stage_id']))
+    a.log("[*] running gate {}".format(gate['m_stage_id']))
     current = int(gate['challenge_num'])
     max = int(gate['challenge_max'])
     while current < max:
@@ -107,13 +107,13 @@ def clear_event(area_lt):
 
 
 def use_ap(stage_id):
-    print("- using ap")
+    a.log("[*] using ap")
     times = int(a.current_ap / 30)
     farm_event_stage(stage_id=stage_id, team=5, times=times)
 
 
 def clear_inbox():
-    print("- clearing inbox")
+    a.log("[*] clearing inbox")
     ids = a.present_index(conditions=[0, 1, 2, 3, 4, 99], order=1)['result']['_items']
     last_id = None
     while len(ids) > 0:
@@ -135,12 +135,46 @@ def do_quest(stage_id):
     a.raid_check_and_send()
 
 
-def loop(team=9, rebirth=False, farm_stage_id=313515):
+def refine_items(max_rarity: int = 99, max_rank: int = 9999, min_rarity: int = 90, min_rank: int = 40):
+    a.log('[*] looking for items to refine')
+    weapons = []
+    equipments = []
+    for i in a.weapons:
+        if not a.check_item(item=i, max_rarity=max_rarity, max_rank=max_rank,
+                            min_rarity=min_rarity, min_rank=min_rank,
+                            skip_max_lvl=False, only_max_lvl=True,
+                            skip_equipped=False, skip_locked=False,
+                            max_innocent_rank=99, max_innocent_type=99,
+                            min_innocent_rank=0, min_innocent_type=0):
+            continue
+        weapons.append(i)
+
+    for i in a.equipments:
+        if not a.check_item(item=i, max_rarity=max_rarity, max_rank=max_rank,
+                            min_rarity=min_rarity, min_rank=min_rank,
+                            skip_max_lvl=False, only_max_lvl=True,
+                            skip_equipped=False, skip_locked=False,
+                            max_innocent_rank=99, max_innocent_type=99,
+                            min_innocent_rank=0, min_innocent_type=0):
+            continue
+        equipments.append(i)
+
+    a.log('[*] refine_items: found %s weapons and %s equipment to refine' % (len(weapons), len(equipments)))
+
+    for i in weapons:
+        a.workshop_refine(i)
+    for i in equipments:
+        a.workshop_refine(i)
+
+
+def loop(team=9, rebirth=False, farm_stage_id=313515, only_weapons=False):
     a.autoRebirth(rebirth)
     a.setTeamNum(team)
 
     if a.current_ap >= 6000:
-        a.do_axel_contest_multiple_characters(1)
+        # if farm_stage_id is None:
+        #     a.do_axel_contest_multiple_characters(6)
+        # else:
         use_ap(stage_id=farm_stage_id)
 
     for i in range(30):
@@ -148,7 +182,8 @@ def loop(team=9, rebirth=False, farm_stage_id=313515):
         a.get_mail_and_rewards()
 
         print("- farming item world")
-        farm_item_world(team=team, min_rarity=0, min_rank=40, min_item_rank=40, min_item_level=0, only_weapons=False)
+        farm_item_world(team=team, min_rarity=90, min_rank=40, min_item_rank=40, min_item_level=0,
+                        only_weapons=only_weapons)
 
         print("- donate equipment")
         a.etna_donate(max_rarity=69, max_innocent_rank=8, max_innocent_type=5)
@@ -162,25 +197,31 @@ def loop(team=9, rebirth=False, farm_stage_id=313515):
             use_ap(stage_id=farm_stage_id)
 
     clear_inbox()
+    refine_items(min_rarity=95, min_rank=40)
 
 
 # clear_inbox()
+
 # a.do_axel_contest_multiple_characters(2)
+# farm_event_stage(stage_id=114710104, times=10, team=6)
+# do_quest(108410101)
 
 # Daily tasks
-daily(bts=True)
+daily(bts=False)
 
 # a.autoRebirth(True)
 # a.setTeamNum(9)
 
 # # Uncomment to clear a new event area. Provide the first 4 digits of the m_area_id.
-# clear_event(get_event_areas(1132))
+# clear_event(get_event_areas(1142))
 
-# 1132105312 - misc stage
-# 1090105310 - Extra+ (HL)
-# 1090105311 - Extra+ (EXP)
-# 1090105312 - Extra+ (1★)
-# farm_event_stage(1, 1090105312, team=9)
+# 314109 - misc stage
+# 1142105310 - Extra+ (HL)
+# 1142105311 - Extra+ (EXP)
+# 1142105312 - Extra+ (1★)
+# 114710104 - Defensive Battle 4
+
+# farm_event_stage(1, 1142105312, team=9)
 
 # Full loop
-loop(team=9, rebirth=True, farm_stage_id=1132105312)
+loop(team=9, rebirth=True, farm_stage_id=1142105312)

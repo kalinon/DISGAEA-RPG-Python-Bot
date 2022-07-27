@@ -19,7 +19,7 @@ class Items(Shop):
     def update_item_counts(self, result):
         if 't_items' in result:
             for item in result['t_items']:
-                if 'id' in item['id']:
+                if 'id' in item:
                     index = self.items.index(self.get_item_by_id(item['id']))
                     self.items[index] = item
 
@@ -31,7 +31,7 @@ class Items(Shop):
                 ids.append(i['id'])
             data = self.rpc("innocent/remove_all", {"t_innocent_ids": ids, "cost": 0})
             if data['result']['after_t_data']:
-                self.update_equip_detail(e)
+                self.player_update_equip_detail(e)
                 for i in data['result']['after_t_data']['innocents']:
                     self.update_innocent(i)
             return data
@@ -55,23 +55,15 @@ class Items(Shop):
                 return inno
         return None
 
-    def update_equip_detail(self, e, innos=[]):
-        equip_type = 1 if self.get_weapon_by_id(e['id']) else 2
-        data = self.rpc("player/update_equip_detail", {
-            't_equip_id': e['id'],
-            'equip_type': equip_type,
-            'lock_flg': e['lock_flg'],
-            'innocent_auto_obey_flg': e['innocent_auto_obey_flg'],
-            'change_innocent_list': innos
-        })
-        if 't_weapon' in data['result']:
-            index = self.weapons.index(e)
-            self.weapons[index] = data['result']['t_weapon']
-        elif 't_equipment' in data['result']:
-            index = self.equipments.index(e)
-            self.equipments[index] = data['result']['t_equipment']
+    def update_equip(self, result):
+        if 't_weapon' in result:
+            index = self.weapons.index(self.get_weapon_by_id(result['t_weapon']['id']))
+            self.weapons[index] = result['t_weapon']
+        elif 't_equipment' in result:
+            index = self.equipments.index(self.get_equipment_by_id(result['t_equipment']['id']))
+            self.equipments[index] = result['t_equipment']
         else:
-            self.log("unable to update item with id: {0}".format(e['id']))
+            self.log("unable to update item")
 
     def update_innocent(self, inno):
         old_inno = self.get_innocent_by_id(inno['id'])
@@ -198,19 +190,20 @@ class Items(Shop):
             w['lv_max'], w['lock_flg']))
 
         while success_type != 1:
+            if w['lv'] != w['lv_max']:
+                break
+
             # prinny steel 3201
-            steel = self.get_item_by_m_item_id('3201')[0]
+            steel = self.get_item_by_m_item_id(3201)[0]
             if steel['num'] > 0:
                 data = self.rpc("weapon_equipment/rarity_up", {'item_type': item_type, 'id': item_id})
-                self.update_item_counts(data['results'])
+                self.update_item_counts(data['result'])
 
                 if 'success_type' in data['result']:
                     success_type = data['result']['success_type']
+                    self.update_equip(data['result'])
+            w = self.get_weapon_by_id(w['id']) if 'm_weapon_id' in w else self.get_equipment_by_id(w['id'])
 
-                    # Update the weapon/equip
-                    if 't_weapon' in data['result']:
-                        index = self.weapons.index(w)
-                        self.weapons[index] = data['result']['t_weapon']
-                    elif 't_equipment' in data['result']:
-                        index = self.equipments.index(w)
-                        self.equipments[index] = data['result']['t_equipment']
+        self.log('refine success on item: "%s" rarity: %s rank: %s lv: %s lv_max: %s locked: %s' % (
+            item['name'], w['rarity_value'], self.get_item_rank(w), w['lv'],
+            w['lv_max'], w['lock_flg']))

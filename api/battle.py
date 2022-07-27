@@ -36,6 +36,10 @@ class Battle(Player, metaclass=ABCMeta):
         data = self.rpc('battle/help_list', {})
         return data
 
+    def battle_skip_parties(self):
+        data = self.rpc('battle/skip_parties', {})
+        return data
+
     def battle_start(self, m_stage_id, help_t_player_id, help_t_character_id, act, help_t_character_lv):
         data = self.rpc('battle/start',
                         {"t_character_ids": [], "t_deck_no": self.teamNum(), "m_stage_id": m_stage_id,
