@@ -182,7 +182,7 @@ def loop(team=9, rebirth=False, farm_stage_id=313515, only_weapons=False):
         a.get_mail_and_rewards()
 
         print("- farming item world")
-        farm_item_world(team=team, min_rarity=90, min_rank=40, min_item_rank=40, min_item_level=0,
+        farm_item_world(team=team, min_rarity=0, min_rank=40, min_item_rank=40, min_item_level=0,
                         only_weapons=only_weapons)
 
         print("- donate equipment")
