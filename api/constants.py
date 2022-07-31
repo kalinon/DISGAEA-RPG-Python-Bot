@@ -1,5 +1,6 @@
 from enum import Enum, IntEnum
 
+
 class Constants:
     Current_Raid_ID = 143
     Current_Raid_Event_Point_Gacha = 52
@@ -10,9 +11,9 @@ class Constants:
     Current_Raid_Normal_Boss_ID = 1431
     Current_Raid_Badass_Boss_ID = 1432
     Current_Bingo_ID = 2
-    session_id = '' # FILL SESSION_ID HERE
-    user_id ='' # FILL USER_ID HERE
-    ticket = '' # FILL TICKET FOR STEAM LOGIN
+    session_id = ''  # FILL SESSION_ID HERE
+    user_id = ''  # FILL USER_ID HERE
+    ticket = ''  # FILL TICKET FOR STEAM LOGIN
 
 
 class Raid_Gacha_ID(IntEnum):
@@ -23,10 +24,12 @@ class Raid_Gacha_ID(IntEnum):
     MAKAI_KINGDOM_INNOCENT_REGULAR_ROULETTE = 53
     MAKAI_KINGDOM_INNOCENT_SPECIAL_ROULETTE = 54
 
+
 class Raid_ID(IntEnum):
     SUMMER_PRINNY_RAID_ID = 135
     MAKAI_KINGDOM_RAID_ID = 143
     KAGEMARU_RAID_ID = 0
+
 
 class Raid_Boss_Stage_Names(str, Enum):
     SUMMER_PRINNY_REGULAR_BOSS = "vs. Swimsuit Prinny"
@@ -38,21 +41,25 @@ class Raid_Boss_Stage_Names(str, Enum):
     KAGEMARU_REGULAR_BOSS = "vs. Kagemaru"
     KAGEMARU_BADASS_BOSS = "vs. Kagemaru Badass"
 
+
 class Fish_Fleet_Index(IntEnum):
     CHARACTER_EXP_FLEET = 1
     SKILL_EXP_FLEET = 2
     WM_EXP_FLEET = 3
-    
+
+
 class Fish_Fleet_Result_type(IntEnum):
     HARVEST_1 = 1
     NORMAL_HARVEST = 2
     SUPER_HARVEST = 3
+
 
 class Fish_Fleet_Survey_Duration(IntEnum):
     HOURS_6 = 6
     HOURS_12 = 12
     HOURS_18 = 18
     HOURS_24 = 24
+
 
 class Fish_Fleet_Area_Bribe_Status(IntEnum):
     VERY_FEW = 1
@@ -61,17 +68,20 @@ class Fish_Fleet_Area_Bribe_Status(IntEnum):
     MANY = 4
     VERY_MANY = 5
 
+
 class Innocent_Status(IntEnum):
     NOT_SUBDUED = 0
     SUBDUED = 1
     ESCAPED = 2
+
 
 class Innocent_Training_Result(IntEnum):
     NORMAL = 1
     NOT_BAD = 2
     DREAMLIKE = 3
 
-#There's innocent type and innocent id. The Glasses INT inno has the same type as the regular INT inno, but different ID
+
+# There's innocent type and innocent id. The Glasses INT inno has the same type as the regular INT inno, but different ID
 class Innocent_ID(IntEnum):
     HP = 1
     ATK = 2
