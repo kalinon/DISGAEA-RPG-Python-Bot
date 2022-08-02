@@ -202,6 +202,21 @@ class Raid(Player, metaclass=ABCMeta):
                         f"Obtained innocent of type {innocent_type} and value: {reward_data['result']['after_t_data']['innocents'][0]['effect_values'][0]}")
         self.log("Finished claiming raid rewards.")
 
+    def raid_claim_surplus_points(self):
+        print("Exchanging surplus raid points for HL...")
+        raid_data = self.client.event_index(Constants.Current_Raid_ID)
+        exchanged_points = raid_data['result']['events'][0]['exchanged_surplus_point']
+        if(exchanged_points == 1000000):
+            print(f"\tAll surplus points exchanged.")
+            return
+        current_points = raid_data['result']['events'][0]['point']
+        if(current_points < 100):
+            print(f"Not enough points to exchange: {current_points}")
+            return
+        points_to_exchange = min(1000000 - exchanged_points, current_points)
+        r = self.client.raid_exchange_surplus_points(points_to_exchange)
+        print(f"Exchanged {points_to_exchange} points")
+
     def raid_farm_shared_bosses(self, party_to_use):
         boss_count = 0
         available_raid_bosses = self.raid_find_all_available_bosses()

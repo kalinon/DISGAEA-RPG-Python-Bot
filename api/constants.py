@@ -6,8 +6,8 @@ class Constants:
     Current_Raid_Event_Point_Gacha = 52
     Current_Raid_Innocent_Regular_Roulette = 53
     Current_Raid_Innocent_Special_Roulette = 54
-    Current_Raid_Regular_Boss_Stage = "vs. Dark Lord Valvoga"
-    Current_Raid_Badass_Boss_Stage = "vs. Dark Lord Valvoga Badass"
+    Current_Raid_Regular_Boss_Stage = "vs. Kagemaru"
+    Current_Raid_Badass_Boss_Stage = "vs. Kagemaru Badass"
     Current_Raid_Normal_Boss_ID = 1431
     Current_Raid_Badass_Boss_ID = 1432
     Current_Bingo_ID = 2
@@ -23,6 +23,9 @@ class Raid_Gacha_ID(IntEnum):
     MAKAI_KINGDOM_EVENT_POINT = 52
     MAKAI_KINGDOM_INNOCENT_REGULAR_ROULETTE = 53
     MAKAI_KINGDOM_INNOCENT_SPECIAL_ROULETTE = 54
+    KAGEMARU_KINGDOM_EVENT_POINT = 58
+    KAGEMARU_KINGDOM_INNOCENT_REGULAR_ROULETTE = 59
+    KAGEMARU_KINGDOM_INNOCENT_SPECIAL_ROULETTE = 60
 
 
 class Raid_ID(IntEnum):
@@ -91,3 +94,7 @@ class Innocent_ID(IntEnum):
     SPD = 6
     EXP = 7
     HL = 8
+
+class EquipmentType(IntEnum):
+    WEAPON = 1
+    ARMOR = 2

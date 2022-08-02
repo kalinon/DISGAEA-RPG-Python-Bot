@@ -1,12 +1,16 @@
+import datetime
 import os
 
+from dateutil import parser
+
+from api.constants import Constants, EquipmentType, Innocent_ID
 from main import API
 
 a = API()
 # a.setProxy("127.0.0.1:8080")
 a.config(
-    sess=os.getenv('DRPG_TOKEN'),
-    uin=os.getenv('DRPG_UIN'),
+    sess=os.getenv('DRPG_TOKEN', default=Constants.session_id),
+    uin=os.getenv('DRPG_UIN', default=Constants.user_id),
     wait=0,
     region=2,
     device=2
@@ -26,7 +30,7 @@ for code in codes:
 
 
 def farm_event_stage(times, stage_id, team):
-    a.o.team_num = (team)
+    a.o.team_num = team
     for i in range(times):
         do_quest(stage_id)
 
@@ -75,6 +79,10 @@ def do_gates(gates_data, gem_team=7, hl_team=8):
 
 def daily(bts=False, team=9):
     a.get_mail_and_rewards()
+    send_sardines()
+
+    # Buy items from HL shop
+    a.buy_daily_items_from_shop()
 
     if bts:
         a.o.team_num = team
@@ -109,8 +117,14 @@ def clear_event(area_lt):
 
 def use_ap(stage_id):
     a.log("[*] using ap")
-    times = int(a.current_ap / 30)
-    farm_event_stage(stage_id=stage_id, team=5, times=times)
+
+    if stage_id is None:
+        for i in range(1, 5):
+            for unit_id in a.pd.deck(i):
+                a.do_axel_contest(unit_id, 1000)
+    else:
+        times = int(a.current_ap / 30)
+        farm_event_stage(stage_id=stage_id, team=5, times=times)
 
 
 def clear_inbox():
@@ -119,8 +133,7 @@ def clear_inbox():
     last_id = None
     while len(ids) > 0:
         a.get_mail()
-        a.sell_items(max_rarity=69, max_item_rank=40, keep_max_lvl=True, only_max_lvl=False,
-                     max_innocent_rank=8, max_innocent_type=8)
+
         ids = a.client.present_index(conditions=[0, 1, 2, 3, 4, 99], order=1)['result']['_items']
         if len(ids) == 0:
             break
@@ -128,6 +141,9 @@ def clear_inbox():
         if new_last_id == last_id:
             a.log("- inbox is empty or didnt change")
             break
+        else:
+            a.sell_items(max_rarity=69, max_item_rank=40, keep_max_lvl=True, only_max_lvl=False,
+                         max_innocent_rank=8, max_innocent_type=Innocent_ID.HL)
         last_id = new_last_id
 
 
@@ -149,10 +165,10 @@ def refine_items(max_rarity: int = 99, max_item_rank: int = 9999, min_rarity: in
                                        min_innocent_rank=0, min_innocent_type=0)
     for item in items:
         equip_type = a.pd.get_equip_type(item)
-        if equip_type == 2:
-            equipments.append(item)
-        else:
+        if equip_type == EquipmentType.WEAPON:
             weapons.append(item)
+        # else:
+        #   equipments.append(item)
 
     a.log('[*] refine_items: found %s weapons and %s equipment to refine' % (len(weapons), len(equipments)))
 
@@ -162,16 +178,45 @@ def refine_items(max_rarity: int = 99, max_item_rank: int = 9999, min_rarity: in
         a.etna_resort_refine_item(i['id'])
 
 
+def spin_hospital():
+    # Server time is utc -4. Spins available every 8 hours
+    last_roulete_time_string = a.client.hospital_index()['result']['last_hospital_at']
+    last_roulette_time = parser.parse(last_roulete_time_string)
+    utcminus4time = datetime.datetime.utcnow() + datetime.timedelta(hours=-4)
+    if utcminus4time > last_roulette_time + datetime.timedelta(hours=8):
+        result = a.client.hospital_roulette()
+
+
+def send_sardines():
+    # Send sardines
+    player_data = a.client.player_index()
+    if player_data['result']['act_give_count']['act_send_count'] == 0:
+        a.client.friend_send_sardines()
+
+
+def do_bingo():
+    bingo_data = a.client.bingo_index(Constants.Current_Bingo_ID)
+    if a.bingo_is_spin_available():
+        spin_result = a.client.bingo_lottery(Constants.Current_Bingo_ID, False)
+        spin_index = spin_result['result']['t_bingo_data']['last_bingo_index']
+        print(f"Bingo spinned. Obtained number {spin_result['result']['t_bingo_data']['display_numbers'][spin_index]}.")
+        free_reward_positions = [0, 3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33]
+        bingo_rewards = spin_result['result']['rewards']
+        free_rewards = [bingo_rewards[i] for i in free_reward_positions]
+        available_free_rewards = [x for x in free_rewards if x['status'] == 1]
+        if (len(available_free_rewards) > 0):
+            print(f"There are {len(available_free_rewards)} free rewards available to claim.")
+
+
 def loop(team=9, rebirth=False, farm_stage_id=None, only_weapons=False):
     a.o.auto_rebirth = rebirth
     a.o.team_num = team
 
+    spin_hospital()
+    a.survey_complete_all_expeditions_and_start_again(use_bribes=True, hours=24)
+
     if a.current_ap >= 6000:
-        if farm_stage_id is None:
-            for unit_id in a.pd.deck(1):
-                a.do_axel_contest(unit_id, 1000)
-        else:
-            use_ap(stage_id=farm_stage_id)
+        use_ap(stage_id=farm_stage_id)
 
     for i in range(30):
         a.log("- claiming rewards")
@@ -198,7 +243,7 @@ def loop(team=9, rebirth=False, farm_stage_id=None, only_weapons=False):
     clear_inbox()
 
 
-clear_inbox()
+# clear_inbox()
 
 # a.do_axel_contest_multiple_characters(2)
 # farm_event_stage(stage_id=114710104, times=10, team=6)
