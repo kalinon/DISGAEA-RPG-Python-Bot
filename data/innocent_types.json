@@ -134,5 +134,9 @@
   {
     "ID": 49,
     "Name": "Spear ATK"
+  },
+  {
+    "ID": 50,
+    "Name": "Bow ATK"
   }
 ]

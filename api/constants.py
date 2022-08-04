@@ -2,19 +2,18 @@ from enum import Enum, IntEnum
 
 
 class Constants:
-    Current_Raid_ID = 143
-    Current_Raid_Event_Point_Gacha = 52
-    Current_Raid_Innocent_Regular_Roulette = 53
-    Current_Raid_Innocent_Special_Roulette = 54
+    Current_Raid_ID = 156
+    Current_Raid_Event_Point_Gacha = 58
+    Current_Raid_Innocent_Regular_Roulette = 59
+    Current_Raid_Innocent_Special_Roulette = 60
     Current_Raid_Regular_Boss_Stage = "vs. Kagemaru"
     Current_Raid_Badass_Boss_Stage = "vs. Kagemaru Badass"
-    Current_Raid_Normal_Boss_ID = 1431
-    Current_Raid_Badass_Boss_ID = 1432
+    Current_Raid_Normal_Boss_ID = 1561
+    Current_Raid_Badass_Boss_ID = 1562
     Current_Bingo_ID = 2
     session_id = ''  # FILL SESSION_ID HERE
     user_id = ''  # FILL USER_ID HERE
     ticket = ''  # FILL TICKET FOR STEAM LOGIN
-
 
 class Raid_Gacha_ID(IntEnum):
     SUMMER_PRINNY_EVENT_POINT = 49
@@ -23,9 +22,12 @@ class Raid_Gacha_ID(IntEnum):
     MAKAI_KINGDOM_EVENT_POINT = 52
     MAKAI_KINGDOM_INNOCENT_REGULAR_ROULETTE = 53
     MAKAI_KINGDOM_INNOCENT_SPECIAL_ROULETTE = 54
-    KAGEMARU_KINGDOM_EVENT_POINT = 58
-    KAGEMARU_KINGDOM_INNOCENT_REGULAR_ROULETTE = 59
-    KAGEMARU_KINGDOM_INNOCENT_SPECIAL_ROULETTE = 60
+    KAGEMARU_EVENT_POINT = 58
+    KAGEMARU_KINNOCENT_REGULAR_ROULETTE = 59
+    KAGEMARU_INNOCENT_SPECIAL_ROULETTE = 60
+    MADOKA_EVENT_POINT = 61
+    MADOKA_INNOCENT_REGULAR_ROULETTE = 62
+    MADOKA_INNOCENT_SPECIAL_ROULETTE = 63
 
 
 class Raid_ID(IntEnum):
