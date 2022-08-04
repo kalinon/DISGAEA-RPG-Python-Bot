@@ -141,9 +141,9 @@ def clear_inbox():
         if new_last_id == last_id:
             a.log("- inbox is empty or didnt change")
             break
-        else:
-            a.sell_items(max_rarity=69, max_item_rank=40, keep_max_lvl=True, only_max_lvl=False,
-                         max_innocent_rank=8, max_innocent_type=Innocent_ID.HL)
+        # else:
+        #     a.sell_items(max_rarity=69, max_item_rank=40, keep_max_lvl=True, only_max_lvl=False,
+        #                  max_innocent_rank=8, max_innocent_type=Innocent_ID.HL)
         last_id = new_last_id
 
 
@@ -167,8 +167,8 @@ def refine_items(max_rarity: int = 99, max_item_rank: int = 9999, min_rarity: in
         equip_type = a.pd.get_equip_type(item)
         if equip_type == EquipmentType.WEAPON:
             weapons.append(item)
-        else:
-            equipments.append(item)
+        # else:
+        #     equipments.append(item)
 
     a.log('[*] refine_items: found %s weapons and %s equipment to refine' % (len(weapons), len(equipments)))
 
@@ -222,7 +222,7 @@ def loop(team=9, rebirth=False, farm_stage_id=None, only_weapons=False):
         a.log("- claiming rewards")
         a.get_mail_and_rewards()
 
-        refine_items(min_rarity=90, min_item_rank=40)
+        refine_items(min_rarity=89, min_item_rank=40)
 
         a.log("- farming item world")
         farm_item_world(team=team, min_rarity=0, min_rank=40, min_item_rank=40, min_item_level=0,
@@ -241,8 +241,6 @@ def loop(team=9, rebirth=False, farm_stage_id=None, only_weapons=False):
         if a.current_ap >= 6000:
             use_ap(stage_id=farm_stage_id)
 
-
-clear_inbox()
 
 # clear_inbox()
 
@@ -268,4 +266,4 @@ daily(bts=False)
 # farm_event_stage(1, 1154105312, team=9)
 
 # Full loop
-loop(team=9, rebirth=True, farm_stage_id=None)
+loop(team=9, rebirth=True, farm_stage_id=1154105312)

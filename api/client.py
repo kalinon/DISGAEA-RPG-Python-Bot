@@ -3,6 +3,7 @@ import json
 import sys
 import time
 
+import jwt
 import requests
 # noinspection PyUnresolvedReferences
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
@@ -36,7 +37,7 @@ class Client:
         tmp = 'http://' + proxy
         self.s.proxies.update({'http': tmp, 'https': tmp})
 
-    def __rpc(self, method: str, prms: dict):
+    def __rpc(self, method: str, prms: dict, current_iv=None):
         return self.__call_api(
             'rpc', {
                 "rpc": {
@@ -45,13 +46,15 @@ class Client:
                     "prms": json.dumps(prms, separators=(',', ':')),
                     "method": method
                 }
-            })
+            }, current_iv=current_iv)
 
-    def __call_api(self, url: str, data=None):
+    def __call_api(self, url: str, data=None, current_iv=None):
         if self.o.wait >= 1:
             time.sleep(self.o.wait)
 
-        current_iv = self.c.randomiv()
+        if current_iv is None:
+            current_iv = self.c.randomiv()
+
         self._set_headers(url, current_iv)
         if data is None:
             r = self.s.get(self.o.main_url + url)
@@ -242,6 +245,25 @@ class Client:
                 })
         return data
 
+    def common_battle_result_jwt(self, iv, mission_status: str = '',
+                                 killed_character_num: int = 0, steal_hl_num: int = 0,
+                                 command_count: int = 1):
+        data = {
+            "hfbm784khk2639pf": mission_status,
+            # max_once_damage
+            "ypb282uttzz762wx": 9621642,
+            # total_receive_damage
+            "dppcbew9mz8cuwwn": 1572605948,
+            "zacsv6jev4iwzjzm": killed_character_num,
+            "kyqyni3nnm3i2aqa": 0,
+            "echm6thtzcj4ytyt": 0,
+            # steal_hl_num
+            "ekusvapgppik35jj": steal_hl_num,
+            # command_count
+            "xa5e322mgej4f4yq": command_count
+        }
+        return jwt.encode(data, iv, algorithm="HS256")
+
     # Start API CALLS
     ####################
 
@@ -286,28 +308,45 @@ class Client:
         return self.__rpc('battle/skip_parties', {})
 
     def battle_start(self, m_stage_id, help_t_player_id=None, help_t_character_id=0, act=0, help_t_character_lv=0,
-                     deck_no=1, deck=None, raid_status_id=0):
+                     deck_no=1, deck=None, raid_status_id=0, character_ids=None, memory_ids=[]):
         if help_t_player_id is None:
             help_t_player_id = []
         if deck is None:
             deck = []
-        return self.__rpc('battle/start',
-                          {"t_character_ids": [], "t_deck_no": deck_no, "m_stage_id": m_stage_id,
-                           "m_guest_character_id": 0, "help_t_player_id": help_t_player_id,
-                           "t_raid_status_id": raid_status_id,
-                           "auto_rebirth_t_character_ids": deck, "act": act,
-                           "help_t_character_id": help_t_character_id,
-                           "help_t_character_lv": help_t_character_lv})
+
+        prms = {
+            "t_deck_no": deck_no, "m_stage_id": m_stage_id,
+            "m_guest_character_id": 0, "help_t_player_id": help_t_player_id,
+            "t_raid_status_id": raid_status_id,
+            "auto_rebirth_t_character_ids": deck,
+            "act": act,
+            "help_t_character_id": help_t_character_id,
+            "help_t_character_lv": help_t_character_lv,
+        }
+
+        if len(memory_ids) >= 1:
+            while len(memory_ids) < 5:
+                memory_ids.append(0)
+            prms['t_memory_ids'] = memory_ids
+
+        if character_ids is not None:
+            prms["t_character_ids"] = character_ids
+
+        return self.__rpc('battle/start', prms)
 
     def battle_end(self, m_stage_id, battle_type, result=0, battle_exp_data=[], equipment_id: int = 0,
-                   equipment_type: int = 0, m_tower_no: int = 0, raid_status_id: int = 0, raid_battle_result: str = '',
-                   skip_party_update_flg: bool = True, common_battle_result=None):
+                   equipment_type: int = 0, m_tower_no: int = 0,
+                   raid_status_id: int = 0, raid_battle_result: str = '',
+                   skip_party_update_flg: bool = True, common_battle_result=None,
+                   division_battle_result: (str, None) = None,
+                   current_iv=None
+                   ):
 
         if common_battle_result is None:
             common_battle_result = self.o.common_battle_result
 
         if raid_battle_result != '':
-            return self.__rpc('battle/end', {
+            prms = {
                 "m_stage_id": m_stage_id,
                 "m_tower_no": m_tower_no,
                 "equipment_id": equipment_id,
@@ -322,9 +361,9 @@ class Client:
                 "battle_exp_data": battle_exp_data,
                 "common_battle_result": common_battle_result,
                 "skip_party_update_flg": skip_party_update_flg,
-            })
+            }
         else:
-            return self.__rpc('battle/end', {
+            prms = {
                 "battle_exp_data": battle_exp_data,
                 "equipment_type": equipment_type,
                 "m_tower_no": m_tower_no,
@@ -337,7 +376,12 @@ class Client:
                 "innocent_dead_flg": 0,
                 "skip_party_update_flg": skip_party_update_flg,
                 "common_battle_result": common_battle_result,
-            })
+            }
+
+        if division_battle_result is not None:
+            prms['division_battle_result'] = division_battle_result
+
+        return self.__rpc('battle/end', prms, current_iv=current_iv)
 
     def battle_story(self, m_stage_id):
         return self.__rpc('battle/story', {"m_stage_id": m_stage_id})
@@ -663,7 +707,7 @@ class Client:
         return self.__rpc('breeding_center/entrust', {"t_weapon_ids": t_weapon_ids, "t_equipment_ids": t_equipment_ids})
 
     #################
-    # Misc Endpoints
+    # Survey Endpoints
     #################
 
     def survey_index(self):
@@ -679,6 +723,33 @@ class Client:
     # bribe data [{"m_item_id":401,"num":4}]
     def survey_use_bribe_item(self, m_survey_id, bribe_data):
         return self.__rpc('survey/use_bribe_item', {"m_survey_id": m_survey_id, "bribe_data": bribe_data})
+
+    #################
+    # Division Endpoints
+    #################
+
+    def division_index(self):
+        return self.__rpc('division/index', {})
+
+    def division_ranking(self, division_battle_id):
+        return self.__rpc('division/ranking', {"m_division_battle_id": division_battle_id})
+
+    # "result": {
+    #   "after_t_division_battle_status": {
+    #     "id": 7929,
+    #     "t_player_id": 136974,
+    #     "m_division_battle_id": 2,
+    #     "m_stage_id": 0,
+    #     "t_memory_ids": [],
+    #     "killed_t_character_ids": [],
+    #     "current_battle_count": 0,
+    #     "current_turn_count": 0,
+    #     "current_max_damage_rate": 0,
+    #     "boss_hp": 0
+    #   }
+    # }
+    def division_reset(self, division_battle_id):
+        return self.__rpc('division/reset', {"m_division_battle_id": division_battle_id})
 
     #################
     # Misc Endpoints
