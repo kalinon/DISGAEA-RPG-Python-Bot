@@ -47,7 +47,7 @@ def farm_item_world(team=1, min_rarity=0, min_rank=0, min_item_rank=0, min_item_
     # Only upgrade items with the following rank
     a.o.min_item_rank = min_item_rank
     # This runs item-world to level all your items.
-    a.upgrade_items(only_weapons=only_weapons)
+    a.upgrade_items(only_weapons=only_weapons, ensure_drops=True)
 
 
 def do_gate(gate, team):
@@ -152,7 +152,7 @@ def do_quest(stage_id):
     a.raid_check_and_send()
 
 
-def refine_items(max_rarity: int = 99, max_item_rank: int = 9999, min_rarity: int = 90, min_item_rank: int = 40):
+def refine_items(max_rarity: int = 99, max_item_rank: int = 9999, min_rarity: int = 90, min_item_rank: int = 40, limit=None):
     a.log('[*] looking for items to refine')
     weapons = []
     equipments = []
@@ -163,12 +163,16 @@ def refine_items(max_rarity: int = 99, max_item_rank: int = 9999, min_rarity: in
                                        skip_equipped=False, skip_locked=False,
                                        max_innocent_rank=99, max_innocent_type=99,
                                        min_innocent_rank=0, min_innocent_type=0)
+
+    if limit is not None:
+        items = items[0:limit]
+
     for item in items:
         equip_type = a.pd.get_equip_type(item)
         if equip_type == EquipmentType.WEAPON:
             weapons.append(item)
-        # else:
-        #     equipments.append(item)
+        else:
+            equipments.append(item)
 
     a.log('[*] refine_items: found %s weapons and %s equipment to refine' % (len(weapons), len(equipments)))
 
@@ -222,10 +226,10 @@ def loop(team=9, rebirth=False, farm_stage_id=None, only_weapons=False):
         a.log("- claiming rewards")
         a.get_mail_and_rewards()
 
-        refine_items(min_rarity=89, min_item_rank=40)
+        #refine_items(min_rarity=89, min_item_rank=40, limit=1)
 
         a.log("- farming item world")
-        farm_item_world(team=team, min_rarity=0, min_rank=40, min_item_rank=40, min_item_level=0,
+        farm_item_world(team=team, min_rarity=0, min_rank=0, min_item_rank=0, min_item_level=0,
                         only_weapons=only_weapons)
 
         a.log("- donate equipment")
@@ -234,9 +238,9 @@ def loop(team=9, rebirth=False, farm_stage_id=None, only_weapons=False):
         a.etna_resort_donate_items(max_item_rarity=69, max_innocent_rank=4, max_innocent_type=8)
         a.etna_resort_get_all_daily_rewards()
 
-        a.log("- selling items")
-        a.sell_items(max_rarity=69, max_item_rank=40, keep_max_lvl=False, only_max_lvl=True, max_innocent_rank=8,
-                     max_innocent_type=8)
+        # a.log("- selling items")
+        # a.sell_items(max_rarity=69, max_item_rank=40, keep_max_lvl=False, only_max_lvl=True, max_innocent_rank=8,
+        #              max_innocent_type=Innocent_ID.HL)
 
         if a.current_ap >= 6000:
             use_ap(stage_id=farm_stage_id)
