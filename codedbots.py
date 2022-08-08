@@ -12,7 +12,7 @@ class codedbots(object):
     def __init__(self):
         self.s = requests.Session()
         # self.s.proxies.update({'http': 'http://127.0.0.1:8080', 'https': 'http://127.0.0.1:8080', })
-        self.license = os.getenv('BOT_TOKEN')
+        self.license = os.getenv('BOT_TOKEN', default='')
         if len(self.license) != 64:
             print('license invalid')
             exit(1)

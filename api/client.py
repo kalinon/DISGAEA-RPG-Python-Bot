@@ -1,3 +1,4 @@
+from ast import List
 import base64
 import json
 import sys
@@ -15,6 +16,7 @@ from api.logger import Logger
 from api.options import Options
 from boltrend import boltrend
 from codedbots import codedbots
+from typing import List
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
@@ -482,6 +484,10 @@ class Client:
     def raid_update(self, m_raid_boss_id, step):
         return self.__rpc('raid_boss/update', {"m_raid_boss_id": m_raid_boss_id, "step": step})
 
+    def raid_exchange_surplus_points(self, points_to_exchange):
+        data = self.__rpc('event/exchange_surplus_point', {"m_event_id":Constants.Current_Raid_ID,"exchange_count":points_to_exchange})
+        return data
+
     #################
     # Gacha Endpoints
     #################
@@ -598,7 +604,7 @@ class Client:
     def player_badges(self):
         return self.__rpc('player/badges', {})
 
-    def player_update_equip_detail(self, e: dict, innocents: list[int] = []):
+    def player_update_equip_detail(self, e: dict, innocents: List[int] = []):
         equip_type = 1 if 'm_weapon_id' in e else 2
         return self.__rpc("player/update_equip_detail", {
             't_equip_id': e['id'],
@@ -615,10 +621,10 @@ class Client:
     def kingdom_entries(self):
         return self.__rpc('kingdom/entries', {})
 
-    def kingdom_weapon_equipment_entry(self, weap_ids: list[int] = [], equip_ids: list[int] = []):
+    def kingdom_weapon_equipment_entry(self, weap_ids: List[int] = [], equip_ids: List[int] = []):
         return self.__rpc("kingdom/weapon_equipment_entry", {'t_weapon_ids': weap_ids, 't_equipment_ids': equip_ids})
 
-    def kingdom_innocent_entry(self, innocent_ids: list[int] = []):
+    def kingdom_innocent_entry(self, innocent_ids: List[int] = []):
         return self.__rpc("kingdom/innocent_entry", {'t_innocent_ids': innocent_ids})
 
     def etna_resort_refine(self, item_type, _id):
@@ -634,7 +640,7 @@ class Client:
     def shop_equipment_shop(self):
         return self.__rpc('shop/equipment_shop', {})
 
-    def shop_buy_equipment(self, item_type: int, itemid: list[int]):
+    def shop_buy_equipment(self, item_type: int, itemid: List[int]):
         return self.__rpc('shop/buy_equipment', {"item_type": item_type, "ids": [itemid]})
 
     def shop_buy_item(self, itemid: int, quantity: int):

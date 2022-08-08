@@ -189,18 +189,36 @@ class Raid(Player, metaclass=ABCMeta):
         self.log(f"Finished spinning the raid roulette")
 
     def raid_claim_all_boss_rewards(self):
-        self.log("Claiming raid boss battle rewards.")
+        print("Claiming raid boss battle rewards.")
         innocent_types = gamedata['innocent_types']
-        battle_logs = self.client.raid_history(Constants.Current_Raid_ID)['result']['battle_logs']
-        for i in battle_logs:
-            if not i['already_get_present']:
+        finished = False
+        while not finished:
+            battle_logs = self.client.raid_history(Constants.Current_Raid_ID)['result']['battle_logs']
+            battles_to_claim = [x for x in battle_logs if not x['already_get_present']]
+            finished = len(battles_to_claim) == 0       
+            for i in battles_to_claim:
                 reward_data = self.client.raid_reward(i['t_raid_status']['id'])
                 if len(reward_data['result']['after_t_data']['innocents']) > 0:
-                    innocent_type = [x for x in innocent_types if
-                                     x['ID'] == reward_data['result']['after_t_data']['innocents'][0]['m_innocent_id']]
-                    self.log(
-                        f"Obtained innocent of type {innocent_type} and value: {reward_data['result']['after_t_data']['innocents'][0]['effect_values'][0]}")
-        self.log("Finished claiming raid rewards.")
+                    innocent_type = next((x for x in innocent_types if x['ID'] == reward_data['result']['after_t_data']['innocents'][0]['m_innocent_id']),None)
+                    if(innocent_type is None):
+                        print(f"\tSpecial type id = {reward_data['result']['after_t_data']['innocents'][0]['m_innocent_id']}")
+                    print(f"\tObtained innocent of type {innocent_type} and value: {reward_data['result']['after_t_data']['innocents'][0]['effect_values'][0]}")
+        print("Finished claiming raid rewards.")
+
+    def raid_claim_surplus_points(self):
+        print("Exchanging surplus raid points for HL...")
+        raid_data = self.client.event_index(Constants.Current_Raid_ID)
+        exchanged_points = raid_data['result']['events'][0]['exchanged_surplus_point']
+        if(exchanged_points == 1000000):
+            print(f"\tAll surplus points exchanged.")
+            return
+        current_points = raid_data['result']['events'][0]['point']
+        if(current_points < 100):
+            print(f"Not enough points to exchange: {current_points}")
+            return
+        points_to_exchange = min(1000000 - exchanged_points, current_points)
+        r = self.client.raid_exchange_surplus_points(points_to_exchange)
+        print(f"Exchanged {points_to_exchange} points")
 
     def raid_farm_shared_bosses(self, party_to_use):
         boss_count = 0
