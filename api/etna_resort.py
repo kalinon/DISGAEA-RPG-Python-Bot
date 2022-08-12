@@ -288,6 +288,28 @@ class EtnaResort(Items, metaclass=ABCMeta):
         self.log(
             f"Refined item. Attempts used {attempt_count}. Rarity increase: {result}. Current rarity {final_rarity}")
 
+    def etna_resort_remake_item(self,item_id):
+        e = self.pd.get_weapon_by_id(item_id)
+        if e is not None:
+            item_type = 3
+        else:
+            item_type = 4
+            e = self.pd.get_equipment_by_id(item_id)
+
+        if(e['lv'] != e['lv_max']):
+            print("Item is not at max level...")
+            return
+        if(e['rarity_value'] < 70):
+            print("Item is not legendary")
+            return
+        if(e['remake_count'] ==10):
+            print("Item at max rank already")
+            return
+            
+        res = self.client.etna_resort_remake(item_type, item_id)
+
+        print(f"\tItem rank increased.")
+        
     def innocent_get_training_result(self, training_result):
         if training_result == Innocent_Training_Result.NORMAL:
             return "Normal"

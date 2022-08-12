@@ -40,63 +40,12 @@ class Raid(Player, metaclass=ABCMeta):
         }]
         return res
 
-    def raid_find_stageid(self, m_raid_boss_id, level):
-        # 1351 is regular boss, 1352 badass boss
-        is_badass = m_raid_boss_id % 2 == 0
-        dic = gamedata['stages']
-        normal_stages = [x for x in dic if x['name'] == Constants.Current_Raid_Regular_Boss_Stage]
-        badass_stages = [x for x in dic if x['name'] == Constants.Current_Raid_Badass_Boss_Stage]
-        stages = []
-        if is_badass:
-            stages = badass_stages
-        else:
-            stages = normal_stages
-
-        index = -1
-        if is_badass:
-            if level <= 9925:
-                index = 0
-            if level > 9925 and level <= 10394:
-                index = 2
-            if level > 10394 and level <= 11080:
-                index = 3
-            if level > 11080 and level <= 13138:
-                index = 4
-            if level > 13138 and level <= 13825:
-                index = 5
-            if level > 13825 and level <= 15197:
-                index = 6
-            if level == 15883:
-                index = 7
-            if level > 15883 and level <= 17256:
-                index = 8
-            if level == 17256:
-                index = 9
-            if level > 17256:
-                index = 10
-        if not is_badass:
-            if level <= 9925:
-                index = 0
-            if level > 9925 and level <= 10932:
-                index = 2
-            if level > 10932 and level <= 12141:
-                index = 3
-            if level > 12141 and level <= 13149:
-                index = 4
-            if level > 13149 and level <= 13955:
-                index = 5
-            if level > 13955 and level <= 15164:
-                index = 6
-            if level > 15164 and level <= 16172:
-                index = 7
-            if level > 16172 and level <= 16978:
-                index = 8
-            if level > 16978 and level <= 18187:
-                index = 9
-            if level > 18187:
-                index = 10
-        if index != -1:
-            return stages[index]['id']
+    def raid_find_stageid(self, m_raid_boss_id, raid_boss_level):
+        all_boss_level_data = gamedata['raid_boss_level_data']
+        raid_boss_level_data = [x for x in all_boss_level_data if x['m_raid_boss_id'] == m_raid_boss_id]
+        stage = next((x for x in raid_boss_level_data if raid_boss_level >= x['min_level'] and raid_boss_level <= x['max_level']), None)
+        if(stage is not None):
+            return stage['m_stage_id']
         return 0
 
     def raid_get_all_bosses(self):

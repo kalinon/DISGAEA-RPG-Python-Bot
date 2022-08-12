@@ -340,7 +340,7 @@ class Client:
                    equipment_type: int = 0, m_tower_no: int = 0,
                    raid_status_id: int = 0, raid_battle_result: str = '',
                    skip_party_update_flg: bool = True, common_battle_result=None,
-                   division_battle_result: (str, None) = None,
+                   division_battle_result: str = None,
                    current_iv=None
                    ):
 
@@ -630,6 +630,10 @@ class Client:
     def etna_resort_refine(self, item_type, _id):
         return self.__rpc('weapon_equipment/rarity_up', {"item_type": item_type, "id": _id})
 
+    def etna_resort_remake(self, item_type, id):
+        data = self.rpc('weapon_equipment/remake', {"item_type":item_type,"id":id})
+        return data
+
     #################
     # Shop Endpoints
     #################
@@ -756,6 +760,22 @@ class Client:
     # }
     def division_reset(self, division_battle_id):
         return self.__rpc('division/reset', {"m_division_battle_id": division_battle_id})
+
+    #################
+    # Item World Survey Endpoints
+    #################
+    
+    def item_world_survey_index(self):
+        data = self.__rpc('item_world_survey/index', {})
+        return data
+
+    def item_world_survey_start(self, t_weapon_ids: List[int] = [], t_equipment_ids: List[int] = []):
+        data = self.__rpc('item_world_survey/start',{"t_weapon_ids":t_weapon_ids,"t_equipment_ids":t_equipment_ids})
+        return data
+
+    def item_world_survey_end(self, t_weapon_ids: List[int] = [], t_equipment_ids: List[int] = [], cancel: bool = False):
+        data = self.__rpc('item_world_survey/end', {"t_weapon_ids":t_weapon_ids,"t_equipment_ids":t_equipment_ids,"cancel":cancel})
+        return data
 
     #################
     # Misc Endpoints

@@ -26,6 +26,10 @@ class Shop(Player, metaclass=ABCMeta):
         item = [x for x in product_data if x['m_product_id'] == 1121][0]
         if item['buy_num'] == 0:
             self.client.shop_buy_item(1121, 1)
+        #BP refill
+        item = [x for x in product_data if x['m_product_id'] == 111][0]
+        if(item['buy_num'] == 0):
+            self.client.shop_buy_item(111, 3)
 
     def buy_all_equipment_with_innocents(self, shop_rank):
         self.log("Buying all equipment with innocents...")
