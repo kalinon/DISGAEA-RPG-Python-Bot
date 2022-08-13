@@ -35,11 +35,11 @@ class ItemSurvey(Player, metaclass=ABCMeta):
             if(len(weapons_finished) > 0 or len(equipments_finished)> 0):
                 print(f"\tRetrieving {len(weapons_finished)} weapons and {len(equipments_finished)} items")
                 result = self.client.item_world_survey_end(weapons_finished, equipments_finished, False)
-                if (result['error'] == 'Armor Slot is full\nPlease expand slot or sell armor' or result['error'] == 'Weapon Slot is full\nPlease expand slot or sell weapon'):
-                        sell_equipments = result['error'] == 'Armor Slot is full\nPlease expand slot or sell armor'
-                        sell_weapons = result['error'] == 'Weapon Slot is full\nPlease expand slot or sell weapon'
-                        self.shop_free_inventory_space(sell_weapons, sell_equipments, 10)
-                        retry = True
+                if(result['error'] == Constants.Armor_Full_Error or result['error'] == Constants.Weapon_Full_Error):
+                    sell_equipments = result['error'] == Constants.Armor_Full_Error
+                    sell_weapons = result['error'] == Constants.Weapon_Full_Error
+                    self.shop_free_inventory_space(sell_weapons, sell_equipments, 10)
+                    retry = True
         if(auto_donate):
             self.client.kingdom_weapon_equipment_entry(weap_ids=weapons_finished, equip_ids=equipments_finished)
         

@@ -1,6 +1,6 @@
 from abc import ABCMeta
 
-from api.constants import Innocent_Training_Result
+from api.constants import Constants, Innocent_Training_Result
 from api.items import Items
 
 
@@ -99,10 +99,9 @@ class EtnaResort(Items, metaclass=ABCMeta):
             if total_to_retrieve > 0:
                 result = self.client.breeding_center_pick_up(weapons_to_retrieve, equipments_to_retrieve)
 
-                if (result['error'] == 'Maximum armour slot reached' or result[
-                    'error'] == 'Maximum weapon slot reached'):
-                    sell_equipments = result['error'] == 'Maximum armour slot reached'
-                    sell_weapons = result['error'] == 'Maximum weapon slot reached'
+                if(result['error'] == Constants.Armor_Full_Error or result['error'] == Constants.Weapon_Full_Error):
+                    sell_equipments = result['error'] == Constants.Armor_Full_Error
+                    sell_weapons = result['error'] == Constants.Weapon_Full_Error
                     self.shop_free_inventory_space(sell_weapons, sell_equipments, 20)
                     retry = True
 
@@ -295,7 +294,11 @@ class EtnaResort(Items, metaclass=ABCMeta):
         else:
             item_type = 4
             e = self.pd.get_equipment_by_id(item_id)
-
+        
+        item_rank = self.gd.get_item_rank(e)
+        if(item_rank != 40):
+            print("Can only remake r40 items")
+            return
         if(e['lv'] != e['lv_max']):
             print("Item is not at max level...")
             return
@@ -307,8 +310,11 @@ class EtnaResort(Items, metaclass=ABCMeta):
             return
             
         res = self.client.etna_resort_remake(item_type, item_id)
-
-        print(f"\tItem rank increased.")
+        if(item_type == 3):
+            remake_count = res['result']['after_t_data']['weapons'][0]['remake_count']
+        else:
+            remake_count = res['result']['after_t_data']['equipments'][0]['remake_count']
+        self.log(f"\tItem rank increased. Rank upgrade count: {remake_count}")
         
     def innocent_get_training_result(self, training_result):
         if training_result == Innocent_Training_Result.NORMAL:
