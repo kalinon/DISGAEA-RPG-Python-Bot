@@ -495,10 +495,10 @@ class Client:
     def gacha_available(self):
         return self.__rpc('gacha/available', {})
 
-    def gacha_do(self, is_gacha_free, price, item_type, num, m_gacha_id, item_id):
+    def gacha_do(self, is_gacha_free, price, item_type, num, m_gacha_id, item_id, total_draw_count):
         return self.__rpc('gacha/do',
                           {"is_gacha_free": is_gacha_free, "price": price, "item_type": item_type, "num": num,
-                           "m_gacha_id": m_gacha_id, "item_id": item_id})
+                           "m_gacha_id": m_gacha_id, "item_id": item_id, "total_draw_count":total_draw_count})
 
     def gacha_sums(self):
         return self.__rpc('gacha/sums', {})

@@ -12,9 +12,13 @@ class Constants:
     Current_Raid_Badass_Boss_ID = 1562
     Current_Bingo_ID = 2
     Item_Survey_Deposit_Size = 10
+    Weapon_Full_Error = 'Weapon Slot is full\nPlease expand slot or sell weapons'
+    Armor_Full_Error = 'Armor Slot is full\nPlease expand slot or sell armor'
+    Shop_Max_Free_Refresh = 5
     session_id = ''  # FILL SESSION_ID HERE
     user_id = ''  # FILL USER_ID HERE
     ticket = ''  # FILL TICKET FOR STEAM LOGIN
+
 
 
 class Raid_Gacha_ID(IntEnum):
