@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import random
 import string
+from api.constants import  EquipmentType
 
 from api import BaseAPI
 
@@ -131,6 +132,13 @@ class API(BaseAPI):
             else:
                 break
 
+    def friend_print_full_list(self):
+        print("\nPrinting full friend list....")
+        data = self.client.__rpc('friend/index', {})
+        for friend in data['result']['friends']:
+            print(f"\tName: {friend['name']} - ID: {friend['id']}")
+        print("\n\n")
+
     def doQuest(self, m_stage_id=101102):
         stage = self.gd.get_stage(m_stage_id)
         self.log('doing quest:%s [%s]' % (stage['name'], m_stage_id))
@@ -156,20 +164,59 @@ class API(BaseAPI):
         res = self.parseReward(end)
         return res
 
-    def upgrade_items(self, ensure_drops: bool = False, only_weapons: bool = False, run_limit: (int, None) = None):
+    def doQuest_force_friend(self, m_stage_id, help_t_player_id):
+        stage = self.gd.get_stage(m_stage_id)
+        self.log('doing quest:%s [%s]' % (stage['name'], m_stage_id))
+        if stage['exp'] == 0:
+            return self.client.battle_story(m_stage_id)
+        help_player = self.battle_help_get_friend_by_id(help_t_player_id)
+        start = self.client.battle_start(
+            m_stage_id=m_stage_id,
+            help_t_player_id=help_player['t_player_id'],
+            help_t_character_id=help_player['t_character']['id'],
+            act=stage['act'],
+            help_t_character_lv=help_player['t_character']['lv'])
+        if 'result' not in start:
+            return
+        self.client.battle_help_list()
+        end = self.client.battle_end(battle_exp_data=self.get_battle_exp_data(start),
+                              m_stage_id=m_stage_id,
+                              battle_type=1,
+                              result=1)
+        res = self.parseReward(end)
+        return res
 
-        self.player_innocents(True)
-        self.player_weapons(True)
-        self.upgrade_item_list(self.pd.weapons, equipment_type=1, ensure_drops=ensure_drops, only_weapons=only_weapons)
-        self.player_equipment(True)
-        self.upgrade_item_list(self.pd.equipment, equipment_type=2, ensure_drops=ensure_drops,
-                               only_weapons=only_weapons)
+    def do_conquest_battle(self, m_stage_id=101102, t_character_ids=[]):
+        stage = self.gd.get_stage(m_stage_id)
+        self.log('doing conquest battle:%s [%s]' % (stage['name'], m_stage_id))
+        start = self.client.battle_start(
+            m_stage_id=m_stage_id,
+            help_t_player_id=0,
+            help_t_character_id=0,
+            act=stage['act'],
+            help_t_character_lv=0,
+            t_character_ids = t_character_ids)
+        if 'result' not in start:
+            return
+        end = self.client.battle_end(battle_exp_data=self.get_battle_exp_data(start),
+                              m_stage_id=m_stage_id,
+                              battle_type=1,
+                              result=1)
+        res = self.parseReward(end)
+        return res
 
-    def upgrade_item_list(self, items, equipment_type: int, ensure_drops: bool = False, only_weapons: bool = False):
+    def upgrade_items(self, ensure_drops: bool = False, only_weapons: bool = False, run_limit: int = None):
+        self.player_innocents(False)
+        self.player_weapons(False)
+        self.upgrade_item_list(self.pd.weapons, equipment_type=EquipmentType.WEAPON, ensure_drops=ensure_drops, only_weapons=only_weapons, run_limit = run_limit)
+        self.player_equipment(False)
+        self.upgrade_item_list(self.pd.equipment, equipment_type=EquipmentType.ARMOR, ensure_drops=ensure_drops,
+                               only_weapons=only_weapons, run_limit = run_limit)
+
+    def upgrade_item_list(self, items, equipment_type: int, ensure_drops: bool = False, only_weapons: bool = False, run_limit: int = None):
         # items = filter(self.weapon_filter, items)
         for w in filter(self.__item_filter, items):
             self.client.trophy_get_reward_repetition()
-            self.get_mail()
             self.log_upgrade_item(w)
             while 1:
                 if not self.doItemWorld(
