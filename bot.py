@@ -253,7 +253,7 @@ def loop(team=9, rebirth=False, farm_stage_id=None, only_weapons=False):
 # do_quest(108410101)
 
 # Daily tasks
-daily(bts=False)
+# daily(bts=False)
 
 # a.autoRebirth(True)
 # a.setTeamNum(9)
@@ -268,6 +268,10 @@ daily(bts=False)
 # 114710104 - Defensive Battle 4
 
 # farm_event_stage(1, 1154105312, team=9)
+a.etna_donate_innocents(max_innocent_rank=4, max_innocent_type=Innocent_ID.HL)
+items, skip = a.pd.filter_items(only_max_lvl=True, skip_equipped=True)
+for item in items:
+    a.remove_innocents(item)
 
 # Full loop
 loop(team=9, rebirth=True, farm_stage_id=1154105312)
