@@ -237,13 +237,17 @@ class Client:
                 "uuid": self.o.uuid
             })
         else:
-            data = self.__call_api(
-                'sdk/login', {
-                    "platform": self.o.platform,
-                    "sess": self.o.sess,
-                    "sdk": "BC4D6C8AE94230CC",
-                    "region": "non_mainland",
-                    "uin": self.o.uin
+            if(self.o.platform == 'Steam'):
+                data = self.__call_api(
+                    'steam/login', {'openId': Constants.user_id, 'ticket': Constants.ticket}) 
+            else:
+                data = self.__call_api(
+                    'sdk/login', {
+                        "platform": self.o.platform,
+                        "sess": self.o.sess,
+                        "sdk": "BC4D6C8AE94230CC",
+                        "region": "non_mainland",
+                        "uin": self.o.uin
                 })
         return data
 
@@ -875,7 +879,7 @@ class Client:
     def item_use(self, use_item_id: int, use_item_num: int):
         return self.__rpc('item/use', {"use_item_id": use_item_id, "use_item_num": use_item_num})
 
-    def tower_start(self, m_tower_no: int, deck_no: int):
+    def tower_start(self, m_tower_no: int, deck_no: int = 1):
         return self.__rpc('tower/start', {"t_deck_no": deck_no, "m_tower_no": m_tower_no})
 
     def axel_context_battle_start(self, act, m_character_id: int, t_character_ids):

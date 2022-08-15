@@ -65,5 +65,8 @@ class Options:
         self.device = str(r)
         if self.device == '1':
             self.platform = 'iOS'
-        else:
+        if self.device == '2':
             self.platform = 'Android'
+        if self.device == '3':
+            self.platform = 'Steam'
+            self.device = '2'

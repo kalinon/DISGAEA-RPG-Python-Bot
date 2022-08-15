@@ -132,13 +132,6 @@ class API(BaseAPI):
             else:
                 break
 
-    def friend_print_full_list(self):
-        print("\nPrinting full friend list....")
-        data = self.client.__rpc('friend/index', {})
-        for friend in data['result']['friends']:
-            print(f"\tName: {friend['name']} - ID: {friend['id']}")
-        print("\n\n")
-
     def doQuest(self, m_stage_id=101102):
         stage = self.gd.get_stage(m_stage_id)
         self.log('doing quest:%s [%s]' % (stage['name'], m_stage_id))
@@ -255,8 +248,8 @@ class API(BaseAPI):
              w['lv_max'], w['lock_flg'])
         )
 
-    def doTower(self, m_tower_no=1):
-        start = self.client.tower_start(m_tower_no)
+    def doTower(self, m_tower_no=1, deck_no=1):
+        start = self.client.tower_start(m_tower_no, deck_no)
         end = self.client.battle_end(battle_exp_data=self.get_battle_exp_data(start), m_tower_no=m_tower_no,
                                      m_stage_id=0,
                                      battle_type=4, result=1)
