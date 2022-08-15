@@ -212,7 +212,7 @@ class EtnaResort(Items, metaclass=ABCMeta):
                 self.kingdom_innocent_entry(innocent_ids=batch)
 
     def etna_resort_donate_items(self, max_innocent_rank: int = 10, max_innocent_type: int = 8,
-                                 max_item_rank: int = 100, max_item_rarity: int = 40):
+                                 max_item_rank: int = 100, max_item_rarity: int = 40, remove_innocents: bool = False):
         self.log("Looking for items to donate...")
         self.player_equipment(True)
         self.player_weapons(True)
@@ -234,7 +234,8 @@ class EtnaResort(Items, metaclass=ABCMeta):
         if len(items) > 0:
             for item in items:
                 equip_type = self.pd.get_equip_type(item)
-                self.remove_innocents(item)
+                if remove_innocents:
+                    self.remove_innocents(item)
 
                 if equip_type == 2:
                     ec += 1

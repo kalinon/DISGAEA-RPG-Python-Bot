@@ -7,3 +7,4 @@ venv
 .env
 sp_nesh_auto_account.xml
 examples/decode.py
+auto_pilot.py
