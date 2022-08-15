@@ -1,6 +1,5 @@
 import random
 import time
-
 from abc import ABCMeta
 
 from api.player import Player
@@ -72,7 +71,7 @@ class Battle(Player, metaclass=ABCMeta):
                 return 1
 
             # no drop, ensuring drops, retry
-            if reward_id == 101:
+            if start['result']['stage'] in {30, 60, 90, 100} and reward_id == 101:
                 return 5
 
             # drop, no Item General/King/God stage, continue
@@ -87,13 +86,14 @@ class Battle(Player, metaclass=ABCMeta):
             item = self.gd.get_weapon(reward_id) if reward_type == 3 else self.gd.get_equipment(reward_id)
 
             # drop, rank less than min_rank, retry
-            if self.gd.get_item_rank(item) < self.o.min_rank:
+            reward_rank = self.gd.get_item_rank(item)
+            if reward_rank < self.o.min_rank:
                 return 5
 
             if item is None:
                 item = {'name': ''}
 
-            self.log('[+] found item:%s with rarity:%s' % (item['name'], reward_rarity))
+            self.log('[+] found item: %s with rarity: %s rank: %s' % (item['name'], reward_rarity, reward_rank))
             return 1
         else:
             return 1

@@ -12,7 +12,7 @@ logger.addHandler(handler)
 
 class Logger:
     @staticmethod
-    def log(msg, level):
+    def log(msg, level: int = logging.DEBUG):
         logger.log(level, '[%s] %s' % (time.strftime('%H:%M:%S'), msg))
 
     @staticmethod

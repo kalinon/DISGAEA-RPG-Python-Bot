@@ -1,9 +1,6 @@
-import datetime
 import os
 
-from dateutil import parser
-
-from api.constants import Constants, EquipmentType, Innocent_ID
+from api.constants import Constants, EquipmentType, Innocent_ID, Fish_Fleet_Survey_Duration
 from main import API
 
 a = API()
@@ -35,7 +32,8 @@ def farm_event_stage(times, stage_id, team):
         do_quest(stage_id)
 
 
-def farm_item_world(team=1, min_rarity=0, min_rank=0, min_item_rank=0, min_item_level=0, only_weapons=False):
+def farm_item_world(team=1, min_rarity=0, min_rank=0, min_item_rank=0, min_item_level=0, only_weapons=False,
+                    item_limit=None):
     # Change the party: 1-9
     a.o.team_num = team
     # This changes the minimum rarity of equipments found in the item-world. 1 = common, 40 = rare, 70 = Legendary
@@ -46,8 +44,20 @@ def farm_item_world(team=1, min_rarity=0, min_rank=0, min_item_rank=0, min_item_
     a.o.min_item_level = min_item_level
     # Only upgrade items with the following rank
     a.o.min_item_rank = min_item_rank
+
+    items = a.items_to_upgrade()
+    if len(items) == 0:
+        refine_items(min_rarity=89, min_item_rank=40, limit=1)
+        items = a.items_to_upgrade()
+
+    if len(items) == 0:
+        a.log_err('No items to farm! Where they all at?')
+        exit(1)
+
+    a.log('found %s items to upgrade' % len(items))
+
     # This runs item-world to level all your items.
-    a.upgrade_items(only_weapons=only_weapons, ensure_drops=True)
+    a.upgrade_items(only_weapons=only_weapons, ensure_drops=True, item_limit=item_limit, items=items)
 
 
 def do_gate(gate, team):
@@ -62,7 +72,6 @@ def do_gate(gate, team):
 
 def do_gates(gates_data, gem_team=7, hl_team=8):
     a.log("- checking gates")
-    team = 1
     for data in gates_data:
         a.log("- checking gate {}".format(data['m_area_id']))
         if data['m_area_id'] == 50102:
@@ -74,15 +83,18 @@ def do_gates(gates_data, gem_team=7, hl_team=8):
             continue
 
         for gate in data['gate_stage_data']:
+            if a.current_ap < 10:
+                a.log('Too low on ap to do gates')
+                return
             do_gate(gate, team)
 
 
-def daily(bts=False, team=9):
+def daily(bts: bool = False, team: int = 9, gem_team: int = 22, hl_team: int = 21):
     a.get_mail_and_rewards()
     send_sardines()
 
     # Buy items from HL shop
-    a.buy_daily_items_from_shop()
+    # a.buy_daily_items_from_shop()
 
     if bts:
         a.o.team_num = team
@@ -95,7 +107,7 @@ def daily(bts=False, team=9):
 
     # Do gates
     gates_data = a.client.player_gates()['result']
-    do_gates(gates_data, gem_team=7, hl_team=8)
+    do_gates(gates_data, gem_team=gem_team, hl_team=hl_team)
 
 
 # Will return an array of event area ids based on the event id.
@@ -115,7 +127,7 @@ def clear_event(area_lt):
                 do_quest(c['id'])
 
 
-def use_ap(stage_id):
+def use_ap(stage_id, event_team: int = 1):
     a.log("[*] using ap")
 
     if stage_id is None:
@@ -124,7 +136,7 @@ def use_ap(stage_id):
                 a.do_axel_contest(unit_id, 1000)
     else:
         times = int(a.current_ap / 30)
-        farm_event_stage(stage_id=stage_id, team=5, times=times)
+        farm_event_stage(stage_id=stage_id, team=event_team, times=times)
 
 
 def clear_inbox():
@@ -152,7 +164,8 @@ def do_quest(stage_id):
     a.raid_check_and_send()
 
 
-def refine_items(max_rarity: int = 99, max_item_rank: int = 9999, min_rarity: int = 90, min_item_rank: int = 40, limit=None):
+def refine_items(max_rarity: int = 99, max_item_rank: int = 9999, min_rarity: int = 90, min_item_rank: int = 40,
+                 limit=None):
     a.log('[*] looking for items to refine')
     weapons = []
     equipments = []
@@ -182,15 +195,6 @@ def refine_items(max_rarity: int = 99, max_item_rank: int = 9999, min_rarity: in
         a.etna_resort_refine_item(i['id'])
 
 
-def spin_hospital():
-    # Server time is utc -4. Spins available every 8 hours
-    last_roulete_time_string = a.client.hospital_index()['result']['last_hospital_at']
-    last_roulette_time = parser.parse(last_roulete_time_string)
-    utcminus4time = datetime.datetime.utcnow() + datetime.timedelta(hours=-4)
-    if utcminus4time > last_roulette_time + datetime.timedelta(hours=8):
-        result = a.client.hospital_roulette()
-
-
 def send_sardines():
     # Send sardines
     player_data = a.client.player_index()
@@ -198,39 +202,38 @@ def send_sardines():
         a.client.friend_send_sardines()
 
 
-def do_bingo():
-    bingo_data = a.client.bingo_index(Constants.Current_Bingo_ID)
-    if a.bingo_is_spin_available():
-        spin_result = a.client.bingo_lottery(Constants.Current_Bingo_ID, False)
-        spin_index = spin_result['result']['t_bingo_data']['last_bingo_index']
-        print(f"Bingo spinned. Obtained number {spin_result['result']['t_bingo_data']['display_numbers'][spin_index]}.")
-        free_reward_positions = [0, 3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33]
-        bingo_rewards = spin_result['result']['rewards']
-        free_rewards = [bingo_rewards[i] for i in free_reward_positions]
-        available_free_rewards = [x for x in free_rewards if x['status'] == 1]
-        if (len(available_free_rewards) > 0):
-            print(f"There are {len(available_free_rewards)} free rewards available to claim.")
-
-
-def loop(team=9, rebirth=False, farm_stage_id=None, only_weapons=False):
+def loop(team=9, rebirth: bool = False, farm_stage_id=None,
+         only_weapons=False, iw_team: int = None, raid_team: int = None, event_team: int = None):
     a.o.auto_rebirth = rebirth
     a.o.team_num = team
 
-    spin_hospital()
-    a.survey_complete_all_expeditions_and_start_again(use_bribes=True, hours=24)
+    if iw_team is None:
+        iw_team = team
+    if raid_team is None:
+        raid_team = team
+    if event_team is None:
+        event_team = team
 
-    if a.current_ap >= 6000:
+    if a.current_ap >= 1000:
         use_ap(stage_id=farm_stage_id)
 
-    for i in range(30):
-        a.log("- claiming rewards")
+    while True:
+        a.log("- claiming rewards and hospital")
         a.get_mail_and_rewards()
+        a.spin_hospital()
 
-        #refine_items(min_rarity=89, min_item_rank=40, limit=1)
+        a.log("- checking item world survey")
+        a.item_survey_complete_and_start_again(min_item_rank_to_deposit=40, auto_donate=True)
+
+        a.log("- checking expeditions")
+        a.survey_complete_all_expeditions_and_start_again(use_bribes=True, hours=Fish_Fleet_Survey_Duration.HOURS_24)
+
+        a.log("- checking raids")
+        a.do_raids(raid_team)
 
         a.log("- farming item world")
-        farm_item_world(team=team, min_rarity=0, min_rank=0, min_item_rank=0, min_item_level=0,
-                        only_weapons=only_weapons)
+        farm_item_world(team=iw_team, min_rarity=0, min_rank=40, min_item_rank=40, min_item_level=0,
+                        only_weapons=only_weapons, item_limit=5)
 
         a.log("- donate equipment")
         a.etna_donate_innocents(max_innocent_rank=4, max_innocent_type=Innocent_ID.RES)
@@ -238,12 +241,14 @@ def loop(team=9, rebirth=False, farm_stage_id=None, only_weapons=False):
         a.etna_resort_donate_items(max_item_rarity=69, max_innocent_rank=4, max_innocent_type=8)
         a.etna_resort_get_all_daily_rewards()
 
-        # a.log("- selling items")
-        # a.sell_items(max_rarity=69, max_item_rank=40, keep_max_lvl=False, only_max_lvl=True, max_innocent_rank=8,
-        #              max_innocent_type=Innocent_ID.HL)
+        a.log("- selling excess items")
+        a.sell_items(max_item_rank=39, skip_max_lvl=True, only_max_lvl=False,
+                     max_innocent_rank=8, max_innocent_type=Innocent_ID.HL)
+        a.sell_items(max_rarity=69, max_item_rank=39, skip_max_lvl=True, only_max_lvl=False, max_innocent_rank=8,
+                     max_innocent_type=Innocent_ID.RES)
 
-        if a.current_ap >= 6000:
-            use_ap(stage_id=farm_stage_id)
+        if a.current_ap >= 1000:
+            use_ap(stage_id=farm_stage_id, event_team=event_team)
 
 
 # clear_inbox()
@@ -253,7 +258,7 @@ def loop(team=9, rebirth=False, farm_stage_id=None, only_weapons=False):
 # do_quest(108410101)
 
 # Daily tasks
-# daily(bts=False)
+daily(bts=False, gem_team=22, hl_team=21)
 
 # a.autoRebirth(True)
 # a.setTeamNum(9)
@@ -268,10 +273,11 @@ def loop(team=9, rebirth=False, farm_stage_id=None, only_weapons=False):
 # 114710104 - Defensive Battle 4
 
 # farm_event_stage(1, 1154105312, team=9)
-a.etna_donate_innocents(max_innocent_rank=4, max_innocent_type=Innocent_ID.HL)
-items, skip = a.pd.filter_items(only_max_lvl=True, skip_equipped=True)
-for item in items:
-    a.remove_innocents(item)
+# a.etna_donate_innocents(max_innocent_rank=4, max_innocent_type=Innocent_ID.RES)
+# items, skip = a.pd.filter_items(only_max_lvl=True, skip_equipped=True)
+# for item in items:
+#     a.remove_innocents(item)
+
 
 # Full loop
-loop(team=9, rebirth=True, farm_stage_id=1154105312)
+loop(team=9, raid_team=23, iw_team=22, event_team=9, rebirth=True, farm_stage_id=1154105312)

@@ -10,6 +10,7 @@ class Raid(Player, metaclass=ABCMeta):
 
     def __init__(self):
         super().__init__()
+        self.raid_boss_count = 0
 
     def raid_battle_start(self, stage_id, raid_status_id, raid_party):
         return self.client.battle_start(m_stage_id=stage_id, raid_status_id=raid_status_id,
@@ -43,8 +44,9 @@ class Raid(Player, metaclass=ABCMeta):
     def raid_find_stageid(self, m_raid_boss_id, raid_boss_level):
         all_boss_level_data = gamedata['raid_boss_level_data']
         raid_boss_level_data = [x for x in all_boss_level_data if x['m_raid_boss_id'] == m_raid_boss_id]
-        stage = next((x for x in raid_boss_level_data if raid_boss_level >= x['min_level'] and raid_boss_level <= x['max_level']), None)
-        if(stage is not None):
+        stage = next((x for x in raid_boss_level_data if
+                      raid_boss_level >= x['min_level'] and raid_boss_level <= x['max_level']), None)
+        if stage is not None:
             return stage['m_stage_id']
         return 0
 
@@ -89,6 +91,8 @@ class Raid(Player, metaclass=ABCMeta):
             return
         initial_stones_spin = initial_stones
         uses_left = 5000 - current_uses
+        current_stones = 0
+
         while uses_left > 0 and current_points >= 100:
             uses_to_claim = min(uses_left, 100)
             points_needed = uses_to_claim * 100
@@ -133,7 +137,8 @@ class Raid(Player, metaclass=ABCMeta):
             innocent_type = [x for x in innocent_types if
                              x['ID'] == data['result']['after_t_data']['innocents'][0]['m_innocent_id']]
             self.log(
-                f"{special_spin}Obtained innocent of type {innocent_type} and value: {data['result']['after_t_data']['innocents'][0]['effect_values'][0]}")
+                f"{special_spin}Obtained innocent of type {innocent_type} and" +
+                f" value: {data['result']['after_t_data']['innocents'][0]['effect_values'][0]}")
 
         self.log(f"Finished spinning the raid roulette")
 
@@ -144,30 +149,34 @@ class Raid(Player, metaclass=ABCMeta):
         while not finished:
             battle_logs = self.client.raid_history(Constants.Current_Raid_ID)['result']['battle_logs']
             battles_to_claim = [x for x in battle_logs if not x['already_get_present']]
-            finished = len(battles_to_claim) == 0       
+            finished = len(battles_to_claim) == 0
             for i in battles_to_claim:
                 reward_data = self.client.raid_reward(i['t_raid_status']['id'])
                 if len(reward_data['result']['after_t_data']['innocents']) > 0:
-                    innocent_type = next((x for x in innocent_types if x['ID'] == reward_data['result']['after_t_data']['innocents'][0]['m_innocent_id']),None)
-                    if(innocent_type is None):
-                        print(f"\tSpecial type id = {reward_data['result']['after_t_data']['innocents'][0]['m_innocent_id']}")
-                    print(f"\tObtained innocent of type {innocent_type} and value: {reward_data['result']['after_t_data']['innocents'][0]['effect_values'][0]}")
-        print("Finished claiming raid rewards.")
+                    innocent_type = next((x for x in innocent_types if
+                                          x['ID'] == reward_data['result']['after_t_data']['innocents'][0][
+                                              'm_innocent_id']), None)
+                    if innocent_type is None:
+                        self.log(
+                            f"\tSpecial type id = {reward_data['result']['after_t_data']['innocents'][0]['m_innocent_id']}")
+                    self.log(
+                        f"\tObtained innocent of type {innocent_type} and value: {reward_data['result']['after_t_data']['innocents'][0]['effect_values'][0]}")
+        self.log("Finished claiming raid rewards.")
 
     def raid_claim_surplus_points(self):
         print("Exchanging surplus raid points for HL...")
         raid_data = self.client.event_index(Constants.Current_Raid_ID)
         exchanged_points = raid_data['result']['events'][0]['exchanged_surplus_point']
-        if(exchanged_points == 1000000):
-            print(f"\tAll surplus points exchanged.")
+        if exchanged_points == 1000000:
+            self.log(f"\tAll surplus points exchanged.", 30)
             return
         current_points = raid_data['result']['events'][0]['point']
-        if(current_points < 100):
-            print(f"Not enough points to exchange: {current_points}")
+        if current_points < 100:
+            self.log(f"Not enough points to exchange: {current_points}", 30)
             return
         points_to_exchange = min(1000000 - exchanged_points, current_points)
         r = self.client.raid_exchange_surplus_points(points_to_exchange)
-        print(f"Exchanged {points_to_exchange} points")
+        self.log(f"Exchanged {points_to_exchange} points")
 
     def raid_farm_shared_bosses(self, party_to_use):
         boss_count = 0
@@ -194,3 +203,13 @@ class Raid(Player, metaclass=ABCMeta):
             if not i['is_send_help']:
                 sharing_result = self.client.raid_send_help_request(i['id'])
                 self.log("Shared boss with %s users" % sharing_result['result']['send_help_count'])
+
+    def do_raids(self, team: int):
+        available_raid_bosses = self.raid_find_all_available_bosses()
+        for raid_boss in available_raid_bosses:
+            raid_stage_id = self.raid_find_stageid(raid_boss['m_raid_boss_id'], raid_boss['level'])
+            if raid_stage_id != 0:
+                battle_start_data = self.raid_battle_start(raid_stage_id, raid_boss['id'], team)
+                battle_end_data = self.raid_battle_end_giveup(raid_stage_id, raid_boss['id'])
+                self.raid_boss_count += 1
+                self.log(f"Farmed boss with level {raid_boss['level']}. Total bosses farmed: {self.raid_boss_count}")

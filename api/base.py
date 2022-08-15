@@ -24,8 +24,8 @@ class Base(object, metaclass=ABCMeta):
     def options(self):
         return self.o
 
-    def log(self, msg):
-        Logger.info(msg)
+    def log(self, msg, level=20):
+        Logger.log(msg, level)
 
     def log_err(self, msg):
         Logger.error(msg)
