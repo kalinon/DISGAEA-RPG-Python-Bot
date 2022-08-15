@@ -269,8 +269,8 @@ class API(BaseAPI):
              w['lv_max'], w['lock_flg'])
         )
 
-    def doTower(self, m_tower_no=1):
-        start = self.client.tower_start(m_tower_no, self.o.team_num)
+    def doTower(self, m_tower_no=1, deck_no=1):
+        start = self.client.tower_start(m_tower_no, deck_no)
         end = self.client.battle_end(battle_exp_data=self.get_battle_exp_data(start), m_tower_no=m_tower_no,
                                      m_stage_id=0,
                                      battle_type=4, result=1)

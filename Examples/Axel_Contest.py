@@ -14,7 +14,7 @@ a.quick_login()
 
 # Set active party and print the IDs of the characters. Use them to run axel contest
 a.options.team_num = 1
-print(a.pd.deck)
+print(a.pd.deck())
 exit(0)
 
 unitID = 11111111
