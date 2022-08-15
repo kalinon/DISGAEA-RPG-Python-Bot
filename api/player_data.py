@@ -1,3 +1,4 @@
+from typing import Iterable
 from api.game_data import GameData
 from api.logger import Logger
 from api.options import Options
@@ -7,20 +8,20 @@ class PlayerData:
     def __init__(self, options):
         self.gd: GameData = GameData()
         self.o: Options = options
-        self.decks: [dict] = []
-        self.gems: [dict] = []
-        self.items: [dict] = []
-        self.weapons: [dict] = []
-        self.equipment: [dict] = []
-        self.innocents: [dict] = []
-        self.characters: [dict] = []
-        self.character_collections: [dict] = []
+        self.decks: dict(Iterable)  = []
+        self.gems: dict(Iterable) = []
+        self.items: dict(Iterable) = []
+        self.weapons: dict(Iterable) = []
+        self.equipment: dict(Iterable) = []
+        self.innocents: dict(Iterable) = []
+        self.characters: dict(Iterable) = []
+        self.character_collections: dict(Iterable) = []
 
     @property
     def get_current_deck(self):
         return self.deck(self.o.team_num) if self.o.auto_rebirth else []
 
-    def deck(self, team_num: (int, None) = None):
+    def deck(self, team_num: int = None):
         if team_num is None:
             deck_index = self.o.deck_index
         else:

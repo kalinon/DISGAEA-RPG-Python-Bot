@@ -66,7 +66,13 @@ class AxelContest(Player, metaclass=ABCMeta):
             return 20
         if lastClearedStage < 1499:
             return 24
-        return 28
+        if lastClearedStage < 1599:
+            return 28
+        if lastClearedStage < 1699:
+            return 32
+        if lastClearedStage < 1799:
+            return 36
+        return 40
 
     def do_axel_contest_multiple_characters(self, numberOfCharacters, highestStageToClear):
         unit_count = 0

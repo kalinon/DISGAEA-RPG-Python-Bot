@@ -5,7 +5,6 @@ class GameData:
     def __init__(self):
         self.stages = gamedata['stages']
         self.items = gamedata['items']
-        self.units = gamedata['units']
         self.characters = gamedata['characters']
         self.stages = gamedata['stages']
         self.weapons = gamedata['weapon']
@@ -32,11 +31,6 @@ class GameData:
 
     def get_item(self, i):
         for s in self.items:
-            if i == s['id']:
-                return s
-
-    def get_unit(self, i):
-        for s in self.units:
             if i == s['id']:
                 return s
 

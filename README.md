@@ -4,6 +4,7 @@ requirements:
 
 - `pip install requests`
 - `pip install dateutil`
+- `pip install jwt`
 - license key (get it from https://disgaea.codedbots.com, once you have the license key put it into `codedbots.py` on
   line 12)
 
@@ -25,3 +26,4 @@ features:
 - proxy support
 - leech raid bosses
 - run Axel contest
+- automate fish fleet and item survey

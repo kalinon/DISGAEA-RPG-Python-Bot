@@ -17,8 +17,9 @@ from api.raid import Raid
 from api.shop import Shop
 from api.shop import Shop
 from api.spar_space import SparSpace
+from api.item_survey import ItemSurvey
 
 
-class BaseAPI(Bingo, Raid, AxelContest, SparSpace, FishFleet, Gatcha, Battle, EtnaResort, ABC):
+class BaseAPI(Bingo, Raid, AxelContest, SparSpace, FishFleet, Gatcha, Battle, EtnaResort, ItemSurvey, ABC):
     def __init__(self):
         super().__init__()

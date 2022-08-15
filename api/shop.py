@@ -1,6 +1,7 @@
 from abc import ABCMeta
 
 from api.player import Player
+from api.constants import Constants
 
 
 class Shop(Player, metaclass=ABCMeta):
@@ -26,6 +27,10 @@ class Shop(Player, metaclass=ABCMeta):
         item = [x for x in product_data if x['m_product_id'] == 1121][0]
         if item['buy_num'] == 0:
             self.client.shop_buy_item(1121, 1)
+        #BP refill
+        item = [x for x in product_data if x['m_product_id'] == 111][0]
+        if(item['buy_num'] == 0):
+            self.client.shop_buy_item(111, 3)
 
     def buy_all_equipment_with_innocents(self, shop_rank):
         self.log("Buying all equipment with innocents...")
@@ -38,11 +43,11 @@ class Shop(Player, metaclass=ABCMeta):
                 if i['innocent_num'] > 0:
                     item_ids = [i['id']]
                     res = self.client.shop_buy_equipment(item_type=i['item_type'], itemids=item_ids)
-                    if res['error'] == 'Maximum weapon slot reached' or res['error'] == 'Maximum armour slot reached':
+                    if (res['error'] == Constants.Armor_Full_Error or res['error'] == Constants.Weapon_Full_Error):
                         buy = False
             if buy:
                 update_number = self.client.shop_equipment_shop()['result']['lineup_update_num']
-                if update_number < 5:
+                if (update_number < Constants.Shop_Max_Free_Refresh):
                     self.logger.info(f"Refreshing Shop. Current Refresh: {update_number}")
                     self.client.shop_change_equipment_items(shop_rank=shop_rank)
                 else:
