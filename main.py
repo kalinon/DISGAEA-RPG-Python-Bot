@@ -135,13 +135,6 @@ class API(BaseAPI):
             else:
                 break
 
-    def friend_print_full_list(self):
-        print("\nPrinting full friend list....")
-        data = self.client.friend_index()
-        for friend in data['result']['friends']:
-            print(f"\tName: {friend['name']} - ID: {friend['id']}")
-        print("\n\n")
-
     def doQuest(self, m_stage_id=101102):
         stage = self.gd.get_stage(m_stage_id)
         self.log('doing quest:%s [%s]' % (stage['name'], m_stage_id))
