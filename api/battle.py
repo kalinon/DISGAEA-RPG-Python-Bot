@@ -60,7 +60,7 @@ class Battle(Player, metaclass=ABCMeta):
             for r in d:
                 res.append({
                     "finish_member_ids": self.pd.deck(start['result']['t_deck_no']),
-                    "finish_type": Battle_Finish_Type.Tower_Attack,
+                    "finish_type": Battle_Finish_Type.Tower_Attack.value,
                     "m_enemy_id": d[r]
                 })
         return res
