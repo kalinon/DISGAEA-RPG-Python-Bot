@@ -103,6 +103,7 @@ class Battle(Player, metaclass=ABCMeta):
 
             # drop, rank less than min_rank, retry
             reward_rank = self.gd.get_item_rank(item)
+            # FIXME: should check to see if the rank can even be found from the item
             if self.o.min_rank > 0 and reward_rank < self.o.min_rank:
                 return 5
 
