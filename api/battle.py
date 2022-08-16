@@ -70,16 +70,18 @@ class Battle(Player, metaclass=ABCMeta):
             if start['result']['stage'] % 10 != 0 or not ensure_drops:
                 return 1
 
-            # no drop, ensuring drops, retry
-            if start['result']['stage'] in {30, 60, 90, 100} and reward_id == 101:
+            # no drop on a boss stage, ensuring drops, retry
+            if reward_id == 101:
                 return 5
 
             # drop, no Item General/King/God stage, continue
             if start['result']['stage'] not in {30, 60, 90, 100}:
                 return 1
+
             # drop, rarity less than min_rarity, retry
             if reward_rarity < self.o.min_rarity:
                 return 5
+                
             # equipment drop, but farming only weapons, retry
             if reward_type == 4 and only_weapons:
                 return 5
@@ -87,8 +89,6 @@ class Battle(Player, metaclass=ABCMeta):
 
             # drop, rank less than min_rank, retry
             reward_rank = self.gd.get_item_rank(item)
-            if reward_rank < self.o.min_rank:
-                return 5
 
             if item is None:
                 item = {'name': ''}
