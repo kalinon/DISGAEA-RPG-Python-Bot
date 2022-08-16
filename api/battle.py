@@ -1,6 +1,7 @@
 import random
 import time
 from abc import ABCMeta
+from api.constants import Battle_Finish_Type
 
 from api.player import Player
 
@@ -42,11 +43,23 @@ class Battle(Player, metaclass=ABCMeta):
 
     def get_battle_exp_data(self, start):
         res = []
+        characters_count = len(self.pd.deck(start['result']['t_deck_no']))
+        for d in start['result']['enemy_list']:
+            for r in d:
+                res.append({
+                    "finish_member_ids": self.pd.deck(start['result']['t_deck_no'])[random.randint(0, characters_count-1)],
+                    "finish_type": random.randint(Battle_Finish_Type.Normal_Attack, Battle_Finish_Type.Special_Move),
+                    "m_enemy_id": d[r]
+                })
+        return res
+
+    def get_battle_exp_data_tower_finish(self, start):
+        res = []
         for d in start['result']['enemy_list']:
             for r in d:
                 res.append({
                     "finish_member_ids": self.pd.deck(start['result']['t_deck_no']),
-                    "finish_type": random.choice([1, 2, 3]),
+                    "finish_type": Battle_Finish_Type.Tower_Attack,
                     "m_enemy_id": d[r]
                 })
         return res
