@@ -30,8 +30,11 @@ class PlayerData:
             deck_index = team_num - 1
 
         deck = self.decks[deck_index]
-        return [deck['t_character_ids'][x] for x in
-                deck['t_character_ids']]
+        d = []
+        for x in deck['t_character_ids']:
+            if deck['t_character_ids'][x] != 0:
+                d.append(deck['t_character_ids'][x])
+        return d
 
     def get_character_by_id(self, _id: int):
         for i in self.characters:

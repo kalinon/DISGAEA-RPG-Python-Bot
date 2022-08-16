@@ -136,9 +136,13 @@ class API(BaseAPI):
             self.log('not enough ap')
             return
 
-        deck = self.pd.get_current_deck
+
         if team_num is None:
-            team_num = self.o.team_num
+            deck_no = self.o.deck_index
+        else:
+            deck_no = team_num - 1
+
+        deck = []
         if auto_rebirth:
             deck = self.pd.deck(team_num)
 
@@ -154,8 +158,9 @@ class API(BaseAPI):
         self.client.battle_help_list()
         exp_data = self.get_battle_exp_data_tower_finish(start) if use_tower else self.get_battle_exp_data(start)
 
-        end = self.client.battle_end(battle_exp_data=exp_data, m_stage_id=m_stage_id,
-                                     battle_type=1, result=1)
+        end = self.client.battle_end(
+            battle_exp_data=exp_data, m_stage_id=m_stage_id,
+            battle_type=1, result=1)
         res = self.parseReward(end)
         return res
 
