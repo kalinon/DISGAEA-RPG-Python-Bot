@@ -26,10 +26,9 @@ for code in codes:
     a.client.boltrend_exchange_code(code)
 
 
-def farm_event_stage(times, stage_id, team):
-    a.o.team_num = team
+def farm_event_stage(times: int, stage_id: int, team: int, rebirth: bool):
     for i in range(times):
-        do_quest(stage_id)
+        do_quest(stage_id, True, team_num=team, auto_rebirth=rebirth)
 
 
 def farm_item_world(team=1, min_rarity=0, min_rank=0, min_item_rank=0, min_item_level=0, only_weapons=False,
@@ -60,54 +59,46 @@ def farm_item_world(team=1, min_rarity=0, min_rank=0, min_item_rank=0, min_item_
     a.upgrade_items(only_weapons=only_weapons, ensure_drops=True, item_limit=item_limit, items=items)
 
 
-def do_gate(gate, team):
+def do_gate(gate, team, rebirth):
     a.log("[*] running gate {}".format(gate['m_stage_id']))
     current = int(gate['challenge_num'])
     _max = int(gate['challenge_max'])
     while current < _max:
-        a.o.team_num = team
-        do_quest(gate['m_stage_id'])
+        do_quest(gate['m_stage_id'], True, team_num=team, auto_rebirth=rebirth)
         current += 1
 
 
-def do_gates(gates_data, gem_team=7, hl_team=8):
+def do_gates(gates_data, gem_team=7, hl_team=8, exp_team=6):
     a.log("- checking gates")
     for data in gates_data:
         a.log("- checking gate {}".format(data['m_area_id']))
         if data['m_area_id'] == 50102:
             team = hl_team
+            rebirth = False
         elif data['m_area_id'] == 50107 or data['m_area_id'] == 50108:
             team = gem_team
+            rebirth = False
         else:
-            # skip exp gates
-            continue
+            team = exp_team
+            rebirth = True
 
         for gate in data['gate_stage_data']:
             if a.current_ap < 10:
                 a.log('Too low on ap to do gates')
                 return
-            do_gate(gate, team)
+            do_gate(gate, team, rebirth)
 
 
-def daily(bts: bool = False, team: int = 9, gem_team: int = 22, hl_team: int = 21):
+def daily(gem_team: int = 22, hl_team: int = 21, exp_team=23):
     a.get_mail_and_rewards()
     send_sardines()
 
     # Buy items from HL shop
     # a.buy_daily_items_from_shop()
 
-    if bts:
-        a.o.team_num = team
-        # Do BTS Events
-        # 1132201101 - BTS Extra -EASY-
-        # 1132201102 - BTS Extra -NORMAL-
-        # 1132201103 - BTS Extra -HARD-
-        for _ in range(10):
-            do_quest(1132201103)
-
     # Do gates
     gates_data = a.client.player_gates()['result']
-    do_gates(gates_data, gem_team=gem_team, hl_team=hl_team)
+    do_gates(gates_data, gem_team=gem_team, hl_team=hl_team, exp_team=exp_team)
 
 
 # Will return an array of event area ids based on the event id.
@@ -117,14 +108,14 @@ def get_event_areas(event_id):
     return [tmp + 101, tmp + 102, tmp + 103, tmp + 104, tmp + 105]
 
 
-def clear_event(area_lt):
+def clear_event(area_lt, team_num):
     dic = a.gd.stages
     rank = [1, 2, 3]
     for k in rank:
         for i in area_lt:
             new_lt = [x for x in dic if x["m_area_id"] == i and x["rank"] == k]
             for c in new_lt:
-                do_quest(c['id'])
+                do_quest(c['id'], True, team_num, True)
 
 
 def use_ap(stage_id, event_team: int = 1):
@@ -159,8 +150,8 @@ def clear_inbox():
         last_id = new_last_id
 
 
-def do_quest(stage_id):
-    a.doQuest(stage_id)
+def do_quest(stage_id, use_tower: bool = False, team_num=None, auto_rebirth=False):
+    a.doQuest(stage_id, use_tower=use_tower, team_num=team_num, auto_rebirth=auto_rebirth)
     a.raid_check_and_send()
 
 
@@ -287,13 +278,10 @@ def loop(team=9, rebirth: bool = False, farm_stage_id=None,
 
 # clear_inbox()
 # Daily tasks
-daily(bts=False, gem_team=22, hl_team=21)
-
-# a.autoRebirth(True)
-# a.setTeamNum(9)
+daily(gem_team=22, hl_team=21, exp_team=6)
 
 # # Uncomment to clear a new event area. Provide the first 4 digits of the m_area_id.
-# clear_event(get_event_areas(1154))
+# clear_event(get_event_areas(1154), team_num=9)
 
 # 314109 - misc stage
 # 114710104 - Defensive Battle 4

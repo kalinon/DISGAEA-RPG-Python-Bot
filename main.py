@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 import datetime
-import random
-import string
 
 from dateutil import parser
 
@@ -110,12 +108,6 @@ class API(BaseAPI):
         self.get_mail()
         self.get_mail()
 
-    def rndAlp(self, n):
-        return ''.join([random.choice(string.ascii_lowercase) for x in range(random.randint(n - 1, n))])
-
-    def rndUser(self):
-        return self.rndAlp(7).title()
-
     def get_mail(self):
         did = set()
         while 1:
@@ -134,7 +126,7 @@ class API(BaseAPI):
             else:
                 break
 
-    def doQuest(self, m_stage_id=101102):
+    def doQuest(self, m_stage_id=101102, use_tower: bool = False, team_num=None, auto_rebirth: bool = False):
         stage = self.gd.get_stage(m_stage_id)
         self.log('doing quest:%s [%s]' % (stage['name'], m_stage_id))
         if stage['exp'] == 0:
@@ -144,17 +136,25 @@ class API(BaseAPI):
             self.log('not enough ap')
             return
 
+        deck = self.pd.get_current_deck
+        if team_num is None:
+            team_num = self.o.team_num
+        if auto_rebirth:
+            deck = self.pd.deck(team_num)
+
         help_players = self.client.battle_help_list()['result']['help_players'][0]
         start = self.client.battle_start(
             m_stage_id=m_stage_id, help_t_player_id=help_players['t_player_id'],
             help_t_character_id=help_players['t_character']['id'], act=stage['act'],
             help_t_character_lv=help_players['t_character']['lv'],
-            deck_no=self.o.team_num, deck=self.pd.get_current_deck,
+            deck_no=team_num, deck=deck,
         )
         if 'result' not in start:
             return
         self.client.battle_help_list()
-        end = self.client.battle_end(battle_exp_data=self.get_battle_exp_data(start), m_stage_id=m_stage_id,
+        exp_data = self.get_battle_exp_data_tower_finish(start) if use_tower else self.get_battle_exp_data(start)
+
+        end = self.client.battle_end(battle_exp_data=exp_data, m_stage_id=m_stage_id,
                                      battle_type=1, result=1)
         res = self.parseReward(end)
         return res
@@ -381,7 +381,7 @@ class API(BaseAPI):
             if self.gd.get_stage(s)['m_area_id'] in blacklist:
                 continue
             try:
-                self.doQuest(s)
+                self.doQuest(s, auto_rebirth=self.o.auto_rebirth)
             except KeyboardInterrupt:
                 return False
             except:
