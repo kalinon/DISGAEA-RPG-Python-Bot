@@ -252,11 +252,6 @@ def loop(team=9, rebirth: bool = False, farm_stage_id=None,
 
 
 # clear_inbox()
-
-# a.do_axel_contest_multiple_characters(2)
-# farm_event_stage(stage_id=114710104, times=10, team=6)
-# do_quest(108410101)
-
 # Daily tasks
 daily(bts=False, gem_team=22, hl_team=21)
 
@@ -267,17 +262,12 @@ daily(bts=False, gem_team=22, hl_team=21)
 # clear_event(get_event_areas(1154))
 
 # 314109 - misc stage
-# 1154105310 - Extra+ (HL)
-# 1154105311 - Extra+ (EXP)
-# 1154105312 - Extra+ (1★)
 # 114710104 - Defensive Battle 4
 
-# farm_event_stage(1, 1154105312, team=9)
-# a.etna_donate_innocents(max_innocent_rank=4, max_innocent_type=Innocent_ID.RES)
-# items, skip = a.pd.filter_items(only_max_lvl=True, skip_equipped=True)
-# for item in items:
-#     a.remove_innocents(item)
-
+# 1154105311 - Extra+ (HL)
+# 1154105312 - Extra+ (EXP)
+# 1154105313 - Extra+ (1★)
+# 1154201103 - Hidden Stage -HARD-
 
 # Full loop
-loop(team=9, raid_team=23, iw_team=22, event_team=9, rebirth=True, farm_stage_id=1154105312)
+loop(team=9, raid_team=23, iw_team=22, event_team=9, rebirth=True, farm_stage_id=1154105313)
