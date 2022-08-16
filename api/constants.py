@@ -20,7 +20,6 @@ class Constants:
     ticket = ''  # FILL TICKET FOR STEAM LOGIN
 
 
-
 class Raid_Gacha_ID(IntEnum):
     SUMMER_PRINNY_EVENT_POINT = 49
     SUMMER_PRINNY_INNOCENT_REGULAR_ROULETTE = 50
@@ -111,3 +110,8 @@ class Innocent_ID(IntEnum):
 class EquipmentType(IntEnum):
     WEAPON = 1
     ARMOR = 2
+
+class Battle_Finish_Type(IntEnum):
+    Normal = 1
+    Team_Attack = 3
+    Tower_Attack = 5

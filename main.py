@@ -56,7 +56,6 @@ class API(BaseAPI):
         self.player_decks()
 
         self.player_stone_sum()
-        self.player_characters(True)
 
     def dologin(self):
         self.client.login()

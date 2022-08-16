@@ -11,9 +11,9 @@ class AxelContest(Player, metaclass=ABCMeta):
     def find_character_for_axel_contest(self, highestStageToClear):
         # fetch all characters
         self.log("Looking for a character...")
-        self.player_characters(True)
+        self.player_characters()
         # collections store axel contest progress.
-        all_collections = self.player_character_collections()['result']['_items']
+        all_collections = self.pd.character_collections
         collections_available = [x for x in all_collections if x['contest_stage'] < highestStageToClear]
         for collection in collections_available:
             # find the actual unit tht has the character_id
