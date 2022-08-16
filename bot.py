@@ -195,6 +195,36 @@ def refine_items(max_rarity: int = 99, max_item_rank: int = 9999, min_rarity: in
         a.etna_resort_refine_item(i['id'])
 
 
+def train_innocents(innocent_type: int, initial_innocent_rank: int = 8, max_innocent_rank: int = 9):
+    innocents_trained = 0
+    tickets_finished = False
+    all_available_innocents = a.pd.innocent_get_all_of_type(innocent_type, only_unequipped=True)
+    for innocent in all_available_innocents:
+        if tickets_finished:
+            break
+
+        effect_rank = innocent['effect_rank']
+        if effect_rank < initial_innocent_rank or effect_rank >= max_innocent_rank:
+            continue
+        print(f"\nFound innocent to train. Starting value: {innocent['effect_values'][0]}")
+        attempts = 0
+        innocents_trained += 1
+        while effect_rank < max_innocent_rank:
+            res = a.client.innocent_training(innocent['id'])
+            if ('api_error' in res and 'message' in res['api_error'] and
+                    res['api_error']['message'] == 'Not enough item.'):
+                print("No caretaker tickets left")
+                tickets_finished = True
+                break
+            effect_rank = res['result']['after_t_data']['innocents'][0]['effect_rank']
+            print(
+                f"\tTrained innocent with result {a.innocent_get_training_result(res['result']['training_result'])} "
+                f"- Current value: {res['result']['after_t_data']['innocents'][0]['effect_values'][0]}")
+            attempts += 1
+        print(f"\tUpgraded innocent to Legendary. Finished training. Total attempts: {attempts}")
+    print(f"\nNo innocents left to train. Total innocents trained: {innocents_trained}")
+
+
 def send_sardines():
     # Send sardines
     player_data = a.client.player_index()
@@ -235,6 +265,10 @@ def loop(team=9, rebirth: bool = False, farm_stage_id=None,
         farm_item_world(team=iw_team, min_rarity=0, min_rank=40, min_item_rank=40, min_item_level=0,
                         only_weapons=only_weapons, item_limit=5)
 
+        a.log("- train innocents")
+        for i in range(Innocent_ID.HP, Innocent_ID.HL):
+            train_innocents(i)
+
         a.log("- donate equipment")
         a.etna_donate_innocents(max_innocent_rank=4, max_innocent_type=Innocent_ID.RES)
         a.etna_resort_donate_items(max_item_rarity=69, max_innocent_rank=8, max_innocent_type=Innocent_ID.RES)
@@ -270,4 +304,4 @@ daily(bts=False, gem_team=22, hl_team=21)
 # 1154201103 - Hidden Stage -HARD-
 
 # Full loop
-loop(team=9, raid_team=23, iw_team=22, event_team=9, rebirth=True, farm_stage_id=1154105313)
+loop(team=9, raid_team=23, iw_team=9, event_team=9, rebirth=True, farm_stage_id=1154105313)

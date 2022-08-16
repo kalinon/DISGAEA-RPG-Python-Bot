@@ -71,7 +71,7 @@ class Battle(Player, metaclass=ABCMeta):
                 return 1
 
             # no drop, ensuring drops, retry
-            if start['result']['stage'] in {30, 60, 90, 100} and reward_id == 101:
+            if reward_id == 101:
                 return 5
 
             # drop, no Item General/King/God stage, continue

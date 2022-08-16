@@ -1,10 +1,12 @@
+import os
+
 from api.constants import Constants, Innocent_ID
 from main import API
 
 a = API()
 a.config(
-    sess=Constants.session_id,
-    uin=Constants.user_id,
+    sess=os.getenv('DRPG_TOKEN', default=Constants.session_id),
+    uin=os.getenv('DRPG_UIN', default=Constants.user_id),
     wait=0,
     region=2,
     device=2
