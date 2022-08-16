@@ -43,16 +43,21 @@ class Battle(Player, metaclass=ABCMeta):
 
     def get_battle_exp_data(self, start):
         res = []
-        characters_count = len(self.pd.deck(start['result']['t_deck_no']))
         for d in start['result']['enemy_list']:
             for r in d:
                 res.append({
-                    "finish_member_ids": self.pd.deck(start['result']['t_deck_no'])[
-                        random.randint(0, characters_count - 1)],
+                    "finish_member_ids": self.get_random_deck_member(start['result']['t_deck_no']),
                     "finish_type": random.randint(Battle_Finish_Type.Normal_Attack, Battle_Finish_Type.Special_Move),
                     "m_enemy_id": d[r]
                 })
         return res
+
+    def get_random_deck_member(self, deck_no):
+        character = []
+        characters_count = len(self.pd.deck(deck_no))
+        rand_char = self.pd.deck(deck_no)[random.randint(0, characters_count-1)]
+        character.append(rand_char)
+        return character
 
     def get_battle_exp_data_tower_finish(self, start):
         res = []
