@@ -99,7 +99,7 @@ class EtnaResort(Items, metaclass=ABCMeta):
             if total_to_retrieve > 0:
                 result = self.client.breeding_center_pick_up(weapons_to_retrieve, equipments_to_retrieve)
 
-                if(result['error'] == Constants.Armor_Full_Error or result['error'] == Constants.Weapon_Full_Error):
+                if result['error'] == Constants.Armor_Full_Error or result['error'] == Constants.Weapon_Full_Error:
                     sell_equipments = result['error'] == Constants.Armor_Full_Error
                     sell_weapons = result['error'] == Constants.Weapon_Full_Error
                     self.shop_free_inventory_space(sell_weapons, sell_equipments, 20)
@@ -288,35 +288,35 @@ class EtnaResort(Items, metaclass=ABCMeta):
         self.log(
             f"Refined item. Attempts used {attempt_count}. Rarity increase: {result}. Current rarity {final_rarity}")
 
-    def etna_resort_remake_item(self,item_id):
+    def etna_resort_remake_item(self, item_id):
         e = self.pd.get_weapon_by_id(item_id)
         if e is not None:
             item_type = 3
         else:
             item_type = 4
             e = self.pd.get_equipment_by_id(item_id)
-        
+
         item_rank = self.gd.get_item_rank(e)
-        if(item_rank != 40):
+        if item_rank != 40:
             print("Can only remake r40 items")
             return
-        if(e['lv'] != e['lv_max']):
+        if e['lv'] != e['lv_max']:
             print("Item is not at max level...")
             return
-        if(e['rarity_value'] < 70):
+        if e['rarity_value'] < 70:
             print("Item is not legendary")
             return
-        if(e['remake_count'] ==10):
+        if e['remake_count'] == 10:
             print("Item at max rank already")
             return
-            
+
         res = self.client.etna_resort_remake(item_type, item_id)
-        if(item_type == 3):
+        if item_type == 3:
             remake_count = res['result']['after_t_data']['weapons'][0]['remake_count']
         else:
             remake_count = res['result']['after_t_data']['equipments'][0]['remake_count']
         self.log(f"\tItem rank increased. Rank upgrade count: {remake_count}")
-        
+
     def innocent_get_training_result(self, training_result):
         if training_result == Innocent_Training_Result.NORMAL:
             return "Normal"

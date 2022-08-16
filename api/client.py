@@ -1,8 +1,8 @@
-from ast import List
 import base64
 import json
 import sys
 import time
+from typing import List
 
 import jwt
 import requests
@@ -16,7 +16,6 @@ from api.logger import Logger
 from api.options import Options
 from boltrend import boltrend
 from codedbots import codedbots
-from typing import List
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
@@ -489,7 +488,8 @@ class Client:
         return self.__rpc('raid_boss/update', {"m_raid_boss_id": m_raid_boss_id, "step": step})
 
     def raid_exchange_surplus_points(self, points_to_exchange):
-        data = self.__rpc('event/exchange_surplus_point', {"m_event_id":Constants.Current_Raid_ID,"exchange_count":points_to_exchange})
+        data = self.__rpc('event/exchange_surplus_point',
+                          {"m_event_id": Constants.Current_Raid_ID, "exchange_count": points_to_exchange})
         return data
 
     #################
@@ -502,7 +502,7 @@ class Client:
     def gacha_do(self, is_gacha_free, price, item_type, num, m_gacha_id, item_id, total_draw_count):
         return self.__rpc('gacha/do',
                           {"is_gacha_free": is_gacha_free, "price": price, "item_type": item_type, "num": num,
-                           "m_gacha_id": m_gacha_id, "item_id": item_id, "total_draw_count":total_draw_count})
+                           "m_gacha_id": m_gacha_id, "item_id": item_id, "total_draw_count": total_draw_count})
 
     def gacha_sums(self):
         return self.__rpc('gacha/sums', {})
@@ -635,7 +635,7 @@ class Client:
         return self.__rpc('weapon_equipment/rarity_up', {"item_type": item_type, "id": _id})
 
     def etna_resort_remake(self, item_type, id):
-        data = self.rpc('weapon_equipment/remake', {"item_type":item_type,"id":id})
+        data = self.rpc('weapon_equipment/remake', {"item_type": item_type, "id": id})
         return data
 
     #################
@@ -768,17 +768,19 @@ class Client:
     #################
     # Item World Survey Endpoints
     #################
-    
+
     def item_world_survey_index(self):
         data = self.__rpc('item_world_survey/index', {})
         return data
 
     def item_world_survey_start(self, t_weapon_ids: List[int] = [], t_equipment_ids: List[int] = []):
-        data = self.__rpc('item_world_survey/start',{"t_weapon_ids":t_weapon_ids,"t_equipment_ids":t_equipment_ids})
+        data = self.__rpc('item_world_survey/start', {"t_weapon_ids": t_weapon_ids, "t_equipment_ids": t_equipment_ids})
         return data
 
-    def item_world_survey_end(self, t_weapon_ids: List[int] = [], t_equipment_ids: List[int] = [], cancel: bool = False):
-        data = self.__rpc('item_world_survey/end', {"t_weapon_ids":t_weapon_ids,"t_equipment_ids":t_equipment_ids,"cancel":cancel})
+    def item_world_survey_end(self, t_weapon_ids: List[int] = [], t_equipment_ids: List[int] = [],
+                              cancel: bool = False):
+        data = self.__rpc('item_world_survey/end',
+                          {"t_weapon_ids": t_weapon_ids, "t_equipment_ids": t_equipment_ids, "cancel": cancel})
         return data
 
     #################

@@ -1,4 +1,6 @@
 from typing import Iterable
+
+from api.constants import EquipmentType
 from api.game_data import GameData
 from api.logger import Logger
 from api.options import Options
@@ -8,14 +10,14 @@ class PlayerData:
     def __init__(self, options):
         self.gd: GameData = GameData()
         self.o: Options = options
-        self.decks: dict(Iterable)  = []
-        self.gems: dict(Iterable) = []
-        self.items: dict(Iterable) = []
-        self.weapons: dict(Iterable) = []
-        self.equipment: dict(Iterable) = []
-        self.innocents: dict(Iterable) = []
-        self.characters: dict(Iterable) = []
-        self.character_collections: dict(Iterable) = []
+        self.decks: [dict[Iterable]] = []
+        self.gems: [dict[Iterable]] = []
+        self.items: [dict[Iterable]] = []
+        self.weapons: [dict[Iterable]] = []
+        self.equipment: [dict[Iterable]] = []
+        self.innocents: [dict[Iterable]] = []
+        self.characters: [dict[Iterable]] = []
+        self.character_collections: [dict[Iterable]] = []
 
     @property
     def get_current_deck(self):
@@ -130,64 +132,74 @@ class PlayerData:
                    skip_max_lvl: bool = False, only_max_lvl: bool = False,
                    skip_equipped: bool = False, skip_locked: bool = True,
                    max_innocent_rank: int = 8, max_innocent_type: int = 8,
-                   min_innocent_rank: int = 0, min_innocent_type: int = 0) -> bool:
+                   min_innocent_rank: int = 0, min_innocent_type: int = 0,
+                   item_type: int = 0) -> bool:
 
+        # Change this to DEBUG (10) or INFO (20) if you want to see logs
+        log_level = 0
+        if log_level > 0:
+            self.__log_item("checking", item)
+
+        equip_type = self.get_equip_type(item)
+        rank = self.gd.get_item_rank(item)
+
+        if 0 < item_type != equip_type:
+            Logger.log('skip due to item_type', log_level)
+            return False
         if skip_max_lvl and item['lv'] == item['lv_max']:
-            Logger.log('skip due to lv_max', 0)
+            Logger.log('skip due to lv_max', log_level)
             return False
         if skip_locked and item['lock_flg']:
-            Logger.log('skip due to lock_flg', 0)
+            Logger.log('skip due to lock_flg', log_level)
             return False
-
         if item['lv'] > max_item_level:
-            Logger.log('skip due to max_item_level', 0)
+            Logger.log('skip due to max_item_level', log_level)
             return False
         if item['lv'] < min_item_level:
-            Logger.log('skip due to min_item_level', 0)
+            Logger.log('skip due to min_item_level', log_level)
             return False
-
-        rank = self.gd.get_item_rank(item)
         if rank > max_item_rank:
-            Logger.log('skip due to max_item_rank', 0)
+            Logger.log('skip due to max_item_rank', log_level)
             return False
         if rank < min_item_rank:
-            Logger.log('skip due to min_item_rank', 0)
+            Logger.log('skip due to min_item_rank', log_level)
             return False
-
         if item['rarity_value'] > max_rarity:
-            Logger.log('skip due to max_rarity', 0)
+            Logger.log('skip due to max_rarity', log_level)
             return False
         if item['rarity_value'] < min_rarity:
-            Logger.log('skip due to min_rarity', 0)
+            Logger.log('skip due to min_rarity', log_level)
             return False
-
         if skip_equipped and item['set_chara_id'] != 0:
-            Logger.log('skip due to equipped to char', 0)
+            Logger.log('skip due to equipped to char', log_level)
             return False
 
         innos = self.get_item_innocents(item)
         if min_innocent_rank > 0 or min_innocent_type > 0:
             if len(innos) == 0:
+                Logger.log('skip due to missing innocent', log_level)
                 return False
 
         for i in innos:
             if i and i['effect_rank'] > max_innocent_rank:
-                Logger.log('skip due to max_innocent_rank', 0)
+                Logger.log('skip due to max_innocent_rank', log_level)
                 return False
             if i['innocent_type'] > max_innocent_type:
-                Logger.log('skip due to max_innocent_type', 0)
+                Logger.log('skip due to max_innocent_type', log_level)
                 return False
 
             if i and i['effect_rank'] < min_innocent_rank:
-                Logger.log('skip due to min_innocent_rank', 0)
+                Logger.log('skip due to min_innocent_rank', log_level)
                 return False
             if i['innocent_type'] < min_innocent_type:
-                Logger.log('skip due to min_innocent_type', 0)
+                Logger.log('skip due to min_innocent_type', log_level)
                 return False
 
         if only_max_lvl and item['lv'] < item['lv_max']:
-            Logger.log('skip due to only_max_lvl', 0)
+            Logger.log('skip due to only_max_lvl', log_level)
             return False
+
+        Logger.log('item passed check', log_level)
         return True
 
     def filter_items(self, max_rarity: int = 99, min_rarity: int = 0,
@@ -196,27 +208,38 @@ class PlayerData:
                      skip_max_lvl: bool = False, only_max_lvl: bool = False,
                      skip_equipped: bool = False, skip_locked: bool = True,
                      max_innocent_rank: int = 8, max_innocent_type: int = 8,
-                     min_innocent_rank: int = 0, min_innocent_type: int = 0):
+                     min_innocent_rank: int = 0, min_innocent_type: int = 0,
+                     item_type=0):
         matches = []
         skipping = 0
-        for w in self.weapons + self.equipment:
-            if not self.check_item(item=w, max_rarity=max_rarity, max_item_rank=max_item_rank,
-                                   min_rarity=min_rarity, min_item_rank=min_item_rank,
-                                   max_item_level=max_item_level, min_item_level=min_item_level,
-                                   skip_max_lvl=skip_max_lvl, only_max_lvl=only_max_lvl,
-                                   skip_equipped=skip_equipped, skip_locked=skip_locked,
-                                   max_innocent_rank=max_innocent_rank, max_innocent_type=max_innocent_type,
-                                   min_innocent_rank=min_innocent_rank, min_innocent_type=min_innocent_type):
+        for w in (self.weapons + self.equipment):
+            result = self.check_item(item=w, max_rarity=max_rarity, max_item_rank=max_item_rank,
+                                     min_rarity=min_rarity, min_item_rank=min_item_rank,
+                                     max_item_level=max_item_level, min_item_level=min_item_level,
+                                     skip_max_lvl=skip_max_lvl, only_max_lvl=only_max_lvl,
+                                     skip_equipped=skip_equipped, skip_locked=skip_locked,
+                                     max_innocent_rank=max_innocent_rank, max_innocent_type=max_innocent_type,
+                                     min_innocent_rank=min_innocent_rank, min_innocent_type=min_innocent_type,
+                                     item_type=item_type)
+            if not result:
                 skipping += 1
                 continue
             matches.append(w)
         return matches, skipping
 
     def get_equip_type(self, item):
-        return 1 if 'm_weapon_id' in item else 2
+        return EquipmentType.WEAPON if 'm_weapon_id' in item else EquipmentType.ARMOR
 
     def innocent_get_all_of_type(self, m_innocent_id, only_unequipped):
         innocents_of_type = [x for x in self.innocents if x['m_innocent_id'] == m_innocent_id]
         if only_unequipped:
             innocents_of_type = [x for x in innocents_of_type if x['place_id'] == 0 and x['place'] == 0]
         return innocents_of_type
+
+    def __log_item(self, msg, w):
+        item = self.gd.get_weapon(w['m_weapon_id']) if 'm_weapon_id' in w else self.gd.get_weapon(w['m_equipment_id'])
+        Logger.info(
+            '%s: "%s" rarity: %s rank: %s lv: %s lv_max: %s locked: %s' %
+            (msg, item['name'], w['rarity_value'], self.gd.get_item_rank(w), w['lv'],
+             w['lv_max'], w['lock_flg'])
+        )

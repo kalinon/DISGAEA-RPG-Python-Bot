@@ -1,7 +1,7 @@
 from abc import ABCMeta
 
-from api.player import Player
 from api.constants import Constants
+from api.player import Player
 
 
 class Shop(Player, metaclass=ABCMeta):
@@ -27,9 +27,9 @@ class Shop(Player, metaclass=ABCMeta):
         item = [x for x in product_data if x['m_product_id'] == 1121][0]
         if item['buy_num'] == 0:
             self.client.shop_buy_item(1121, 1)
-        #BP refill
+        # BP refill
         item = [x for x in product_data if x['m_product_id'] == 111][0]
-        if(item['buy_num'] == 0):
+        if (item['buy_num'] == 0):
             self.client.shop_buy_item(111, 3)
 
     def buy_all_equipment_with_innocents(self, shop_rank):
@@ -42,7 +42,7 @@ class Shop(Player, metaclass=ABCMeta):
                 if i['sold_flg']: continue
                 if i['innocent_num'] > 0:
                     item_ids = [i['id']]
-                    res = self.client.shop_buy_equipment(item_type=i['item_type'], itemids=item_ids)
+                    res = self.client.shop_buy_equipment(item_type=i['item_type'], itemid=item_ids)
                     if (res['error'] == Constants.Armor_Full_Error or res['error'] == Constants.Weapon_Full_Error):
                         buy = False
             if buy:
@@ -180,13 +180,13 @@ class Shop(Player, metaclass=ABCMeta):
             if data['result']['t_item_garapon']['num'] <= 0:
                 tickets_left = False
 
-    def sell_items(self, max_rarity=40, max_item_rank=100, keep_max_lvl=False, only_max_lvl=False, max_innocent_rank=10,
+    def sell_items(self, max_rarity=40, max_item_rank=100, skip_max_lvl=False, only_max_lvl=False, max_innocent_rank=10,
                    max_innocent_type=8):
         self.player_equipment(True)
         self.player_weapons(True)
 
         selling, skipping = self.pd.filter_items(
-            skip_max_lvl=keep_max_lvl, max_innocent_rank=max_innocent_rank, max_innocent_type=max_innocent_type,
+            skip_max_lvl=skip_max_lvl, max_innocent_rank=max_innocent_rank, max_innocent_type=max_innocent_type,
             max_item_rank=max_item_rank, max_rarity=max_rarity,
             only_max_lvl=only_max_lvl)
 
@@ -203,9 +203,12 @@ class Shop(Player, metaclass=ABCMeta):
             return data
 
     def log_sell(self, w):
+        self.log_item("[-] sell item", w)
+
+    def log_item(self, msg, w):
         item = self.gd.get_weapon(w['m_weapon_id']) if 'm_weapon_id' in w else self.gd.get_weapon(w['m_equipment_id'])
         self.logger.debug(
-            '[-] sell item: "%s" rarity: %s rank: %s lv: %s lv_max: %s locked: %s' %
-            (item['name'], w['rarity_value'], self.gd.get_item_rank(w), w['lv'],
+            '%s: "%s" rarity: %s rank: %s lv: %s lv_max: %s locked: %s' %
+            (msg, item['name'], w['rarity_value'], self.gd.get_item_rank(w), w['lv'],
              w['lv_max'], w['lock_flg'])
         )

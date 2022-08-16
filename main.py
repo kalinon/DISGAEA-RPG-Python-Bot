@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
+import datetime
 import random
 import string
-from api.constants import  EquipmentType
+
+from dateutil import parser
 
 from api import BaseAPI
+from api.constants import Constants
 
 
 class API(BaseAPI):
@@ -172,9 +175,9 @@ class API(BaseAPI):
             return
         self.client.battle_help_list()
         end = self.client.battle_end(battle_exp_data=self.get_battle_exp_data(start),
-                              m_stage_id=m_stage_id,
-                              battle_type=1,
-                              result=1)
+                                     m_stage_id=m_stage_id,
+                                     battle_type=1,
+                                     result=1)
         res = self.parseReward(end)
         return res
 
@@ -187,37 +190,48 @@ class API(BaseAPI):
             help_t_character_id=0,
             act=stage['act'],
             help_t_character_lv=0,
-            t_character_ids = t_character_ids)
+            character_ids=t_character_ids)
         if 'result' not in start:
             return
         end = self.client.battle_end(battle_exp_data=self.get_battle_exp_data(start),
-                              m_stage_id=m_stage_id,
-                              battle_type=1,
-                              result=1)
+                                     m_stage_id=m_stage_id,
+                                     battle_type=1,
+                                     result=1)
         res = self.parseReward(end)
         return res
 
-    def upgrade_items(self, ensure_drops: bool = False, only_weapons: bool = False, run_limit: int = None):
-        self.player_innocents(False)
-        self.player_weapons(False)
-        self.upgrade_item_list(self.pd.weapons, equipment_type=EquipmentType.WEAPON, ensure_drops=ensure_drops, only_weapons=only_weapons, run_limit = run_limit)
-        self.player_equipment(False)
-        self.upgrade_item_list(self.pd.equipment, equipment_type=EquipmentType.ARMOR, ensure_drops=ensure_drops,
-                               only_weapons=only_weapons, run_limit = run_limit)
+    def upgrade_items(self, ensure_drops: bool = False, only_weapons: bool = False, item_limit: int = None, items=None):
+        if items is None:
+            items = self.items_to_upgrade(only_weapons=only_weapons)
+        if len(items) > item_limit:
+            items = items[0:item_limit]
+        self.upgrade_item_list(items, ensure_drops=ensure_drops, only_weapons=only_weapons)
 
-    def upgrade_item_list(self, items, equipment_type: int, ensure_drops: bool = False, only_weapons: bool = False, run_limit: int = None):
-        # items = filter(self.weapon_filter, items)
-        for w in filter(self.__item_filter, items):
+    def upgrade_item_list(self, items, ensure_drops: bool = False, only_weapons: bool = False):
+        if len(items) == 0:
+            self.log_err('No items found to upgrade')
+
+        for w in items:
             self.client.trophy_get_reward_repetition()
             self.log_upgrade_item(w)
             while 1:
                 if not self.doItemWorld(
                         equipment_id=w['id'],
-                        equipment_type=equipment_type,
+                        equipment_type=self.pd.get_equip_type(w),
                         ensure_drops=ensure_drops,
                         only_weapons=only_weapons
                 ):
                     break
+
+    # Will return a list of items that match the upgrade options filter
+    def items_to_upgrade(self, only_weapons: bool = False):
+        items = self.player_weapons(False)
+        if not only_weapons:
+            items = items + self.player_equipment(False)
+        item_list = []
+        for w in filter(self.__item_filter, items):
+            item_list.append(w)
+        return item_list
 
     def __item_filter(self, e, i_filter=None):
         if i_filter is None:
@@ -258,14 +272,24 @@ class API(BaseAPI):
         if equipment_id is None:
             self.log_err('missing equip')
             return
-        start = self.client.item_world_start(equipment_id, equipment_type=equipment_type,
-                                             deck_no=self.o.team_num,
-                                             deck=self.pd.deck(self.o.team_num) if self.o.auto_rebirth else [])
+        start, result = self.__start_item_world(equipment_id, equipment_type, ensure_drops, only_weapons)
 
-        if start is None or 'result' not in start:
-            return False
+        # Loop until we get a good result, should also prevent too deep recursion
+        while result != 1:
+            if start is None:
+                return False
+            stage = start['result']['stage']
+            self.log('stage: %s - did not drop anything good, retrying..' % stage)
+            fail = self.client.battle_end(
+                m_stage_id=0,
+                result=result,
+                battle_type=start['result']['battle_type'],
+                equipment_type=start['result']['equipment_type'],
+                equipment_id=start['result']['equipment_id'],
+            )
+            start, result = self.__start_item_world(equipment_id, equipment_type, ensure_drops, only_weapons)
 
-        result = self.parse_start(start, ensure_drops=ensure_drops, only_weapons=only_weapons)
+        # End the battle and keep the equipment
         end = self.client.battle_end(
             battle_exp_data=self.get_battle_exp_data(start),
             m_stage_id=0,
@@ -274,13 +298,22 @@ class API(BaseAPI):
             equipment_type=start['result']['equipment_type'],
             equipment_id=start['result']['equipment_id'],
         )
+
         res = self.get_weapon_diff(end)
         if res:
             self.log(res)
-        if result == 5:
-            self.log('did not drop anything good, retrying..')
-            return self.doItemWorld(equipment_id=equipment_id, equipment_type=equipment_type)
         return res
+
+    def __start_item_world(self, equipment_id, equipment_type, ensure_drops, only_weapons):
+        start = self.client.item_world_start(equipment_id, equipment_type=equipment_type,
+                                             deck_no=self.o.team_num,
+                                             deck=self.pd.deck(self.o.team_num) if self.o.auto_rebirth else [])
+        if start is None or 'result' not in start:
+            return None, None
+
+        result = self.parse_start(start, ensure_drops=ensure_drops, only_weapons=only_weapons)
+
+        return start, result
 
     def getGain(self, t):
         for j in self.pd.items:
@@ -367,11 +400,24 @@ class API(BaseAPI):
             self.client.boltrend_exchange_code(c)
         self.get_mail()
 
-# if __name__ == "__main__":
-#     a = API()
-#     if False:
-#         a.password = '26eYVYpYVdbwpPkq'
-#         a.uuid = 'e08ed5d9-61a6-4055-a18e-9795d8f40f47'
-#         a.dologin()
-#     else:
-#         a.reroll()
+    def spin_hospital(self):
+        # Server time is utc -4. Spins available every 8 hours
+        last_roulete_time_string = self.client.hospital_index()['result']['last_hospital_at']
+        last_roulette_time = parser.parse(last_roulete_time_string)
+        utcminus4time = datetime.datetime.utcnow() + datetime.timedelta(hours=-4)
+        if utcminus4time > last_roulette_time + datetime.timedelta(hours=8):
+            result = self.client.hospital_roulette()
+
+    def do_bingo(self):
+        bingo_data = self.client.bingo_index(Constants.Current_Bingo_ID)
+        if self.bingo_is_spin_available():
+            spin_result = self.client.bingo_lottery(Constants.Current_Bingo_ID, False)
+            spin_index = spin_result['result']['t_bingo_data']['last_bingo_index']
+            self.log(
+                f"Bingo spinned. Obtained number {spin_result['result']['t_bingo_data']['display_numbers'][spin_index]}.")
+            free_reward_positions = [0, 3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33]
+            bingo_rewards = spin_result['result']['rewards']
+            free_rewards = [bingo_rewards[i] for i in free_reward_positions]
+            available_free_rewards = [x for x in free_rewards if x['status'] == 1]
+            if len(available_free_rewards) > 0:
+                print(f"There are {len(available_free_rewards)} free rewards available to claim.")

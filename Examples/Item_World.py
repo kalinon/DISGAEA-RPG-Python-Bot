@@ -29,7 +29,7 @@ batch_count = 0
 while batch_count < batches_to_run:
     item_count = 0
     while item_count < batch_size:
-        a.upgrade_items(ensure_drops=True, only_weapons=False, run_limit=1)
+        a.upgrade_items(ensure_drops=True, only_weapons=False, item_limit=1)
         a.etna_resort_check_deposit_status(max_innocent_rank, max_item_rank, max_item_rarity)
         item_count += 1
     a.etna_resort_donate_items(max_innocent_rank, max_item_rank, max_item_rarity)
