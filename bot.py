@@ -127,7 +127,7 @@ def use_ap(stage_id, event_team: int = 1):
                 a.do_axel_contest(unit_id, 1000)
     else:
         times = int(a.current_ap / 30)
-        farm_event_stage(stage_id=stage_id, team=event_team, times=times)
+        farm_event_stage(stage_id=stage_id, team=event_team, times=times, rebirth=True)
 
 
 def clear_inbox():
