@@ -26,9 +26,9 @@ for code in codes:
     a.client.boltrend_exchange_code(code)
 
 
-def farm_event_stage(times: int, stage_id: int, team: int, rebirth: bool):
+def farm_event_stage(times: int, stage_id: int, team: int, rebirth: bool, raid_team=None):
     for i in range(times):
-        do_quest(stage_id, True, team_num=team, auto_rebirth=rebirth)
+        do_quest(stage_id, True, team_num=team, auto_rebirth=rebirth, raid_team=raid_team)
 
 
 def farm_item_world(team=1, min_rarity=0, min_rank=0, min_item_rank=0, min_item_level=0, only_weapons=False,
@@ -59,16 +59,16 @@ def farm_item_world(team=1, min_rarity=0, min_rank=0, min_item_rank=0, min_item_
     a.upgrade_items(only_weapons=only_weapons, ensure_drops=True, item_limit=item_limit, items=items)
 
 
-def do_gate(gate, team, rebirth):
+def do_gate(gate, team, rebirth, raid_team=None):
     a.log("[*] running gate {}".format(gate['m_stage_id']))
     current = int(gate['challenge_num'])
     _max = int(gate['challenge_max'])
     while current < _max:
-        do_quest(gate['m_stage_id'], True, team_num=team, auto_rebirth=rebirth)
+        do_quest(gate['m_stage_id'], True, team_num=team, auto_rebirth=rebirth, raid_team=raid_team)
         current += 1
 
 
-def do_gates(gates_data, gem_team=7, hl_team=8, exp_team=6):
+def do_gates(gates_data, gem_team=7, hl_team=8, exp_team=6, raid_team=None):
     a.log("- checking gates")
     for data in gates_data:
         a.log("- checking gate {}".format(data['m_area_id']))
@@ -86,7 +86,7 @@ def do_gates(gates_data, gem_team=7, hl_team=8, exp_team=6):
             if a.current_ap < 10:
                 a.log('Too low on ap to do gates')
                 return
-            do_gate(gate, team, rebirth)
+            do_gate(gate, team, rebirth, raid_team=raid_team)
 
 
 def daily(gem_team: int = 22, hl_team: int = 21, exp_team=23):
@@ -108,17 +108,19 @@ def get_event_areas(event_id):
     return [tmp + 101, tmp + 102, tmp + 103, tmp + 104, tmp + 105]
 
 
-def clear_event(area_lt, team_num):
+def clear_event(area_lt, team_num, raid_team: int):
+    a.o.use_potions = True
     dic = a.gd.stages
     rank = [1, 2, 3]
     for k in rank:
         for i in area_lt:
             new_lt = [x for x in dic if x["m_area_id"] == i and x["rank"] == k]
             for c in new_lt:
-                do_quest(c['id'], True, team_num, True)
+                do_quest(c['id'], True, team_num, True, raid_team=raid_team)
+    a.o.use_potions = False
 
 
-def use_ap(stage_id, event_team: int = 1):
+def use_ap(stage_id, event_team: int = 1, raid_team=None):
     a.log("[*] using ap")
 
     if stage_id is None:
@@ -127,7 +129,7 @@ def use_ap(stage_id, event_team: int = 1):
                 a.do_axel_contest(unit_id, 1000)
     else:
         times = int(a.current_ap / 30)
-        farm_event_stage(stage_id=stage_id, team=event_team, times=times, rebirth=True)
+        farm_event_stage(stage_id=stage_id, team=event_team, times=times, rebirth=True, raid_team=raid_team)
 
 
 def clear_inbox():
@@ -144,15 +146,17 @@ def clear_inbox():
         if new_last_id == last_id:
             a.log("- inbox is empty or didnt change")
             break
-        # else:
-        #     a.sell_items(max_rarity=69, max_item_rank=40, keep_max_lvl=True, only_max_lvl=False,
-        #                  max_innocent_rank=8, max_innocent_type=Innocent_ID.HL)
+        else:
+            a.sell_items(max_rarity=69, max_item_rank=40, skip_max_lvl=True, only_max_lvl=False,
+                         max_innocent_rank=7, max_innocent_type=Innocent_ID.RES)
         last_id = new_last_id
 
 
-def do_quest(stage_id, use_tower: bool = False, team_num=None, auto_rebirth=False):
+def do_quest(stage_id, use_tower: bool = False, team_num=None, auto_rebirth=False, raid_team=None):
     a.doQuest(stage_id, use_tower=use_tower, team_num=team_num, auto_rebirth=auto_rebirth)
     a.raid_check_and_send()
+    if raid_team is not None:
+        a.do_raids(raid_team)
 
 
 def refine_items(max_rarity: int = 99, max_item_rank: int = 9999, min_rarity: int = 90, min_item_rank: int = 40,
@@ -197,23 +201,23 @@ def train_innocents(innocent_type: int, initial_innocent_rank: int = 8, max_inno
         effect_rank = innocent['effect_rank']
         if effect_rank < initial_innocent_rank or effect_rank >= max_innocent_rank:
             continue
-        print(f"\nFound innocent to train. Starting value: {innocent['effect_values'][0]}")
+        a.log(f"Found innocent to train. Starting value: {innocent['effect_values'][0]}")
         attempts = 0
         innocents_trained += 1
         while effect_rank < max_innocent_rank:
             res = a.client.innocent_training(innocent['id'])
             if ('api_error' in res and 'message' in res['api_error'] and
                     res['api_error']['message'] == 'Not enough item.'):
-                print("No caretaker tickets left")
+                a.log("No caretaker tickets left")
                 tickets_finished = True
                 break
             effect_rank = res['result']['after_t_data']['innocents'][0]['effect_rank']
-            print(
+            a.log(
                 f"\tTrained innocent with result {a.innocent_get_training_result(res['result']['training_result'])} "
                 f"- Current value: {res['result']['after_t_data']['innocents'][0]['effect_values'][0]}")
             attempts += 1
-        print(f"\tUpgraded innocent to Legendary. Finished training. Total attempts: {attempts}")
-    print(f"\nNo innocents left to train. Total innocents trained: {innocents_trained}")
+        a.log(f"\tUpgraded innocent to Legendary. Finished training. Total attempts: {attempts}")
+    a.log(f"No innocents left to train. Total innocents trained: {innocents_trained}")
 
 
 def send_sardines():
@@ -224,7 +228,9 @@ def send_sardines():
 
 
 def loop(team=9, rebirth: bool = False, farm_stage_id=None,
-         only_weapons=False, iw_team: int = None, raid_team: int = None, event_team: int = None):
+         only_weapons=False, iw_team: int = None, raid_team: int = None, event_team: int = None,
+         gem_team: int = None, hl_team: int = None, exp_team: int = None
+         ):
     a.o.auto_rebirth = rebirth
     a.o.team_num = team
 
@@ -234,9 +240,15 @@ def loop(team=9, rebirth: bool = False, farm_stage_id=None,
         raid_team = team
     if event_team is None:
         event_team = team
+    if gem_team is None:
+        gem_team = team
+    if hl_team is None:
+        hl_team = team
+    if exp_team is None:
+        exp_team = team
 
     if a.current_ap >= 1000:
-        use_ap(stage_id=farm_stage_id)
+        use_ap(stage_id=farm_stage_id, raid_team=raid_team)
 
     while True:
         a.log("- claiming rewards and hospital")
@@ -252,44 +264,48 @@ def loop(team=9, rebirth: bool = False, farm_stage_id=None,
         a.log("- checking raids")
         a.do_raids(raid_team)
 
-        a.log("- farming item world")
-        farm_item_world(team=iw_team, min_rarity=0, min_rank=40, min_item_rank=40, min_item_level=0,
-                        only_weapons=only_weapons, item_limit=5)
-
         a.log("- train innocents")
         for i in range(Innocent_ID.HP, Innocent_ID.HL):
             train_innocents(i)
 
         a.log("- donate equipment")
         a.etna_donate_innocents(max_innocent_rank=4, max_innocent_type=Innocent_ID.RES)
-        a.etna_resort_donate_items(max_item_rarity=69, max_innocent_rank=8, max_innocent_type=Innocent_ID.RES)
-        a.etna_resort_donate_items(max_item_rarity=69, max_innocent_rank=4, max_innocent_type=8)
+        a.etna_resort_donate_items(max_item_rarity=69, remove_innocents=True)
+        a.etna_donate_innocents(max_innocent_rank=4, max_innocent_type=Innocent_ID.HL)
         a.etna_resort_get_all_daily_rewards()
 
         a.log("- selling excess items")
-        a.sell_items(max_item_rank=39, skip_max_lvl=True, only_max_lvl=False,
-                     max_innocent_rank=8, max_innocent_type=Innocent_ID.HL)
-        a.sell_items(max_rarity=69, max_item_rank=39, skip_max_lvl=True, only_max_lvl=False, max_innocent_rank=8,
-                     max_innocent_type=Innocent_ID.RES)
+        a.sell_items(max_item_rank=39, skip_max_lvl=True, only_max_lvl=False, remove_innocents=True)
 
-        if a.current_ap >= 1000:
+        if a.current_ap >= 300:
+            a.log("- doing gates")
+            gates_data = a.client.player_gates()['result']
+            do_gates(gates_data, gem_team=gem_team, hl_team=hl_team, exp_team=exp_team, raid_team=raid_team)
+
             use_ap(stage_id=farm_stage_id, event_team=event_team)
+
+        a.log("- farming item world")
+        farm_item_world(team=iw_team, min_rarity=0, min_rank=40, min_item_rank=40, min_item_level=0,
+                        only_weapons=only_weapons, item_limit=2)
 
 
 # clear_inbox()
 # Daily tasks
-daily(gem_team=22, hl_team=21, exp_team=6)
+# daily(gem_team=22, hl_team=21, exp_team=6)
 
 # # Uncomment to clear a new event area. Provide the first 4 digits of the m_area_id.
-# clear_event(get_event_areas(1154), team_num=9)
+# clear_event(get_event_areas(1162), team_num=9, raid_team=23)
 
 # 314109 - misc stage
 # 114710104 - Defensive Battle 4
 
-# 1154105311 - Extra+ (HL)
-# 1154105312 - Extra+ (EXP)
-# 1154105313 - Extra+ (1★)
-# 1154201103 - Hidden Stage -HARD-
-
+# 1162105311 - Extra+ (HL)
+# 1162105312 - Extra+ (EXP)
+# 1162105313 - Extra+ (1★)
+# 1162201103 - Hidden Stage -HARD-
+# do_quest(1162201103, team_num=9)
 # Full loop
-loop(team=9, raid_team=23, iw_team=9, event_team=9, rebirth=True, farm_stage_id=1154105313)
+loop(team=9, rebirth=True, farm_stage_id=1162105313,
+     raid_team=23, iw_team=9, event_team=9,
+     gem_team=22, hl_team=21, exp_team=6,
+     )

@@ -1,6 +1,6 @@
 from abc import ABCMeta
 
-from api.constants import Constants, Innocent_Training_Result
+from api.constants import Constants, Innocent_Training_Result, Innocent_ID
 from api.items import Items
 
 
@@ -211,12 +211,17 @@ class EtnaResort(Items, metaclass=ABCMeta):
             for batch in (innos[i:i + 20] for i in range(0, len(innos), 20)):
                 self.kingdom_innocent_entry(innocent_ids=batch)
 
-    def etna_resort_donate_items(self, max_innocent_rank: int = 10, max_innocent_type: int = 8,
+    def etna_resort_donate_items(self, max_innocent_rank: int = 10, max_innocent_type: int = Innocent_ID.HL,
                                  max_item_rank: int = 100, max_item_rarity: int = 40, remove_innocents: bool = False):
         self.log("Looking for items to donate...")
         self.player_equipment(True)
         self.player_weapons(True)
         self.player_innocents(True)
+
+        # if we are removing innocents then it doesn't matter about the innocent filter
+        if remove_innocents:
+            max_innocent_rank = 10
+            max_innocent_type = Innocent_ID.HL
 
         weapons_to_donate = []
         equipments_to_donate = []

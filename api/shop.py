@@ -1,12 +1,27 @@
 from abc import ABCMeta
 
-from api.constants import Constants
+from api.constants import Constants, Innocent_ID
 from api.player import Player
 
 
 class Shop(Player, metaclass=ABCMeta):
     def __init__(self):
         super().__init__()
+
+    def remove_innocents(self, e):
+        innos = self.pd.get_item_innocents(e)
+        if len(innos) > 0:
+            ids = []
+            for i in innos:
+                ids.append(i['id'])
+            data = self.client.innocent_remove_all(ids, 0)
+            self.check_resp(data)
+            if data['result']['after_t_data']:
+                self.player_update_equip_detail(e)
+                for i in data['result']['after_t_data']['innocents']:
+                    self.pd.update_innocent(i)
+            return data
+        return {}
 
     def buy_daily_items_from_shop(self):
         product_data = self.client.shop_index()['result']['shop_buy_products']['_items']
@@ -181,9 +196,14 @@ class Shop(Player, metaclass=ABCMeta):
                 tickets_left = False
 
     def sell_items(self, max_rarity=40, max_item_rank=100, skip_max_lvl=False, only_max_lvl=False, max_innocent_rank=10,
-                   max_innocent_type=8):
+                   max_innocent_type=Innocent_ID.HL, remove_innocents: bool = False):
         self.player_equipment(True)
         self.player_weapons(True)
+
+        # if we are removing innocents then it doesn't matter about the innocent filter
+        if remove_innocents:
+            max_innocent_rank = 10
+            max_innocent_type = Innocent_ID.HL
 
         selling, skipping = self.pd.filter_items(
             skip_max_lvl=skip_max_lvl, max_innocent_rank=max_innocent_rank, max_innocent_type=max_innocent_type,
@@ -195,6 +215,9 @@ class Shop(Player, metaclass=ABCMeta):
             sell_list = []
             for i in selling:
                 sell_list.append({'eqtype': self.pd.get_equip_type(i), 'eqid': i['id']})
+                if remove_innocents:
+                    self.remove_innocents(i)
+
                 self.log_sell(i)
             data = self.client.shop_sell_equipment(sell_list)
             self.check_resp(data)

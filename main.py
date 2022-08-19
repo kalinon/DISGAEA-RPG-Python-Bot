@@ -133,9 +133,15 @@ class API(BaseAPI):
             return self.client.battle_story(m_stage_id)
 
         if stage['act'] > self.current_ap:
-            self.log('not enough ap')
-            return
-
+            if self.o.use_potions:
+                self.log('not enough ap. using potion')
+                rr = self.client.item_use(use_item_id=301, use_item_num=1)
+                if 'api_error' in rr and rr['api_error']['code'] == 12009:
+                    self.log_err('unable to use potion')
+                    return None
+            else:
+                self.log('not enough ap')
+                return
 
         if team_num is None:
             deck_no = self.o.deck_index
