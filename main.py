@@ -126,7 +126,10 @@ class API(BaseAPI):
             else:
                 break
 
-    def doQuest(self, m_stage_id=101102, use_tower: bool = False, team_num=None, auto_rebirth: bool = False):
+    def doQuest(self, m_stage_id=101102, use_tower: bool = False, team_num=None, auto_rebirth: bool = None):
+        if auto_rebirth is None:
+            auto_rebirth = self.o.auto_rebirth
+
         stage = self.gd.get_stage(m_stage_id)
         self.log('doing quest:%s [%s]' % (stage['name'], m_stage_id))
         if stage['exp'] == 0:
@@ -144,9 +147,7 @@ class API(BaseAPI):
                 return
 
         if team_num is None:
-            deck_no = self.o.deck_index
-        else:
-            deck_no = team_num - 1
+            team_num = self.o.team_num
 
         deck = []
         if auto_rebirth:

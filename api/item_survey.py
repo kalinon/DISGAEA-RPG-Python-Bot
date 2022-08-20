@@ -4,7 +4,7 @@ from abc import ABCMeta
 from dateutil import parser
 
 from api import Shop
-from api.constants import Constants, EquipmentType
+from api.constants import Constants, EquipmentType, Innocent_ID
 
 
 class ItemSurvey(Shop, metaclass=ABCMeta):
@@ -90,18 +90,24 @@ class ItemSurvey(Shop, metaclass=ABCMeta):
             self.client.player_equipments(True)
             equipments_to_deposit = []
             weapons_to_deposit = []
-            etd, _ = self.pd.filter_items(max_item_level=1, skip_locked=True, skip_equipped=True,
-                                          min_item_rank=min_item_rank_to_deposit,
-                                          max_rarity=40, max_innocent_rank=5,
-                                          item_type=EquipmentType.ARMOR)
+            etd, _ = self.pd.filter_items(
+                max_item_rank=40, max_rarity=39, max_item_level=1,
+                skip_locked=True, skip_equipped=True,
+                max_innocent_rank=4, max_innocent_type=Innocent_ID.RES,
+                min_item_rank=min_item_rank_to_deposit,
+                item_type=EquipmentType.ARMOR
+            )
 
             # If deposit cannot be filled with only equipment, find weapons to finish filling
             if len(etd) < free_slots:
                 free_slots = free_slots - len(etd)
-                wtd, _ = self.pd.filter_items(max_item_level=1, skip_locked=True, skip_equipped=True,
-                                              min_item_rank=min_item_rank_to_deposit,
-                                              max_rarity=40, max_innocent_rank=5,
-                                              item_type=EquipmentType.WEAPON)
+                wtd, _ = self.pd.filter_items(
+                    max_item_rank=40, max_rarity=39, max_item_level=1,
+                    skip_locked=True, skip_equipped=True,
+                    max_innocent_rank=4, max_innocent_type=Innocent_ID.RES,
+                    min_item_rank=min_item_rank_to_deposit,
+                    item_type=EquipmentType.WEAPON
+                )
                 weapons_to_deposit = wtd[0:free_slots]
             else:
                 equipments_to_deposit = etd[0:free_slots]
@@ -110,3 +116,5 @@ class ItemSurvey(Shop, metaclass=ABCMeta):
                 self.log(
                     'found %s armor and %s weapons for survey' % (len(equipments_to_deposit), len(weapons_to_deposit)))
                 self.client.item_world_survey_start(weapons_to_deposit, equipments_to_deposit)
+            else:
+                self.log('unable to find items for survey')

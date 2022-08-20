@@ -1,6 +1,6 @@
 from abc import ABCMeta
 
-from api.constants import Constants, Innocent_ID
+from api.constants import Constants, Innocent_ID, EquipmentType
 from api.player import Player
 
 
@@ -109,32 +109,31 @@ class Shop(Player, metaclass=ABCMeta):
         self.player_innocents(True)
 
         items, skipping = self.pd.filter_items(
-            min_item_rank=40, max_rarity=39, max_item_level=1,
+            max_item_rank=40, max_rarity=39, max_item_level=1,
             skip_equipped=True, skip_locked=True,
+            max_innocent_rank=4, max_innocent_type=Innocent_ID.RES
         )
 
-        if sell_weapons:
-            for item in items:
-                _id = item['id']
-                item_innocents = self.pd.get_item_innocents(item['id'])
-                innos_to_keep = [x for x in item_innocents if x['effect_rank'] >= 5]
-                if len(item_innocents) == 0 or (len(item_innocents) == 1 and len(innos_to_keep) == 0):
-                    equip_type = self.pd.get_equip_type(item)
-                    if equip_type == 2 and sell_equipment:
-                        ec += 1
-                        selling.append({'eqtype': equip_type, 'eqid': _id})
-                    elif sell_weapons:
-                        wc += 1
-                        selling.append({'eqtype': equip_type, 'eqid': _id})
+        for item in items:
+            _id = item['id']
+            equip_type = self.pd.get_equip_type(item)
+            if equip_type == EquipmentType.ARMOR and sell_equipment:
+                ec += 1
+                selling.append(item)
+            elif sell_weapons:
+                wc += 1
+                selling.append(item)
 
-                    if len(selling) == items_to_sell:
-                        break
+            if len(selling) == items_to_sell:
+                break
 
         self.log(f"Weapons to sell: {wc} - Equipment to sell: {ec}")
         if len(selling) > 0:
+            sell_list = []
             for x in selling:
                 self.log_sell(x)
-            self.client.shop_sell_equipment(selling)
+                sell_list.append({'eqtype': self.pd.get_equip_type(x), 'eqid': x['id']})
+            self.client.shop_sell_equipment(sell_list)
 
     def initInnocentPerEquipment(self, minimum_effect_rank=7):
         innocents = self.player_innocents(True)
@@ -196,7 +195,7 @@ class Shop(Player, metaclass=ABCMeta):
                 tickets_left = False
 
     def sell_items(self, max_rarity=40, max_item_rank=100, skip_max_lvl=False, only_max_lvl=False, max_innocent_rank=10,
-                   max_innocent_type=Innocent_ID.HL, remove_innocents: bool = False):
+                   max_innocent_type=Innocent_ID.HL, remove_innocents: bool = False, limit=None):
         self.player_equipment(True)
         self.player_weapons(True)
 
@@ -209,6 +208,10 @@ class Shop(Player, metaclass=ABCMeta):
             skip_max_lvl=skip_max_lvl, max_innocent_rank=max_innocent_rank, max_innocent_type=max_innocent_type,
             max_item_rank=max_item_rank, max_rarity=max_rarity,
             only_max_lvl=only_max_lvl)
+
+        if limit is not None and limit < len(selling):
+            skipping = skipping + len(selling) - limit
+            selling = selling[0:limit]
 
         self.log('skipping %s items, selling %s items' % (skipping, len(selling)))
         if len(selling) >= 1:
@@ -229,7 +232,8 @@ class Shop(Player, metaclass=ABCMeta):
         self.log_item("[-] sell item", w)
 
     def log_item(self, msg, w):
-        item = self.gd.get_weapon(w['m_weapon_id']) if 'm_weapon_id' in w else self.gd.get_weapon(w['m_equipment_id'])
+        item = self.gd.get_weapon(w['m_weapon_id']) if 'm_weapon_id' in w else self.gd.get_equipment(
+            w['m_equipment_id'])
         self.logger.debug(
             '%s: "%s" rarity: %s rank: %s lv: %s lv_max: %s locked: %s' %
             (msg, item['name'], w['rarity_value'], self.gd.get_item_rank(w), w['lv'],
