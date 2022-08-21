@@ -15,11 +15,34 @@ a.config(
 a.quick_login()
 
 codes = [
-    # "drpgxhayzink",
-    # "drpgxredcloud",
-    # "drpgxoreimova2",
-    # "DRPGXberto",
-    # "DRPGXFG",
+    # 'rcg007',
+    # 'Update x2',
+    # 'hammertime1',
+    # 'heydood00',
+    # 'kcdood00',
+    # 'PocketGamerxDRPG',
+    # 'JCDOOD11',
+    # 'rcg007',
+    # 'Zackodood11',
+    # 'ore1000',
+    # 'Disgaeaxor2022',
+    # 'disgaeaxrcg07',
+    # 'disgaeaxhay07',
+    # 'DISGAEAXTIPS2022',
+    # 'drpg9490',
+    # 'drpg3901',
+    # 'drpg2405',
+    # 'drpg6780',
+    # 'drpg1232',
+    # 'drpg1499',
+    # 'drpg5470',
+    # 'drpg8261',
+    # 'drpg3511',
+    # 'disgaeaxhayzink',
+    # 'disgaeaxredcloud',
+    # 'disgaeaxOreimova',
+    # 'Disgaeagift66',
+    # 'Disgaeagift88',
 ]
 
 for code in codes:
@@ -136,6 +159,7 @@ def clear_inbox():
     a.log("[*] clearing inbox")
     ids = a.client.present_index(conditions=[0, 1, 2, 3, 4, 99], order=1)['result']['_items']
     last_id = None
+
     while len(ids) > 0:
         a.get_mail()
 
@@ -147,12 +171,16 @@ def clear_inbox():
             a.log("- inbox is empty or didnt change")
             break
         else:
-            a.sell_items(max_rarity=69, max_item_rank=40, skip_max_lvl=True, only_max_lvl=False,
-                         max_innocent_rank=7, max_innocent_type=Innocent_ID.RES)
+            a.sell_items(max_rarity=39, max_item_rank=40, skip_max_lvl=True, only_max_lvl=False,
+                         max_innocent_rank=4, max_innocent_type=Innocent_ID.RES)
+
         last_id = new_last_id
 
 
-def do_quest(stage_id, use_tower: bool = False, team_num=None, auto_rebirth=False, raid_team=None):
+def do_quest(stage_id, use_tower: bool = False, team_num=None, auto_rebirth=None, raid_team=None):
+    if auto_rebirth is None:
+        auto_rebirth = a.o.auto_rebirth
+
     a.doQuest(stage_id, use_tower=use_tower, team_num=team_num, auto_rebirth=auto_rebirth)
     a.raid_check_and_send()
     if raid_team is not None:
@@ -231,6 +259,7 @@ def loop(team=9, rebirth: bool = False, farm_stage_id=None,
          only_weapons=False, iw_team: int = None, raid_team: int = None, event_team: int = None,
          gem_team: int = None, hl_team: int = None, exp_team: int = None
          ):
+    # Set defaults
     a.o.auto_rebirth = rebirth
     a.o.team_num = team
 
@@ -267,6 +296,8 @@ def loop(team=9, rebirth: bool = False, farm_stage_id=None,
         a.log("- train innocents")
         for i in range(Innocent_ID.HP, Innocent_ID.HL):
             train_innocents(i)
+        train_innocents(Innocent_ID.EXP, initial_innocent_rank=0)
+        train_innocents(Innocent_ID.SPD, initial_innocent_rank=0)
 
         a.log("- donate equipment")
         a.etna_donate_innocents(max_innocent_rank=4, max_innocent_type=Innocent_ID.RES)
@@ -285,27 +316,37 @@ def loop(team=9, rebirth: bool = False, farm_stage_id=None,
             use_ap(stage_id=farm_stage_id, event_team=event_team)
 
         a.log("- farming item world")
-        farm_item_world(team=iw_team, min_rarity=0, min_rank=40, min_item_rank=40, min_item_level=0,
-                        only_weapons=only_weapons, item_limit=2)
+        farm_item_world(
+            team=iw_team, min_rarity=0, min_rank=40,
+            min_item_rank=40, min_item_level=0,
+            only_weapons=only_weapons, item_limit=2
+        )
+
+        # clear_inbox()
 
 
 # clear_inbox()
-# Daily tasks
-# daily(gem_team=22, hl_team=21, exp_team=6)
+
 
 # # Uncomment to clear a new event area. Provide the first 4 digits of the m_area_id.
 # clear_event(get_event_areas(1162), team_num=9, raid_team=23)
 
 # 314109 - misc stage
 # 114710104 - Defensive Battle 4
+# a.completeStory(90101)
 
 # 1162105311 - Extra+ (HL)
 # 1162105312 - Extra+ (EXP)
 # 1162105313 - Extra+ (1★)
 # 1162201103 - Hidden Stage -HARD-
-# do_quest(1162201103, team_num=9)
+# do_quest(1162105312, team_num=9, auto_rebirth=True)
+
+# Daily tasks
+daily(gem_team=22, hl_team=21, exp_team=6)
+
 # Full loop
-loop(team=9, rebirth=True, farm_stage_id=1162105313,
-     raid_team=23, iw_team=9, event_team=9,
-     gem_team=22, hl_team=21, exp_team=6,
-     )
+loop(
+    team=9, rebirth=True, farm_stage_id=1162105313,
+    raid_team=23, iw_team=9, event_team=9,
+    gem_team=22, hl_team=21, exp_team=6,
+)
