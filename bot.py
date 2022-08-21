@@ -294,9 +294,12 @@ def loop(team=9, rebirth: bool = False, farm_stage_id=None,
         a.do_raids(raid_team)
 
         a.log("- train innocents")
+        # Train 1-8
         for i in range(Innocent_ID.HP, Innocent_ID.HL):
             train_innocents(i)
+        # Train all EXP innocents to max level
         train_innocents(Innocent_ID.EXP, initial_innocent_rank=0)
+        # Train all SPD innocents to max level
         train_innocents(Innocent_ID.SPD, initial_innocent_rank=0)
 
         a.log("- donate equipment")

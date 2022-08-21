@@ -93,8 +93,12 @@ class Battle(Player, metaclass=ABCMeta):
             if reward_id == 101:
                 return 5
 
+            item = self.gd.get_weapon(reward_id) if reward_type == 3 else self.gd.get_equipment(reward_id)
+            reward_rank = self.gd.get_item_rank(item)
+
             # drop, no Item General/King/God stage, continue
             if start['result']['stage'] not in {30, 60, 90, 100}:
+                self.log('[+] found item: %s with rarity: %s rank: %s' % (item['name'], reward_rarity, reward_rank))
                 return 1
 
             # drop, rarity less than min_rarity, retry
@@ -107,7 +111,6 @@ class Battle(Player, metaclass=ABCMeta):
             item = self.gd.get_weapon(reward_id) if reward_type == 3 else self.gd.get_equipment(reward_id)
 
             # drop, rank less than min_rank, retry
-            reward_rank = self.gd.get_item_rank(item)
             # FIXME: should check to see if the rank can even be found from the item
             if self.o.min_rank > 0 and reward_rank < self.o.min_rank:
                 return 5
