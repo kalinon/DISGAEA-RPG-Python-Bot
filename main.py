@@ -215,7 +215,7 @@ class API(BaseAPI):
     def upgrade_items(self, ensure_drops: bool = False, only_weapons: bool = False, item_limit: int = None, items=None):
         if items is None:
             items = self.items_to_upgrade(only_weapons=only_weapons)
-        if item_limit is not None and len(items) > item_limit:
+        if item_limit is not None and len(items) > int(item_limit):
             items = items[0:item_limit]
         self.upgrade_item_list(items, ensure_drops=ensure_drops, only_weapons=only_weapons)
 
