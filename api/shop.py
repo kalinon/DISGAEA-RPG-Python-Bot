@@ -71,31 +71,37 @@ class Shop(Player, metaclass=ABCMeta):
 
     def sell_r40_equipment_with_no_innocents(self):
         self.log("Looking for r40 equipment with no innocents to sell...")
+        selling = []
+        wc = 0
+        ec = 0
+
         self.player_equipment(True)
         self.player_weapons(True)
         self.player_innocents(True)
 
-        items, skipping = self.pd.filter_items(min_item_rank=40, max_item_level=1,
-                                               skip_equipped=True, skip_locked=True)
-        selling = []
-        wc = 0
-        ec = 0
+        items, skipping = self.pd.filter_items(
+            min_item_rank=40, max_item_level=1,
+            skip_equipped=True, skip_locked=True,
+        )
+
         for item in items:
             _id = item['id']
             equip_type = self.pd.get_equip_type(item)
             if len(self.pd.get_item_innocents(_id)) == 0:
-                if equip_type == 2:
+                if equip_type == EquipmentType.ARMOR:
                     ec += 1
+                    selling.append(item)
                 else:
                     wc += 1
-                selling.append({'eqtype': equip_type, 'eqid': _id})
+                selling.append(item)
 
         self.log(f'Weapons to sell: {wc} - Equipment to sell: {ec}')
-
         if len(selling) > 0:
+            sell_list = []
             for x in selling:
                 self.log_sell(x)
-            self.client.shop_sell_equipment(selling)
+                sell_list.append({'eqtype': self.pd.get_equip_type(x), 'eqid': x['id']})
+            self.client.shop_sell_equipment(sell_list)
 
     # Sell items (to make sure depository can be emptied) that have no innocent or 1 common
     def shop_free_inventory_space(self, sell_weapons=False, sell_equipment=False, items_to_sell=20):
