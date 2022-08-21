@@ -255,9 +255,17 @@ def send_sardines():
         a.client.friend_send_sardines()
 
 
+def complete_act2(team_num=9):
+    a.o.team_num = team_num
+    a.o.auto_rebirth = True
+    for i in range(141, 145):
+        a.completeStory(i)
+
+
 def loop(team=9, rebirth: bool = False, farm_stage_id=None,
          only_weapons=False, iw_team: int = None, raid_team: int = None, event_team: int = None,
-         gem_team: int = None, hl_team: int = None, exp_team: int = None
+         gem_team: int = None, hl_team: int = None, exp_team: int = None,
+         ap_limit: int = 6000,
          ):
     # Set defaults
     a.o.auto_rebirth = rebirth
@@ -276,7 +284,7 @@ def loop(team=9, rebirth: bool = False, farm_stage_id=None,
     if exp_team is None:
         exp_team = team
 
-    if a.current_ap >= 1000:
+    if a.current_ap >= ap_limit:
         use_ap(stage_id=farm_stage_id, raid_team=raid_team)
 
     while True:
@@ -311,11 +319,10 @@ def loop(team=9, rebirth: bool = False, farm_stage_id=None,
         a.log("- selling excess items")
         a.sell_items(max_item_rank=39, skip_max_lvl=True, only_max_lvl=False, remove_innocents=True)
 
-        if a.current_ap >= 300:
+        if a.current_ap >= ap_limit:
             a.log("- doing gates")
             gates_data = a.client.player_gates()['result']
             do_gates(gates_data, gem_team=gem_team, hl_team=hl_team, exp_team=exp_team, raid_team=raid_team)
-
             use_ap(stage_id=farm_stage_id, event_team=event_team)
 
         a.log("- farming item world")
@@ -325,18 +332,14 @@ def loop(team=9, rebirth: bool = False, farm_stage_id=None,
             only_weapons=only_weapons, item_limit=2
         )
 
+        a.sell_r40_equipment_with_no_innocents()
         # clear_inbox()
 
 
 # clear_inbox()
 
-
 # # Uncomment to clear a new event area. Provide the first 4 digits of the m_area_id.
 # clear_event(get_event_areas(1162), team_num=9, raid_team=23)
-
-# 314109 - misc stage
-# 114710104 - Defensive Battle 4
-# a.completeStory(90101)
 
 # 1162105311 - Extra+ (HL)
 # 1162105312 - Extra+ (EXP)
@@ -352,4 +355,5 @@ loop(
     team=9, rebirth=True, farm_stage_id=1162105313,
     raid_team=23, iw_team=9, event_team=9,
     gem_team=22, hl_team=21, exp_team=6,
+    ap_limit=1000,
 )
