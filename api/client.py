@@ -635,7 +635,7 @@ class Client:
         return self.__rpc('weapon_equipment/rarity_up', {"item_type": item_type, "id": _id})
 
     def etna_resort_remake(self, item_type, id):
-        data = self.rpc('weapon_equipment/remake', {"item_type": item_type, "id": id})
+        data = self.__rpc('weapon_equipment/remake', {"item_type": item_type, "id": id})
         return data
 
     #################
