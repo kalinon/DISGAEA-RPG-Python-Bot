@@ -302,13 +302,13 @@ def loop(team=9, rebirth: bool = False, farm_stage_id=None,
         a.do_raids(raid_team)
 
         a.log("- train innocents")
-        # Train 1-8
+        # Train innocents
         for i in range(Innocent_ID.HP, Innocent_ID.HL):
             train_innocents(i)
         # Train all EXP innocents to max level
-        train_innocents(Innocent_ID.EXP, initial_innocent_rank=0)
+        train_innocents(Innocent_ID.EXP, initial_innocent_rank=0, max_innocent_rank=10)
         # Train all SPD innocents to max level
-        train_innocents(Innocent_ID.SPD, initial_innocent_rank=0)
+        train_innocents(Innocent_ID.SPD, initial_innocent_rank=0, max_innocent_rank=10)
 
         a.log("- donate equipment")
         a.etna_donate_innocents(max_innocent_rank=4, max_innocent_type=Innocent_ID.RES)
