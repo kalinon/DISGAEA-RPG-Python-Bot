@@ -270,11 +270,11 @@ class EtnaResort(Items, metaclass=ABCMeta):
 
         if e['rarity_value'] == 100:
             self.logger.warn("Item already has rarity 100...")
-            return
+            return e['rarity_value']
 
         if e['lv'] != e['lv_max']:
             self.logger.warn("Item is not at max level...")
-            return
+            return e['rarity_value']
 
         retry = True
         self.log("Attempting to refine item...")
