@@ -56,11 +56,8 @@ class PlayerData:
 
     # Returns a list of player items with matching m_item_id
     def get_item_by_m_item_id(self, m_item_id):
-        items = []
-        for i in self.items:
-            if i['m_item_id'] == m_item_id:
-                items.append(i)
-        return items
+        item = next((x for x in self.items if x['m_item_id']== m_item_id),None)
+        return item
 
     def get_item_by_id(self, iid):
         for i in self.items:
