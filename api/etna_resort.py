@@ -292,6 +292,8 @@ class EtnaResort(Items, metaclass=ABCMeta):
                     final_rarity = res['result']['t_equipment']['rarity_value']
         self.log(
             f"Refined item. Attempts used {attempt_count}. Rarity increase: {result}. Current rarity {final_rarity}")
+        e['rarity_value'] = final_rarity
+        return final_rarity
 
     def etna_resort_remake_item(self, item_id):
         e = self.pd.get_weapon_by_id(item_id)
