@@ -2,14 +2,12 @@ from enum import Enum, IntEnum
 
 
 class Constants:
-    Current_Raid_ID = 156
-    Current_Raid_Event_Point_Gacha = 58
-    Current_Raid_Innocent_Regular_Roulette = 59
-    Current_Raid_Innocent_Special_Roulette = 60
-    Current_Raid_Regular_Boss_Stage = "vs. Kagemaru"
-    Current_Raid_Badass_Boss_Stage = "vs. Kagemaru Badass"
-    Current_Raid_Normal_Boss_ID = 1561
-    Current_Raid_Badass_Boss_ID = 1562
+    Current_Raid_ID = 165
+    Current_Raid_Event_Point_Gacha = 61
+    Current_Raid_Innocent_Regular_Roulette = 62
+    Current_Raid_Innocent_Special_Roulette = 63
+    Current_Raid_Normal_Boss_ID = 1651
+    Current_Raid_Badass_Boss_ID = 1652
     Current_Bingo_ID = 2
     Item_Survey_Deposit_Size = 10
     Weapon_Full_Error = 'Weapon Slot is full\nPlease expand slot or sell weapons'
@@ -18,6 +16,7 @@ class Constants:
     session_id = ''  # FILL SESSION_ID HERE
     user_id = ''  # FILL USER_ID HERE
     ticket = ''  # FILL TICKET FOR STEAM LOGIN
+
 
 class Raid_Gacha_ID(IntEnum):
     SUMMER_PRINNY_EVENT_POINT = 49
@@ -39,20 +38,6 @@ class Raid_ID(IntEnum):
     MAKAI_KINGDOM_RAID_ID = 143
     KAGEMARU_RAID_ID = 156
     MADOKA_RAID_ID = 165
-
-
-class Raid_Boss_Stage_Names(str, Enum):
-    SUMMER_PRINNY_REGULAR_BOSS = "vs. Swimsuit Prinny"
-    SUMMER_PRINNY_BADASS_BOSS = "vs. Swimsuit Prinny Badass"
-    MAKAI_KINGDOM_REGULAR_BOSS = "vs. Dark Lord Valvoga"
-    MAKAI_KINGDOM_BADASS_BOSS = "vs. Dark Lord Valvoga Badass"
-    SEVENDEADLYSINS_REGULAR_BOSS = "vs. Diane"
-    SEVENDEADLYSINS_BADASS_BOSS = "vs. Diane Badass"
-    KAGEMARU_REGULAR_BOSS = "vs. Kagemaru"
-    KAGEMARU_BADASS_BOSS = "vs. Kagemaru Badass"
-    MADOKA_REGULAR_BOSS = "vs. Pribey"
-    MADOKA_BADASS_BOSS = "vs. Pribey Badass"
-
 
 class Raid_Boss_Level_Step(IntEnum):
     NOT_SET = 0
@@ -127,3 +112,9 @@ class Battle_Finish_Type(IntEnum):
     Team_Attack = 3
     Tower_Attack = 5
     Prinny_Explosion = 6
+
+
+class Items(IntEnum):
+    HL = 101
+    Prinny_Steel = 3201
+

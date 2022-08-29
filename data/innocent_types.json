@@ -138,5 +138,9 @@
   {
     "ID": 50,
     "Name": "Bow ATK"
+  },
+  {
+    "ID": 51,
+    "Name": "Monster Magic INT"
   }
 ]

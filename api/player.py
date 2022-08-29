@@ -149,7 +149,7 @@ class Player(Base):
                     e = self.gd.get_equipment(equipment['m_equipment_id'])
                 else :
                     e = self.gd.get_weapon(equipment['m_weapon_id'])
-                print(f"\t{e['name']} - Rarity: {equipment['rarity_value']} - ID: {equipment['id']}")
+                print(f"\t{e['name']} - Rarity: {equipment['rarity_value']} - Remake Count: {equipment['remake_count']} - ID: {equipment['id']}")
 
     def friend_print_full_list(self):
         print("\nPrinting full friend list....")

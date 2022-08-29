@@ -42,6 +42,10 @@ class PlayerData:
                 return i
         return None
 
+    def get_character_by_m_character_id(self, m_character_id: int):
+        character = next((x for x in self.characters if x['m_character_id'] == m_character_id), None)        
+        return character
+
     def get_character_collection_by_id(self, _id: int):
         for i in self.character_collections:
             if i['id'] == _id:
@@ -56,11 +60,8 @@ class PlayerData:
 
     # Returns a list of player items with matching m_item_id
     def get_item_by_m_item_id(self, m_item_id):
-        items = []
-        for i in self.items:
-            if i['m_item_id'] == m_item_id:
-                items.append(i)
-        return items
+        item = next((x for x in self.items if x['m_item_id']== m_item_id),None)
+        return item
 
     def get_item_by_id(self, iid):
         for i in self.items:

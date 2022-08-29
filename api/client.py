@@ -881,6 +881,10 @@ class Client:
     def item_use(self, use_item_id: int, use_item_num: int):
         return self.__rpc('item/use', {"use_item_id": use_item_id, "use_item_num": use_item_num})
 
+    def item_use_gate_key(self, m_area_id, m_stage_id):
+        data = self.__rpc('item/use_gate', {"m_area_id":m_area_id,"m_stage_id":m_stage_id,"m_item_id":1401})
+        return data
+
     def tower_start(self, m_tower_no: int, deck_no: int = 1):
         return self.__rpc('tower/start', {"t_deck_no": deck_no, "m_tower_no": m_tower_no})
 
