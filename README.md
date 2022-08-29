@@ -56,6 +56,9 @@ features:
     ```
 6. be sure to set your device to 3
     ```python
-    a.options.set_region(2)
-    a.options.set_device(3)
+    a = API()
+    a.o.wait = 0
+    a.o.set_region(2)
+    a.o.set_device(3)
+    a.quick_login()
     ```
