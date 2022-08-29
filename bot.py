@@ -6,11 +6,11 @@ from main import API
 a = API()
 # a.setProxy("127.0.0.1:8080")
 a.config(
-    sess=os.getenv('DRPG_TOKEN', default=Constants.session_id),
+    sess=os.getenv('DRPG_SESSION_ID', default=Constants.session_id),
     uin=os.getenv('DRPG_UIN', default=Constants.user_id),
     wait=0,
     region=2,
-    device=2
+    device=3
 )
 a.quick_login()
 

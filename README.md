@@ -3,7 +3,7 @@
 requirements:
 
 - `pip install requests`
-- `pip install dateutil`
+- `pip install python-dateutil`
 - `pip install jwt`
 - license key (get it from https://disgaea.codedbots.com, once you have the license key put it into `codedbots.py` on
   line 12)
@@ -27,3 +27,35 @@ features:
 - leech raid bosses
 - run Axel contest
 - automate fish fleet and item survey
+
+## Auto login
+
+1. go to <https://p-public.service.boltrend.com/oauthOs?appid=287&lang=en>
+2. open developer tools -> network (ensure persist logs is on)
+3. login via webpage
+4. inspect the first requests payload, it should look something like:
+
+    ```json
+    {
+      "appId": "287",
+      "account": "<string>",
+      "password": "<string>",
+      "channel": 3,
+      "captchaId": "",
+      "validate": "",
+      "sourceId": "",
+      "sign": "<string>"
+    }
+    ```
+5. Using the variables above set the following environmental variables:
+    ```shell
+    export STEAM_LOGIN='true'
+    export DRPG_EMAIL="<account value>"
+    export DRPG_PASS="<password value>"
+    export DRPG_SIGN="<sign value>"
+    ```
+6. be sure to set your device to 3
+    ```python
+    a.options.set_region(2)
+    a.options.set_device(3)
+    ```

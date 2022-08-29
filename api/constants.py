@@ -39,6 +39,7 @@ class Raid_ID(IntEnum):
     KAGEMARU_RAID_ID = 156
     MADOKA_RAID_ID = 165
 
+
 class Raid_Boss_Level_Step(IntEnum):
     NOT_SET = 0
     LEVEL_50 = 1
@@ -106,6 +107,7 @@ class EquipmentType(IntEnum):
     WEAPON = 1
     ARMOR = 2
 
+
 class Battle_Finish_Type(IntEnum):
     Normal_Attack = 1
     Special_Move = 2
@@ -117,4 +119,3 @@ class Battle_Finish_Type(IntEnum):
 class Items(IntEnum):
     HL = 101
     Prinny_Steel = 3201
-
