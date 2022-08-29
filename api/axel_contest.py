@@ -17,7 +17,7 @@ class AxelContest(Player, metaclass=ABCMeta):
         collections_available = [x for x in all_collections if x['contest_stage'] < highestStageToClear]
         for collection in collections_available:
             # find the actual unit tht has the character_id
-            character = self.pd.get_character_by_id(collection['m_character_id'])
+            character = self.pd.get_character_by_m_character_id(collection['m_character_id'])
             if character is not None:
                 return character
         return None
