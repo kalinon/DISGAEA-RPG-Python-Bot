@@ -142,8 +142,8 @@ class EtnaResort(Items, metaclass=ABCMeta):
             self.player_equipment(True)
             weapons_to_deposit = []
             equipments_to_deposit = []
-            weapons_lvl1 = [x for x in self.pd.weapons if x['lv'] <= 1 and x['set_chara_id'] == 0]
-            equips_lvl1 = [x for x in self.pd.equipment if x['lv'] <= 1 and x['set_chara_id'] == 0]
+            weapons_lvl1 = [x for x in self.pd.weapons if x['lv'] < x['lv_max'] and x['set_chara_id'] == 0]
+            equips_lvl1 = [x for x in self.pd.equipment if x['lv'] < x['lv_max'] and x['set_chara_id'] == 0]
 
             equipments_to_deposit = self.generate_array_for_deposit(equips_lvl1, deposit_free_slots, max_innocent_rank,
                                                                     min_item_rank_to_deposit)

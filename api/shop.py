@@ -69,7 +69,7 @@ class Shop(Player, metaclass=ABCMeta):
                     self.log(f"Free shop refreshes used up. Finished buying all equipment.")
                     buy = False
 
-    def sell_r40_equipment_with_no_innocents(self):
+    def sell_r40_commons_with_no_innocents(self, item_count:int =0):
         self.log("Looking for r40 equipment with no innocents to sell...")
         selling = []
         wc = 0
@@ -80,9 +80,13 @@ class Shop(Player, metaclass=ABCMeta):
         self.player_innocents(True)
 
         items, skipping = self.pd.filter_items(
-            min_item_rank=40, max_item_level=1,
+            min_item_rank=40, max_item_rank=40,
+            max_item_level=1,
             skip_equipped=True, skip_locked=True,
+            max_rarity = 39, max_inocent_count=0
         )
+        if(item_count > 0):
+            items = items[:item_count]
 
         for item in items:
             _id = item['id']

@@ -137,6 +137,7 @@ class PlayerData:
                    skip_equipped: bool = False, skip_locked: bool = True,
                    max_innocent_rank: int = 8, max_innocent_type: int = 8,
                    min_innocent_rank: int = 0, min_innocent_type: int = 0,
+                   min_inocent_count:int = 0, max_inocent_count:int = 999,
                    item_type: int = 0) -> bool:
 
         # Change this to DEBUG (10) or INFO (20) if you want to see logs
@@ -179,6 +180,14 @@ class PlayerData:
             return False
 
         innos = self.get_item_innocents(item)
+        if(len(innos) > max_inocent_count):
+            Logger.log('skip due to max innocent count', log_level)
+            return False
+
+        if(len(innos) < min_inocent_count):
+            Logger.log('skip due to min innocent count', log_level)
+            return False
+
         if min_innocent_rank > 0 or min_innocent_type > 0:
             if len(innos) == 0:
                 Logger.log('skip due to missing innocent', log_level)
@@ -201,7 +210,7 @@ class PlayerData:
 
         if only_max_lvl and item['lv'] < item['lv_max']:
             Logger.log('skip due to only_max_lvl', log_level)
-            return False
+            return False            
 
         Logger.log('item passed check', log_level)
         return True
@@ -213,6 +222,7 @@ class PlayerData:
                      skip_equipped: bool = False, skip_locked: bool = True,
                      max_innocent_rank: int = 8, max_innocent_type: int = 8,
                      min_innocent_rank: int = 0, min_innocent_type: int = 0,
+                     min_inocent_count: int = 0, max_inocent_count: int = 999,
                      item_type=0):
         matches = []
         skipping = 0
@@ -224,6 +234,7 @@ class PlayerData:
                                      skip_equipped=skip_equipped, skip_locked=skip_locked,
                                      max_innocent_rank=max_innocent_rank, max_innocent_type=max_innocent_type,
                                      min_innocent_rank=min_innocent_rank, min_innocent_type=min_innocent_type,
+                                     min_inocent_count=min_inocent_count, max_inocent_count= max_inocent_count,
                                      item_type=item_type)
             if not result:
                 skipping += 1
