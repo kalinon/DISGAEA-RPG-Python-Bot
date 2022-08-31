@@ -126,7 +126,7 @@ class API(BaseAPI):
             else:
                 break
 
-    def doQuest(self, m_stage_id=101102, use_tower: bool = False, team_num=None, auto_rebirth: bool = None):
+    def doQuest(self, m_stage_id=101102, use_tower_attack: bool = False, team_num=None, auto_rebirth: bool = None, help_t_player_id: int = 0):
         if auto_rebirth is None:
             auto_rebirth = self.o.auto_rebirth
 
@@ -153,17 +153,21 @@ class API(BaseAPI):
         if auto_rebirth:
             deck = self.pd.deck(team_num)
 
-        help_players = self.client.battle_help_list()['result']['help_players'][0]
+        if(help_t_player_id != 0):
+           help_player = self.battle_help_get_friend_by_id(help_t_player_id)
+        else:
+            help_player = self.client.battle_help_list()['result']['help_players'][0]
+            
         start = self.client.battle_start(
-            m_stage_id=m_stage_id, help_t_player_id=help_players['t_player_id'],
-            help_t_character_id=help_players['t_character']['id'], act=stage['act'],
-            help_t_character_lv=help_players['t_character']['lv'],
+            m_stage_id=m_stage_id, help_t_player_id=help_player['t_player_id'],
+            help_t_character_id=help_player['t_character']['id'], act=stage['act'],
+            help_t_character_lv=help_player['t_character']['lv'],
             deck_no=team_num, deck=deck,
         )
         if 'result' not in start:
             return
-        self.client.battle_help_list()
-        exp_data = self.get_battle_exp_data_tower_finish(start) if use_tower else self.get_battle_exp_data(start)
+
+        exp_data = self.get_battle_exp_data_tower_finish(start) if use_tower_attack else self.get_battle_exp_data(start)
 
         end = self.client.battle_end(
             battle_exp_data=exp_data, m_stage_id=m_stage_id,

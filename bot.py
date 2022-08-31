@@ -177,11 +177,11 @@ def clear_inbox():
         last_id = new_last_id
 
 
-def do_quest(stage_id, use_tower: bool = False, team_num=None, auto_rebirth=None, raid_team=None):
+def do_quest(stage_id, use_tower_attack: bool = False, team_num=None, auto_rebirth=None, raid_team=None):
     if auto_rebirth is None:
         auto_rebirth = a.o.auto_rebirth
 
-    a.doQuest(stage_id, use_tower=use_tower, team_num=team_num, auto_rebirth=auto_rebirth)
+    a.doQuest(stage_id, use_tower_attack=use_tower_attack, team_num=team_num, auto_rebirth=auto_rebirth)
     a.raid_check_and_send()
     if raid_team is not None:
         a.do_raids(raid_team)
