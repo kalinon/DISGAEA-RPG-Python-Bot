@@ -1,7 +1,9 @@
 import base64
 import json
+import os
 import sys
 import time
+import uuid
 from typing import List
 
 import jwt
@@ -229,6 +231,71 @@ class Client:
     def rndid(self):
         return self.c.rndid()
 
+    def auto_login(self):
+        account = os.getenv('DRPG_EMAIL')
+        password = os.getenv('DRPG_PASS')
+        sign = os.getenv('DRPG_SIGN')
+        # noinspection DuplicatedCode
+        request_id = str(uuid.uuid4())
+
+        default_headers = {
+            "Host": "p-public.service.boltrend.com",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:104.0) Gecko/20100101 Firefox/104.0",
+            "Accept": "application/json, text/plain, */*",
+            "Content-Type": "application/json;charset=utf-8",
+            "launcherId": "287",
+            "lang": "en",
+            "Origin": "https://p-public.service.boltrend.com"
+        }
+
+        r = requests.post(
+            "https://p-public.service.boltrend.com/webapi/upc/user/authLogin",
+            json.dumps({
+                "appId": "287",
+                "account": account,
+                "password": password,
+                "channel": 3,
+                "captchaId": "", "validate": "", "sourceId": "",
+                "sign": sign
+            }),
+            params={
+                "requestid": request_id
+            },
+            headers=default_headers
+        )
+
+        if r.status_code != 200:
+            Logger.error("Unable to perform authLogin")
+            return
+
+        d = json.loads(r.content)
+        auth_ticket = d['data']['ticket']
+        user_id = d['data']['userId']
+
+        r = requests.post(
+            "https://p-public.service.boltrend.com/webapi/npl-public/user/gameAuth",
+            json.dumps({
+                "launcherId": "287",
+                "pubId": "287",
+                "userId": user_id,
+                "signature": "d1020d508cb737c56ac9d4d0ea991ec58468d102",
+                "ticket": auth_ticket
+            }),
+            params={
+                "requestid": request_id
+            },
+            headers=default_headers
+        )
+        if r.status_code != 200:
+            Logger.error("Unable to perform gameAuth")
+            return
+
+        d = json.loads(r.content)
+
+        self.o.sess = request_id
+        self.o.uin = user_id
+        return d['data']['ticket']
+
     def login(self):
         if self.o.region == 1 or hasattr(self, 'isReroll'):
             data = self.__call_api('login', {
@@ -236,9 +303,14 @@ class Client:
                 "uuid": self.o.uuid
             })
         else:
-            if(self.o.platform == 'Steam'):
-                data = self.__call_api(
-                    'steam/login', {'openId': Constants.user_id, 'ticket': Constants.ticket}) 
+            if self.o.platform == 'Steam':
+                # Auto login
+                if os.getenv('STEAM_LOGIN', '') == 'true':
+                    ticket = self.auto_login()
+                    Logger.info('Successfully auto logged in')
+                    data = self.__call_api('steam/login', {'openId': self.o.uin, 'ticket': ticket})
+                else:
+                    data = self.__call_api('steam/login', {'openId': Constants.user_id, 'ticket': Constants.ticket})
             else:
                 data = self.__call_api(
                     'sdk/login', {
@@ -247,7 +319,7 @@ class Client:
                         "sdk": "BC4D6C8AE94230CC",
                         "region": "non_mainland",
                         "uin": self.o.uin
-                })
+                    })
         return data
 
     def common_battle_result_jwt(self, iv, mission_status: str = '',
@@ -882,7 +954,7 @@ class Client:
         return self.__rpc('item/use', {"use_item_id": use_item_id, "use_item_num": use_item_num})
 
     def item_use_gate_key(self, m_area_id, m_stage_id):
-        data = self.__rpc('item/use_gate', {"m_area_id":m_area_id,"m_stage_id":m_stage_id,"m_item_id":1401})
+        data = self.__rpc('item/use_gate', {"m_area_id": m_area_id, "m_stage_id": m_stage_id, "m_item_id": 1401})
         return data
 
     def tower_start(self, m_tower_no: int, deck_no: int = 1):
