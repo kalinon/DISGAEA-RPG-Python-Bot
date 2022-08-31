@@ -13,10 +13,10 @@ class Constants:
     Weapon_Full_Error = 'Weapon Slot is full\nPlease expand slot or sell weapons'
     Armor_Full_Error = 'Armor Slot is full\nPlease expand slot or sell armor'
     Shop_Max_Free_Refresh = 5
+
     session_id = ''  # FILL SESSION_ID HERE
     user_id = ''  # FILL USER_ID HERE
     ticket = ''  # FILL TICKET FOR STEAM LOGIN
-
 
 class Raid_Gacha_ID(IntEnum):
     SUMMER_PRINNY_EVENT_POINT = 49
@@ -38,6 +38,11 @@ class Raid_ID(IntEnum):
     MAKAI_KINGDOM_RAID_ID = 143
     KAGEMARU_RAID_ID = 156
     MADOKA_RAID_ID = 165
+    FW_PLEINAIR_RAID_ID = 182
+    SANTA_TORACHIYO_RAID_ID = 195
+    SAKUYA_RAID_ID = 209
+    OVERLORD_PRIERE_RAID_ID = 220
+    METALLIA_RAID_ID = 233
 
 class Raid_Boss_Level_Step(IntEnum):
     NOT_SET = 0
