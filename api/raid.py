@@ -81,6 +81,9 @@ class Raid(Player, metaclass=ABCMeta):
         self.log("Claiming raid point rewards.")
         initial_stones = self.player_stone_sum()['result']['_items'][0]['num']
         raid_data = self.client.event_index(event_ids=Constants.Current_Raid_ID)
+        if(raid_data['result']['events'][0]['gacha_data'] is None):
+            self.log("Raid data not found. Please make sure the Current_Raid_ID value is correct on the constants file")
+            return
         current_uses = raid_data['result']['events'][0]['gacha_data']['sum']
         if current_uses == 5000:
             self.log(f"All rewards claimed.")
@@ -110,6 +113,9 @@ class Raid(Player, metaclass=ABCMeta):
     def raid_spin_innocent_roulette(self):
         self.log("Spinning raid innocent roulette.")
         raid_data = self.client.event_index(event_ids=Constants.Current_Raid_ID)
+        if(raid_data['result']['events'][0]['gacha_data'] is None):
+            self.log("Raid data not found. Please make sure the Current_Raid_ID value is correct on the constants file")
+            return
         spins_left = raid_data['result']['events'][0]['gacha_data']['chance_stock_num']
         innocent_types = gamedata['innocent_types']
         is_big_chance = raid_data['result']['events'][0]['gacha_data']['exist_big_chance']
@@ -166,6 +172,9 @@ class Raid(Player, metaclass=ABCMeta):
     def raid_claim_surplus_points(self):
         print("Exchanging surplus raid points for HL...")
         raid_data = self.client.event_index(Constants.Current_Raid_ID)
+        if(raid_data['result']['events'][0]['gacha_data'] is None):
+            self.log("Raid data not found. Please make sure the Current_Raid_ID value is correct on the constants file")
+            return
         exchanged_points = raid_data['result']['events'][0]['exchanged_surplus_point']
         if exchanged_points == 1000000:
             self.log(f"\tAll surplus points exchanged.", 30)
