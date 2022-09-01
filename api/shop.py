@@ -27,25 +27,22 @@ class Shop(Player, metaclass=ABCMeta):
         product_data = self.client.shop_index()['result']['shop_buy_products']['_items']
         self.logger.info("Buying daily AP Pots and bribe items...")
         # 50% AP Pot
-        item = [x for x in product_data if x['m_product_id'] == 102][0]
-        if item['buy_num'] == 0:
-            self.client.shop_buy_item(102, 2)
+        self.__buy_shop_item(product_data, 102, 2)
         # Golden candy
-        item = [x for x in product_data if x['m_product_id'] == 107][0]
-        if item['buy_num'] == 0:
-            self.client.shop_buy_item(107, 3)
+        self.__buy_shop_item(product_data, 107, 3)
         # Golden Bar
-        item = [x for x in product_data if x['m_product_id'] == 108][0]
-        if item['buy_num'] == 0:
-            self.client.shop_buy_item(108, 2)
+        self.__buy_shop_item(product_data, 108, 3)
         # Skip ticket
-        item = [x for x in product_data if x['m_product_id'] == 1121][0]
-        if item['buy_num'] == 0:
-            self.client.shop_buy_item(1121, 1)
+        self.__buy_shop_item(product_data, 1121, 3)
         # BP refill
-        item = [x for x in product_data if x['m_product_id'] == 111][0]
-        if item['buy_num'] == 0:
-            self.client.shop_buy_item(111, 3)
+        self.__buy_shop_item(product_data, 111, 3)
+
+    def __buy_shop_item(self, product_data, product_id, quantity):
+        items = [x for x in product_data if x['m_product_id'] == product_id]
+        if len(items) > 0:
+            item = items[0]
+            if item['buy_num'] == 0:
+                self.client.shop_buy_item(product_id, quantity)
 
     def buy_all_equipment_with_innocents(self, shop_rank):
         self.log("Buying all equipment with innocents...")
@@ -215,9 +212,11 @@ class Shop(Player, metaclass=ABCMeta):
             max_innocent_type = Innocent_ID.HL
 
         selling, skipping = self.pd.filter_items(
-            skip_max_lvl=skip_max_lvl, max_innocent_rank=max_innocent_rank, max_innocent_type=max_innocent_type,
+            skip_max_lvl=skip_max_lvl, skip_equipped=True,
+            max_innocent_rank=max_innocent_rank, max_innocent_type=max_innocent_type,
             max_item_rank=max_item_rank, max_rarity=max_rarity,
-            only_max_lvl=only_max_lvl)
+            only_max_lvl=only_max_lvl
+        )
 
         if limit is not None and limit < len(selling):
             skipping = skipping + len(selling) - limit

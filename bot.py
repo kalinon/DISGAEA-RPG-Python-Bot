@@ -56,7 +56,7 @@ def do_gate(gate, team, rebirth, raid_team=None):
         current += 1
 
 
-def do_gates(gates_data, gem_team=7, hl_team=8, exp_team=6, raid_team=None):
+def do_gates(gates_data, gem_team=7, hl_team=8, exp_team=None, raid_team=None):
     a.log("- checking gates")
     for data in gates_data:
         a.log("- checking gate {}".format(data['m_area_id']))
@@ -66,7 +66,7 @@ def do_gates(gates_data, gem_team=7, hl_team=8, exp_team=6, raid_team=None):
         elif data['m_area_id'] == 50107 or data['m_area_id'] == 50108:
             team = gem_team
             rebirth = False
-        else:
+        elif exp_team is not None:
             team = exp_team
             rebirth = True
 
@@ -77,12 +77,12 @@ def do_gates(gates_data, gem_team=7, hl_team=8, exp_team=6, raid_team=None):
             do_gate(gate, team, rebirth, raid_team=raid_team)
 
 
-def daily(gem_team: int = 22, hl_team: int = 21, exp_team=23):
+def daily(gem_team: int = 22, hl_team: int = 21, exp_team=None):
     a.get_mail_and_rewards()
     send_sardines()
 
     # Buy items from HL shop
-    # a.buy_daily_items_from_shop()
+    a.buy_daily_items_from_shop()
 
     # Do gates
     gates_data = a.client.player_gates()['result']
@@ -122,6 +122,7 @@ def use_ap(stage_id, event_team: int = 1, raid_team=None):
 
 def clear_inbox():
     a.log("[*] clearing inbox")
+    clean_inv()
     ids = a.client.present_index(conditions=[0, 1, 2, 3, 4, 99], order=1)['result']['_items']
     last_id = None
 
@@ -309,10 +310,12 @@ def clean_inv():
     a.etna_resort_get_all_daily_rewards()
     a.log("- selling excess items")
     a.sell_items(max_item_rank=39, skip_max_lvl=True, only_max_lvl=False, remove_innocents=True)
+    a.sell_items(max_item_rank=40, max_rarity=80, max_innocent_rank=7, max_innocent_type=Innocent_ID.RES)
     a.sell_r40_commons_with_no_innocents()
 
 
-# clear_inbox()
+clear_inbox()
+complete_act2()
 
 # # Uncomment to clear a new event area. Provide the first 4 digits of the m_area_id.
 # clear_event(get_event_areas(1162), team_num=9, raid_team=23)
