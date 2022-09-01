@@ -1,52 +1,14 @@
-import os
-
-from api.constants import Constants, EquipmentType, Innocent_ID, Fish_Fleet_Survey_Duration
+from api.constants import EquipmentType, Innocent_ID, Fish_Fleet_Survey_Duration
 from main import API
 
 a = API()
 # a.setProxy("127.0.0.1:8080")
-# a.config(
-#     sess=os.getenv('DRPG_SESSION_ID', default=Constants.session_id),
-#     uin=os.getenv('DRPG_UIN', default=Constants.user_id),
-#     wait=0,
-#     region=2,
-#     device=3
-# )
 a.o.wait = 0
 a.o.set_region(2)
 a.o.set_device(3)
 a.quick_login()
 
-codes = [
-    # 'rcg007',
-    # 'Update x2',
-    # 'hammertime1',
-    # 'heydood00',
-    # 'kcdood00',
-    # 'PocketGamerxDRPG',
-    # 'JCDOOD11',
-    # 'rcg007',
-    # 'Zackodood11',
-    # 'ore1000',
-    # 'Disgaeaxor2022',
-    # 'disgaeaxrcg07',
-    # 'disgaeaxhay07',
-    # 'DISGAEAXTIPS2022',
-    # 'drpg9490',
-    # 'drpg3901',
-    # 'drpg2405',
-    # 'drpg6780',
-    # 'drpg1232',
-    # 'drpg1499',
-    # 'drpg5470',
-    # 'drpg8261',
-    # 'drpg3511',
-    # 'disgaeaxhayzink',
-    # 'disgaeaxredcloud',
-    # 'disgaeaxOreimova',
-    # 'Disgaeagift66',
-    # 'Disgaeagift88',
-]
+codes = []
 
 for code in codes:
     a.client.boltrend_exchange_code(code)
@@ -265,6 +227,13 @@ def complete_act2(team_num=9):
         a.completeStory(i)
 
 
+def raid_claim():
+    a.raid_claim_all_point_rewards()
+    a.raid_claim_all_boss_rewards()
+    # a.raid_exchange_surplus_points()
+    a.raid_spin_innocent_roulette()
+
+
 def loop(team=9, rebirth: bool = False, farm_stage_id=None,
          only_weapons=False, iw_team: int = None, raid_team: int = None, event_team: int = None,
          gem_team: int = None, hl_team: int = None, exp_team: int = None,
@@ -303,24 +272,18 @@ def loop(team=9, rebirth: bool = False, farm_stage_id=None,
 
         a.log("- checking raids")
         a.do_raids(raid_team)
+        raid_claim()
 
         a.log("- train innocents")
         # Train innocents
-        for i in range(Innocent_ID.HP, Innocent_ID.HL):
-            train_innocents(i)
+        for i in a.gd.innocent_types:
+            train_innocents(i["ID"])
         # Train all EXP innocents to max level
         train_innocents(Innocent_ID.EXP, initial_innocent_rank=0, max_innocent_rank=10)
         # Train all SPD innocents to max level
         train_innocents(Innocent_ID.SPD, initial_innocent_rank=0, max_innocent_rank=10)
 
-        a.log("- donate equipment")
-        a.etna_donate_innocents(max_innocent_rank=4, max_innocent_type=Innocent_ID.RES)
-        a.etna_resort_donate_items(max_item_rarity=69, remove_innocents=True)
-        a.etna_donate_innocents(max_innocent_rank=4, max_innocent_type=Innocent_ID.HL)
-        a.etna_resort_get_all_daily_rewards()
-
-        a.log("- selling excess items")
-        a.sell_items(max_item_rank=39, skip_max_lvl=True, only_max_lvl=False, remove_innocents=True)
+        clean_inv()
 
         if a.current_ap >= ap_limit:
             a.log("- doing gates")
@@ -335,8 +298,18 @@ def loop(team=9, rebirth: bool = False, farm_stage_id=None,
             only_weapons=only_weapons, item_limit=2
         )
 
-        a.sell_r40_equipment_with_no_innocents()
         # clear_inbox()
+
+
+def clean_inv():
+    a.log("- donate equipment")
+    a.etna_donate_innocents(max_innocent_rank=4, max_innocent_type=Innocent_ID.RES)
+    a.etna_resort_donate_items(max_item_rarity=69, remove_innocents=True)
+    a.etna_donate_innocents(max_innocent_rank=4, max_innocent_type=Innocent_ID.HL)
+    a.etna_resort_get_all_daily_rewards()
+    a.log("- selling excess items")
+    a.sell_items(max_item_rank=39, skip_max_lvl=True, only_max_lvl=False, remove_innocents=True)
+    a.sell_r40_commons_with_no_innocents()
 
 
 # clear_inbox()

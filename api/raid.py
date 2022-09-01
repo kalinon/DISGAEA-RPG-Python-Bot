@@ -70,8 +70,8 @@ class Raid(Player, metaclass=ABCMeta):
             if own_boss['current_battle_count'] == 0:
                 raid_stage_id = self.raid_find_stageid(own_boss['m_raid_boss_id'], own_boss['level'])
                 if raid_stage_id != 0:
-                    battle_start_data = self.raid_battle_start(raid_stage_id, own_boss['id'], party_to_use)
-                    battle_end_data = self.raid_battle_end_giveup(raid_stage_id, own_boss['id'])
+                    self.raid_battle_start(raid_stage_id, own_boss['id'], party_to_use)
+                    self.raid_battle_end_giveup(raid_stage_id, own_boss['id'])
             # share
             if not own_boss['is_send_help']:
                 sharing_result = self.client.raid_send_help_request(own_boss['id'])
@@ -81,7 +81,7 @@ class Raid(Player, metaclass=ABCMeta):
         self.log("Claiming raid point rewards.")
         initial_stones = self.player_stone_sum()['result']['_items'][0]['num']
         raid_data = self.client.event_index(event_ids=Constants.Current_Raid_ID)
-        if(raid_data['result']['events'][0]['gacha_data'] is None):
+        if raid_data['result']['events'][0]['gacha_data'] is None:
             self.log("Raid data not found. Please make sure the Current_Raid_ID value is correct on the constants file")
             return
         current_uses = raid_data['result']['events'][0]['gacha_data']['sum']
@@ -113,7 +113,7 @@ class Raid(Player, metaclass=ABCMeta):
     def raid_spin_innocent_roulette(self):
         self.log("Spinning raid innocent roulette.")
         raid_data = self.client.event_index(event_ids=Constants.Current_Raid_ID)
-        if(raid_data['result']['events'][0]['gacha_data'] is None):
+        if raid_data['result']['events'][0]['gacha_data'] is None:
             self.log("Raid data not found. Please make sure the Current_Raid_ID value is correct on the constants file")
             return
         spins_left = raid_data['result']['events'][0]['gacha_data']['chance_stock_num']
@@ -124,9 +124,9 @@ class Raid(Player, metaclass=ABCMeta):
             self.log(f"All spins used.")
             return
 
-        special_spin = ""
+        ""
         while spins_left > 0 or is_big_chance is True:
-            data = ''
+            ''
             if is_big_chance:
                 data = self.client.raid_gacha(Constants.Current_Raid_Innocent_Special_Roulette, 1)
                 special_spin = "Special Spin - "
@@ -172,7 +172,7 @@ class Raid(Player, metaclass=ABCMeta):
     def raid_claim_surplus_points(self):
         print("Exchanging surplus raid points for HL...")
         raid_data = self.client.event_index(Constants.Current_Raid_ID)
-        if(raid_data['result']['events'][0]['gacha_data'] is None):
+        if raid_data['result']['events'][0]['gacha_data'] is None:
             self.log("Raid data not found. Please make sure the Current_Raid_ID value is correct on the constants file")
             return
         exchanged_points = raid_data['result']['events'][0]['exchanged_surplus_point']
@@ -184,7 +184,7 @@ class Raid(Player, metaclass=ABCMeta):
             self.log(f"Not enough points to exchange: {current_points}", 30)
             return
         points_to_exchange = min(1000000 - exchanged_points, current_points)
-        r = self.client.raid_exchange_surplus_points(points_to_exchange)
+        self.client.raid_exchange_surplus_points(points_to_exchange)
         self.log(f"Exchanged {points_to_exchange} points")
 
     def raid_farm_shared_bosses(self, party_to_use):
@@ -193,8 +193,8 @@ class Raid(Player, metaclass=ABCMeta):
         for raid_boss in available_raid_bosses:
             raid_stage_id = self.raid_find_stageid(raid_boss['m_raid_boss_id'], raid_boss['level'])
             if raid_stage_id != 0:
-                battle_start_data = self.raid_battle_start(raid_stage_id, raid_boss['id'], party_to_use)
-                battle_end_data = self.raid_battle_end_giveup(raid_stage_id, raid_boss['id'])
+                self.raid_battle_start(raid_stage_id, raid_boss['id'], party_to_use)
+                self.raid_battle_end_giveup(raid_stage_id, raid_boss['id'])
                 boss_count += 1
                 self.log(f"Farmed boss with level {raid_boss['level']}. Total bosses farmed: {boss_count}")
 
@@ -218,7 +218,7 @@ class Raid(Player, metaclass=ABCMeta):
         for raid_boss in available_raid_bosses:
             raid_stage_id = self.raid_find_stageid(raid_boss['m_raid_boss_id'], raid_boss['level'])
             if raid_stage_id != 0:
-                battle_start_data = self.raid_battle_start(raid_stage_id, raid_boss['id'], team)
-                battle_end_data = self.raid_battle_end_giveup(raid_stage_id, raid_boss['id'])
+                self.raid_battle_start(raid_stage_id, raid_boss['id'], team)
+                self.raid_battle_end_giveup(raid_stage_id, raid_boss['id'])
                 self.raid_boss_count += 1
                 self.log(f"Farmed boss with level {raid_boss['level']}. Total bosses farmed: {self.raid_boss_count}")

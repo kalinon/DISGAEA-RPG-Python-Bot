@@ -180,11 +180,11 @@ class PlayerData:
             return False
 
         innos = self.get_item_innocents(item)
-        if(len(innos) > max_inocent_count):
+        if len(innos) > max_inocent_count:
             Logger.log('skip due to max innocent count', log_level)
             return False
 
-        if(len(innos) < min_inocent_count):
+        if len(innos) < min_inocent_count:
             Logger.log('skip due to min innocent count', log_level)
             return False
 

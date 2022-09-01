@@ -153,7 +153,7 @@ class API(BaseAPI):
         if auto_rebirth:
             deck = self.pd.deck(team_num)
 
-        if(help_t_player_id != 0):
+        if help_t_player_id != 0:
            help_player = self.battle_help_get_friend_by_id(help_t_player_id)
         else:
             help_player = self.client.battle_help_list()['result']['help_players'][0]
@@ -296,7 +296,7 @@ class API(BaseAPI):
                 return False
             stage = start['result']['stage']
             self.log('stage: %s - did not drop anything good, retrying..' % stage)
-            fail = self.client.battle_end(
+            self.client.battle_end(
                 m_stage_id=0,
                 result=result,
                 battle_type=start['result']['battle_type'],
@@ -338,9 +338,9 @@ class API(BaseAPI):
 
     def parseReward(self, end):
         drop_result = end
-        rpcid = drop_result['id']
+        drop_result['id']
         event_points = drop_result['result']['after_t_event']['point'] if drop_result['result']['after_t_event'] else 0
-        current_id = drop_result['result']['after_t_stage_current']['current_id']
+        drop_result['result']['after_t_stage_current']['current_id']
         drop_result = drop_result['result']['drop_result']
         for e in drop_result:
             if e == 'after_t_item':
@@ -422,10 +422,10 @@ class API(BaseAPI):
         last_roulette_time = parser.parse(last_roulete_time_string)
         utcminus4time = datetime.datetime.utcnow() + datetime.timedelta(hours=-4)
         if utcminus4time > last_roulette_time + datetime.timedelta(hours=8):
-            result = self.client.hospital_roulette()
+            self.client.hospital_roulette()
 
     def do_bingo(self):
-        bingo_data = self.client.bingo_index(Constants.Current_Bingo_ID)
+        self.client.bingo_index(Constants.Current_Bingo_ID)
         if self.bingo_is_spin_available():
             spin_result = self.client.bingo_lottery(Constants.Current_Bingo_ID, False)
             spin_index = spin_result['result']['t_bingo_data']['last_bingo_index']

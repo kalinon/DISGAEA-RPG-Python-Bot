@@ -88,7 +88,7 @@ class AxelContest(Player, metaclass=ABCMeta):
     def do_axel_contest(self, character, highest_stage_to_clear):
         if isinstance(character, int):
             character = self.pd.get_character_by_id(character)
-        if(character is None):
+        if character is None:
             self.log("Unit not found. Exiting...")
             return
         cid = character['m_character_id']

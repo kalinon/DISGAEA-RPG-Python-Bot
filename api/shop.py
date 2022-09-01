@@ -44,7 +44,7 @@ class Shop(Player, metaclass=ABCMeta):
             self.client.shop_buy_item(1121, 1)
         # BP refill
         item = [x for x in product_data if x['m_product_id'] == 111][0]
-        if (item['buy_num'] == 0):
+        if item['buy_num'] == 0:
             self.client.shop_buy_item(111, 3)
 
     def buy_all_equipment_with_innocents(self, shop_rank):
@@ -58,18 +58,18 @@ class Shop(Player, metaclass=ABCMeta):
                 if i['innocent_num'] > 0:
                     item_ids = [i['id']]
                     res = self.client.shop_buy_equipment(item_type=i['item_type'], itemid=item_ids)
-                    if (res['error'] == Constants.Armor_Full_Error or res['error'] == Constants.Weapon_Full_Error):
+                    if res['error'] == Constants.Armor_Full_Error or res['error'] == Constants.Weapon_Full_Error:
                         buy = False
             if buy:
                 update_number = self.client.shop_equipment_shop()['result']['lineup_update_num']
-                if (update_number < Constants.Shop_Max_Free_Refresh):
+                if update_number < Constants.Shop_Max_Free_Refresh:
                     self.logger.info(f"Refreshing Shop. Current Refresh: {update_number}")
                     self.client.shop_change_equipment_items(shop_rank=shop_rank)
                 else:
                     self.log(f"Free shop refreshes used up. Finished buying all equipment.")
                     buy = False
 
-    def sell_r40_commons_with_no_innocents(self, item_count:int =0):
+    def sell_r40_commons_with_no_innocents(self, item_count: int = 0):
         self.log("Looking for r40 equipment with no innocents to sell...")
         selling = []
         wc = 0
@@ -83,9 +83,9 @@ class Shop(Player, metaclass=ABCMeta):
             min_item_rank=40, max_item_rank=40,
             max_item_level=1,
             skip_equipped=True, skip_locked=True,
-            max_rarity = 39, max_inocent_count=0
+            max_rarity=39, max_inocent_count=0
         )
-        if(item_count > 0):
+        if item_count > 0:
             items = items[:item_count]
 
         for item in items:

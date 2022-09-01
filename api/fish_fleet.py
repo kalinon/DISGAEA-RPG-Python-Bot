@@ -59,7 +59,7 @@ class FishFleet(Player, metaclass=ABCMeta):
                 while bribe_status < Fish_Fleet_Area_Bribe_Status.VERY_MANY:
                     bribe_result = self.client.survey_use_bribe_item(m_survey_id, [{"m_item_id": 401, "num": 1}])
                     bribe_status = bribe_result['result']['t_survey']['area_condition']
-            survey_start_data = self.client.survey_start(m_survey_id, hours, fish_fleet['t_character_ids'], [])
+            self.client.survey_start(m_survey_id, hours, fish_fleet['t_character_ids'], [])
             self.log(f"Started {fleet_name} fleet expedition")
 
     def survey_get_fleet_name(self, m_survey_id):
