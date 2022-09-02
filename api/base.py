@@ -48,4 +48,4 @@ class Base(object, metaclass=ABCMeta):
 
     def check_resp(self, resp):
         if 'api_error' in resp:
-            raise resp['api_error']['message']
+            raise Exception(resp['api_error']['message'])
