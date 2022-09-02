@@ -62,3 +62,24 @@ features:
     a.o.set_device(3)
     a.quick_login()
     ```
+
+### Set envs using python
+
+If you dont know how to set envs or are on window or w/e use this at the start of your bot script:
+
+```python
+import os
+
+os.environ["STEAM_LOGIN"] = 'true'
+os.environ["DRPG_EMAIL"] = "<account value>"
+os.environ["DRPG_PASS"] = "<password value>"
+os.environ["DRPG_SIGN"] = "<sign value>"
+
+from main import API
+
+a = API()
+a.o.wait = 0
+a.o.set_region(2)
+a.o.set_device(3)
+a.quick_login()
+```
