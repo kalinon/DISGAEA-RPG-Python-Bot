@@ -34,7 +34,7 @@ def farm_item_world(team=1, min_rarity=0, min_rank=0, min_item_rank=0, min_item_
 
     items = a.items_to_upgrade()
     if len(items) == 0:
-        refine_items(min_rarity=89, min_item_rank=40, limit=1)
+        refine_items(min_rarity=89, min_item_rank=40, limit=5)
         items = a.items_to_upgrade()
 
     if len(items) == 0:
@@ -57,6 +57,8 @@ def do_gate(gate, team, rebirth, raid_team=None):
 
 
 def do_gates(gates_data, gem_team=7, hl_team=8, exp_team=None, raid_team=None):
+    team = None
+    rebirth = None
     a.log("- checking gates")
     for data in gates_data:
         a.log("- checking gate {}".format(data['m_area_id']))
@@ -74,7 +76,8 @@ def do_gates(gates_data, gem_team=7, hl_team=8, exp_team=None, raid_team=None):
             if a.current_ap < 10:
                 a.log('Too low on ap to do gates')
                 return
-            do_gate(gate, team, rebirth, raid_team=raid_team)
+            if team and rebirth:
+                do_gate(gate, team, rebirth, raid_team=raid_team)
 
 
 def daily(gem_team: int = 22, hl_team: int = 21, exp_team=None):
@@ -221,11 +224,13 @@ def send_sardines():
         a.client.friend_send_sardines()
 
 
-def complete_act2(team_num=9):
+def complete_story(team_num=9, raid_team=None):
     a.o.team_num = team_num
     a.o.auto_rebirth = True
-    for i in range(141, 145):
-        a.completeStory(i)
+    a.o.use_potions = True
+    # for i in range(141, 175):
+    a.completeStory(raid_team=raid_team)
+    a.o.use_potions = False
 
 
 def raid_claim():
@@ -310,12 +315,12 @@ def clean_inv():
     a.etna_resort_get_all_daily_rewards()
     a.log("- selling excess items")
     a.sell_items(max_item_rank=39, skip_max_lvl=True, only_max_lvl=False, remove_innocents=True)
-    a.sell_items(max_item_rank=40, max_rarity=80, max_innocent_rank=7, max_innocent_type=Innocent_ID.RES)
+    # a.sell_items(max_item_rank=40, max_rarity=80, max_innocent_rank=7, max_innocent_type=Innocent_ID.RES)
     a.sell_r40_commons_with_no_innocents()
 
 
-clear_inbox()
-complete_act2()
+# clear_inbox()
+# complete_story(team_num=9, raid_team=23)
 
 # # Uncomment to clear a new event area. Provide the first 4 digits of the m_area_id.
 # clear_event(get_event_areas(1162), team_num=9, raid_team=23)
@@ -327,12 +332,12 @@ complete_act2()
 # do_quest(1162105312, team_num=9, auto_rebirth=True)
 
 # Daily tasks
-daily(gem_team=22, hl_team=21, exp_team=6)
+daily(gem_team=22, hl_team=21, exp_team=None)
 
 # Full loop
 loop(
     team=9, rebirth=True, farm_stage_id=1162105313,
     raid_team=23, iw_team=9, event_team=9,
-    gem_team=22, hl_team=21, exp_team=6,
+    gem_team=22, hl_team=21, exp_team=None,
     ap_limit=1000,
 )

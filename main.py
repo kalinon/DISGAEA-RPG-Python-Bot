@@ -10,7 +10,6 @@ from api.constants import Constants
 class API(BaseAPI):
     def __init__(self):
         super().__init__()
-        self.done = set()
 
     def config(self, sess: str, uin: str, wait: int = 0, region: int = 1, device: int = 1):
         self.o.sess = sess
@@ -126,7 +125,8 @@ class API(BaseAPI):
             else:
                 break
 
-    def doQuest(self, m_stage_id=101102, use_tower_attack: bool = False, team_num=None, auto_rebirth: bool = None, help_t_player_id: int = 0):
+    def doQuest(self, m_stage_id=101102, use_tower_attack: bool = False, team_num=None, auto_rebirth: bool = None,
+                help_t_player_id: int = 0):
         if auto_rebirth is None:
             auto_rebirth = self.o.auto_rebirth
 
@@ -154,10 +154,10 @@ class API(BaseAPI):
             deck = self.pd.deck(team_num)
 
         if help_t_player_id != 0:
-           help_player = self.battle_help_get_friend_by_id(help_t_player_id)
+            help_player = self.battle_help_get_friend_by_id(help_t_player_id)
         else:
             help_player = self.client.battle_help_list()['result']['help_players'][0]
-            
+
         start = self.client.battle_start(
             m_stage_id=m_stage_id, help_t_player_id=help_player['t_player_id'],
             help_t_character_id=help_player['t_character']['id'], act=stage['act'],
@@ -338,9 +338,7 @@ class API(BaseAPI):
 
     def parseReward(self, end):
         drop_result = end
-        drop_result['id']
         event_points = drop_result['result']['after_t_event']['point'] if drop_result['result']['after_t_event'] else 0
-        drop_result['result']['after_t_stage_current']['current_id']
         drop_result = drop_result['result']['drop_result']
         for e in drop_result:
             if e == 'after_t_item':
@@ -359,14 +357,12 @@ class API(BaseAPI):
         return drop_result
 
     def getDone(self, page=1):
-        if not hasattr(self, 'done'):
-            self.done = set()
         r = self.client.player_clear_stages(updated_at=0, page=page)['result']['_items']
         if len(r) <= 0:
             return
         for i in r:
             if i['clear_num'] >= 1:
-                self.done.add(i['m_stage_id'])
+                self.pd.stages_complete.add(i['m_stage_id'])
         return self.getDone(page + 1)
 
     def getAreaStages(self, m_area_id):
@@ -376,43 +372,47 @@ class API(BaseAPI):
                 ss.append(s)
         return ss
 
-    def completeStory(self, m_area_id=None, limit=None, farmingAll=False):
-        if not farmingAll:
+    def completeStory(self, m_area_id=None, limit=None, farming_all=False, raid_team=None):
+        if not farming_all:
             self.getDone()
         ss = []
         for s in self.gd.stages:
             ss.append(s['id'])
         ss.sort(reverse=False)
-        # ss=sorted(ss)
         i = 0
         blacklist = set()
-        for s in ss:
-            if limit is not None and i >= limit:
-                return False
-            # print(s,self.getStage(s)['m_area_id'])
-            if m_area_id is not None and m_area_id != self.gd.get_stage(s)['m_area_id']:
-                continue
-            if not farmingAll and s in self.done:
-                continue
-            if self.gd.get_stage(s)['m_area_id'] in blacklist:
-                continue
-            try:
-                self.doQuest(s, auto_rebirth=self.o.auto_rebirth)
-            except KeyboardInterrupt:
-                return False
-            except:
-                # print(traceback.format_exc())
-                self.log('failed %s %s' % (s, self.gd.get_stage(s)['m_area_id']))
-                # return False
-                blacklist.add(self.gd.get_stage(s)['m_area_id'])
-                continue
-            self.player_stone_sum()
-            self.player_items()
-            i += 1
+        for rank in [1, 2, 3]:
+            for s in ss:
+                if limit is not None and i >= limit:
+                    return False
+                stage = self.gd.get_stage(s)
+                if m_area_id is not None and m_area_id != stage['m_area_id']:
+                    continue
+                if stage['rank'] != rank: continue
+                if not farming_all and s in self.pd.stages_complete:
+                    self.log('already complete - area: %s stage: %s rank: %s name: %s' % (
+                        stage['m_area_id'], s, rank, stage['name']
+                    ))
+                    continue
+                if stage['m_area_id'] in blacklist:
+                    continue
+                try:
+                    self.doQuest(s, auto_rebirth=self.o.auto_rebirth)
+                    self.raid_check_and_send()
+                    if raid_team is not None:
+                        self.do_raids(raid_team)
+                except KeyboardInterrupt:
+                    return False
+                except:
+                    self.log_err('failed %s %s' % (s, stage['m_area_id']))
+                    blacklist.add(stage['m_area_id'])
+                    continue
+                self.player_stone_sum()
+                self.player_items()
+                i += 1
 
-    def useCodes(self):
-        for c in ['5uf6dyc6gh', 'dp9GVSSnXG', 'dupj4kjfc3', 'f7wtnxk65h', 'j5zysmkvvv', 'ju56hvdwhz', 'nfefnysyy5',
-                  'skfcqwykif', 'sqzvquhtqp', 'tcv5saaskw', 'xnv2ndstwp']:
+    def useCodes(self, codes):
+        for c in codes:
             self.client.boltrend_exchange_code(c)
         self.get_mail()
 
