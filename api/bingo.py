@@ -22,5 +22,5 @@ class Bingo(Base, metaclass=ABCMeta):
         if len(available_free_rewards) > 0:
             self.log(f"Claiming {len(available_free_rewards)} free rewards...")
         for reward in available_free_rewards:
-            res = self.client.bingo_receive_reward([reward['id']])
+            self.client.bingo_receive_reward([reward['id']])
         self.log("Finished claiming free rewards.")

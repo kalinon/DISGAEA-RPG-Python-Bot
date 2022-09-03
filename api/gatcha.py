@@ -1,6 +1,7 @@
 import datetime
-from http import client
+
 from dateutil import parser
+
 from api.player import Player
 
 
@@ -23,6 +24,6 @@ class Gatcha(Player):
     def get_free_gacha_pull_count(self):
         gacha_data = self.client.gacha_sums()
         premium_banner = next((x for x in gacha_data['result']['_items'] if x['m_gacha_id'] == 100001),None)
-        if(premium_banner is not None):
+        if premium_banner is not None:
             return premium_banner['total_draw_count']
         return 0

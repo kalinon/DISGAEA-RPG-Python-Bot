@@ -135,7 +135,7 @@ class Player(Base):
         team = data['result']['_items'][team_num-1]['t_character_ids']
         for key in team.keys():
             unit_id = team[key]
-            if(unit_id) == 0: continue
+            if unit_id == 0: continue
             unit = self.pd.get_character_by_id(unit_id)
             character = self.gd.get_character(unit['m_character_id'])
             self.player_equipment()

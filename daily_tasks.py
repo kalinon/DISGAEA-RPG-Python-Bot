@@ -1,7 +1,4 @@
-import datetime
 import os
-
-from dateutil import parser
 
 from api.constants import Constants
 from main import API
@@ -26,7 +23,7 @@ if player_data['result']['act_give_count']['act_send_count'] == 0:
 a.buy_daily_items_from_shop()
 
 # Use free gacha
-if(a.is_free_gacha_available()):
+if a.is_free_gacha_available():
     print("free gacha available")
     a.get_free_gacha()
 
@@ -39,7 +36,7 @@ if a.bingo_is_spin_available():
     bingo_rewards =  spin_result['result']['rewards']
     free_rewards = [ bingo_rewards[i] for i in free_reward_positions ]
     available_free_rewards = [x for x in free_rewards if x['status'] == 1]  
-    if(len(available_free_rewards) > 0):
+    if len(available_free_rewards) > 0:
         print(f"There are {len(available_free_rewards)} free rewards available to claim.")
         #a.bingo_claim_free_rewards()
 
@@ -50,4 +47,4 @@ if a.bingo_is_spin_available():
 a.buy_daily_items_from_shop()
 # Buy all items with innocents, refresh shop, sell items without rare innos
 a.buy_all_equipment_with_innocents(32)
-a.innocent_safe_sell_items(minimumEffectRank=5, minimumItemRank=32)
+a.innocent_safe_sell_items(min_effect_rank=5, min_item_rank=32)

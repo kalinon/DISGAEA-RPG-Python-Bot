@@ -29,7 +29,7 @@ a.buy_all_equipment_with_innocents(shop_rank)
 a.innocent_safe_sell_items()
 
 # Use free gacha
-if (a.is_free_gacha_available()):
+if a.is_free_gacha_available():
     print("free gacha available")
     a.get_free_gacha()
 
@@ -46,5 +46,5 @@ ap_filled_date = datetime.datetime.now() + datetime.timedelta(minutes=(max_ap - 
 lastRouleteTimeString = a.client.hospital_index()['result']['last_hospital_at']
 lastRouletteTime = parser.parse(lastRouleteTimeString)
 utcminus4time = datetime.datetime.utcnow() + datetime.timedelta(hours=-4)
-if (utcminus4time > lastRouletteTime + datetime.timedelta(hours=8)):
+if utcminus4time > lastRouletteTime + datetime.timedelta(hours=8):
     result = a.client.hospital_roulette()

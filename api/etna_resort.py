@@ -106,7 +106,7 @@ class EtnaResort(Items, metaclass=ABCMeta):
                     retry = True
 
             if total_to_donate > 0:
-                result = self.kingdom_weapon_equipment_entry(weapons_to_donate, equipments_to_donate)
+                self.kingdom_weapon_equipment_entry(weapons_to_donate, equipments_to_donate)
 
     # Will first try to fill the depository with items with rare innocents (any rank)
     # Rest of spots will be filled with any item of specified rank (r40 by default)
@@ -141,7 +141,6 @@ class EtnaResort(Items, metaclass=ABCMeta):
             self.player_weapons(True)
             self.player_equipment(True)
             weapons_to_deposit = []
-            equipments_to_deposit = []
             weapons_lvl1 = [x for x in self.pd.weapons if x['lv'] < x['lv_max'] and x['set_chara_id'] == 0]
             equips_lvl1 = [x for x in self.pd.equipment if x['lv'] < x['lv_max'] and x['set_chara_id'] == 0]
 

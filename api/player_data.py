@@ -18,6 +18,7 @@ class PlayerData:
         self.innocents: [dict[Iterable]] = []
         self.characters: [dict[Iterable]] = []
         self.character_collections: [dict[Iterable]] = []
+        self.stages_complete = set()
 
     @property
     def get_current_deck(self):
@@ -43,7 +44,7 @@ class PlayerData:
         return None
 
     def get_character_by_m_character_id(self, m_character_id: int):
-        character = next((x for x in self.characters if x['m_character_id'] == m_character_id), None)        
+        character = next((x for x in self.characters if x['m_character_id'] == m_character_id), None)
         return character
 
     def get_character_collection_by_id(self, _id: int):
@@ -60,7 +61,7 @@ class PlayerData:
 
     # Returns a list of player items with matching m_item_id
     def get_item_by_m_item_id(self, m_item_id):
-        item = next((x for x in self.items if x['m_item_id']== m_item_id),None)
+        item = next((x for x in self.items if x['m_item_id'] == m_item_id), None)
         return item
 
     def get_item_by_id(self, iid):
@@ -137,7 +138,7 @@ class PlayerData:
                    skip_equipped: bool = False, skip_locked: bool = True,
                    max_innocent_rank: int = 8, max_innocent_type: int = 8,
                    min_innocent_rank: int = 0, min_innocent_type: int = 0,
-                   min_inocent_count:int = 0, max_inocent_count:int = 999,
+                   min_inocent_count: int = 0, max_inocent_count: int = 999,
                    item_type: int = 0) -> bool:
 
         # Change this to DEBUG (10) or INFO (20) if you want to see logs
@@ -180,11 +181,11 @@ class PlayerData:
             return False
 
         innos = self.get_item_innocents(item)
-        if(len(innos) > max_inocent_count):
+        if len(innos) > max_inocent_count:
             Logger.log('skip due to max innocent count', log_level)
             return False
 
-        if(len(innos) < min_inocent_count):
+        if len(innos) < min_inocent_count:
             Logger.log('skip due to min innocent count', log_level)
             return False
 
@@ -210,7 +211,7 @@ class PlayerData:
 
         if only_max_lvl and item['lv'] < item['lv_max']:
             Logger.log('skip due to only_max_lvl', log_level)
-            return False            
+            return False
 
         Logger.log('item passed check', log_level)
         return True
@@ -234,7 +235,7 @@ class PlayerData:
                                      skip_equipped=skip_equipped, skip_locked=skip_locked,
                                      max_innocent_rank=max_innocent_rank, max_innocent_type=max_innocent_type,
                                      min_innocent_rank=min_innocent_rank, min_innocent_type=min_innocent_type,
-                                     min_inocent_count=min_inocent_count, max_inocent_count= max_inocent_count,
+                                     min_inocent_count=min_inocent_count, max_inocent_count=max_inocent_count,
                                      item_type=item_type)
             if not result:
                 skipping += 1

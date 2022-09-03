@@ -30,7 +30,7 @@ a.doQuest(1001101303)
 # do multiple quests
 a.completeStory(90101)
 # farm dungeon
-a.completeStory(50107, farmingAll=True)
+a.completeStory(50107, farming_all=True)
 
 # retry stages until min X rarity
 a.options.min_rarity = 40

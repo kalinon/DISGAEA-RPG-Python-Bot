@@ -15,7 +15,7 @@ item_id = 25921095
 raid_farming_party = 7
 
 item = a.pd.get_weapon_by_id(item_id)
-if(item is None):
+if item is None:
     item = a.pd.get_equipment_by_id(item_id)    
 
 current_hl = a.pd.get_item_by_m_item_id(Items.HL.value)['num']
@@ -39,5 +39,5 @@ while True:
     current_hl = a.pd.get_item_by_m_item_id(Items.HL.value)['num']
     a.log(f"Equipment rank increased. Current rank: {remake_count}. Current HL: {current_hl}")
 
-    if(raid_farming_party != 0):
+    if raid_farming_party != 0:
         a.raid_farm_shared_bosses(raid_farming_party)

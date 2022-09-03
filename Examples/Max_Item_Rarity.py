@@ -15,7 +15,7 @@ item_id = 25921095
 raid_farming_party = 7
 
 item = a.pd.get_weapon_by_id(item_id)
-if(item is None):
+if item is None:
     item = a.pd.get_equipment_by_id(item_id)    
 
 item_rarity = item['rarity_value']
@@ -36,5 +36,5 @@ while True:
     prinny_steel = a.pd.get_item_by_m_item_id(Items.Prinny_Steel.value)['num']
     a.log(f"Equipment rarity increased. Current rarity: {item_rarity}. Current prinny steel: {prinny_steel}")
 
-    if(raid_farming_party != 0):
+    if raid_farming_party != 0:
         a.raid_farm_shared_bosses(raid_farming_party)
