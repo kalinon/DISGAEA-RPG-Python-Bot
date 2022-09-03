@@ -389,11 +389,20 @@ class API(BaseAPI):
                 if m_area_id is not None and m_area_id != stage['m_area_id']:
                     continue
                 if stage['rank'] != rank: continue
+                # Skip non story areas
+                if stage['m_area_id'] > 1000: continue
+
                 if not farming_all and s in self.pd.stages_complete:
                     self.log('already complete - area: %s stage: %s rank: %s name: %s' % (
                         stage['m_area_id'], s, rank, stage['name']
                     ))
                     continue
+                if not stage['appear_m_stage_id'] in self.pd.stages_complete:
+                    self.log('not unlocked - area: %s stage: %s rank: %s name: %s' % (
+                        stage['m_area_id'], s, rank, stage['name']
+                    ))
+                    continue
+
                 if stage['m_area_id'] in blacklist:
                     continue
                 try:
