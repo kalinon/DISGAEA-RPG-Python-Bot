@@ -22,6 +22,7 @@ class codedbots(object):
     def rndid(self):
         if sys.version_info >= (3, 0):
             return os.urandom(16).hex()
+        # noinspection PyUnresolvedReferences
         return os.urandom(16).encode('hex')
 
     def randomiv(self):

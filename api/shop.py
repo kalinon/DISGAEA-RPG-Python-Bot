@@ -190,12 +190,17 @@ class Shop(Player, metaclass=ABCMeta):
         tickets_left = True
         while tickets_left:
             data = self.client.shop_gacha()
+            item = None
             if data['result']['item_type'] == 4:
                 item = self.gd.get_equipment(data['result']['item_id'])
             if data['result']['item_type'] == 3:
                 item = self.gd.get_weapon(data['result']['item_id'])
             if data['result']['item_type'] not in (3, 4):
                 item = self.gd.get_item(data['result']['item_id'])
+
+            if item is None:
+                raise Exception("Unknown item type %s" % data['result']['item_type'])
+
             self.log(
                 f"Obtained {data['result']['m_garapon_lot_id']} prize: {data['result']['item_num']} x {item['name']}")
             if data['result']['t_item_garapon']['num'] <= 0:
