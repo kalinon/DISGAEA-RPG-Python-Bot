@@ -389,8 +389,9 @@ class API(BaseAPI):
                 if m_area_id is not None and m_area_id != stage['m_area_id']:
                     continue
                 if stage['rank'] != rank: continue
+
                 # Skip non story areas
-                if stage['m_area_id'] > 1000: continue
+                if m_area_id is None and stage['m_area_id'] > 1000: continue
 
                 if not farming_all and s in self.pd.stages_complete:
                     self.log('already complete - area: %s stage: %s rank: %s name: %s' % (
