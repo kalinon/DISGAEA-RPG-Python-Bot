@@ -13,8 +13,9 @@ class AxelContest(Player, metaclass=ABCMeta):
         self.log("Looking for a character...")
         self.player_characters()
         # collections store axel contest progress.
-        all_collections = self.pd.character_collections
-        collections_available = [x for x in all_collections if x['contest_stage'] < highestStageToClear]
+        all_collections = self.player_character_collections(True)
+        collections_available = [x for x in all_collections if
+                                 'contest_stage' not in x or x['contest_stage'] < highestStageToClear]
         for collection in collections_available:
             # find the actual unit tht has the character_id
             character = self.pd.get_character_by_m_character_id(collection['m_character_id'])
@@ -81,7 +82,7 @@ class AxelContest(Player, metaclass=ABCMeta):
             if character is None:
                 self.log("No characters left, please increase the level cap")
                 return
-            self.do_axel_contest(character, highestStageToClear)
+            last_stage = self.do_axel_contest(character, highestStageToClear)
             unit_count += 1
             self.log(f"Completed {unit_count} out of {numberOfCharacters} characters")
 
@@ -126,3 +127,4 @@ class AxelContest(Player, metaclass=ABCMeta):
             self.log(f"Cleared stage {last_cleared_stage} of Axel Contest for {unit_name}.")
 
         self.log(f"Finished running Axel Contest for {unit_name} - Last cleared stage: {last_cleared_stage}")
+        return last_cleared_stage
