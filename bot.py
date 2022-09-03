@@ -320,7 +320,7 @@ def clean_inv():
 
 
 # clear_inbox()
-# complete_story(team_num=9, raid_team=23)
+complete_story(team_num=9, raid_team=23)
 
 # # Uncomment to clear a new event area. Provide the first 4 digits of the m_area_id.
 # clear_event(get_event_areas(1162), team_num=9, raid_team=23)
