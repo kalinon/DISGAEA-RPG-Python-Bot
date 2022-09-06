@@ -855,6 +855,17 @@ class Client:
                           {"t_weapon_ids": t_weapon_ids, "t_equipment_ids": t_equipment_ids, "cancel": cancel})
         return data
 
+    ##########################
+    # Dark Assembly endpoints
+    #########################
+
+    #m_agenda_id: 28 for renaming generic characters
+    def agenda_start(self, m_agenda_id):
+        return self.__rpc('agenda/lowmaker_details', {"m_agenda_id": m_agenda_id})
+
+    def agenda_vote(self, m_agenda_id, bribe_data):
+        return self.__rpc('agenda/vote', {"m_agenda_id" :m_agenda_id, "bribe_data": bribe_data})
+
     #################
     # Misc Endpoints
     #################

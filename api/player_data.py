@@ -18,6 +18,8 @@ class PlayerData:
         self.innocents: [dict[Iterable]] = []
         self.characters: [dict[Iterable]] = []
         self.character_collections: [dict[Iterable]] = []
+        self.weapon_effects: [dict[Iterable]] = []
+        self.equipment_effects: [dict[Iterable]] = []
         self.stages_complete = set()
 
     @property
@@ -259,3 +261,42 @@ class PlayerData:
             (msg, item['name'], w['rarity_value'], self.gd.get_item_rank(w), w['lv'],
              w['lv_max'], w['lock_flg'])
         )
+
+    def get_item_alchemy_effects(self, i):
+
+        if isinstance(i, int):
+            i = self.get_weapon_by_id(i)
+            if i is None:
+                i = self.get_equipment_by_id(i)
+
+        if 'm_weapon_id' in i:
+            effects = self.get_weapon_alchemy_effects(i['id'])
+        elif 'm_equipment_id' in i:
+            effects = self.get_equipment_alchemy_effects(i['id'])
+
+        for effect in effects:
+            effect_data = self.gd.get_alchemy_effect(effect['m_equipment_effect_type_id'])
+            is_max_value = effect['effect_value'] == effect_data['effect_value_max']
+            Logger.info(f"Effect: {effect_data['description']} - Value: {effect['effect_value']} - IsMaxValue: {is_max_value}")
+
+    def get_weapon_alchemy_effects(self, i):
+        
+        if isinstance(i, int):
+            item_id = i
+        else:
+            item_id = i['id']
+
+        all_effects = self.weapon_effects
+        weapon_effects = [x for x in all_effects if x['t_weapon_id'] == item_id]
+        return weapon_effects
+
+    def get_equipment_alchemy_effects(self, i):
+        
+        if isinstance(i, int):
+            item_id = i
+        else:
+            item_id = i['id']
+
+        all_effects = self.equipment_effects
+        equipment_effects = [x for x in all_effects if x['t_weapon_id'] == item_id]
+        return equipment_effects

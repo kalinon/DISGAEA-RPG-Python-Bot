@@ -46,6 +46,22 @@ class Player(Base):
             page_index += 1
         return self.pd.weapons
 
+    def player_weapon_effects(self, refresh=False):
+        if len(self.pd.weapon_effects) > 0 and not refresh:
+            return self.pd.weapon_effects
+        self.pd.weapon_effects = []
+        self.logger.debug("refreshing player weapon effects...")
+
+        page_index = 1
+        iterate_next_page = True
+        while iterate_next_page:
+            data = self.client.player_weapon_effects(updated_at=0, page=page_index)
+            if len(data['result']['_items']) <= 0:
+                iterate_next_page = False
+            self.pd.weapon_effects = self.pd.weapon_effects + data['result']['_items']
+            page_index += 1
+        return self.pd.weapon_effects
+
     def player_equipment(self, refresh=False):
         if len(self.pd.equipment) > 0 and not refresh:
             return self.pd.equipment
@@ -61,6 +77,22 @@ class Player(Base):
             self.pd.equipment = self.pd.equipment + data['result']['_items']
             page_index += 1
         return self.pd.equipment
+
+    def player_equipment_effects(self, refresh=False):
+        if len(self.pd.equipment_effects) > 0 and not refresh:
+            return self.pd.equipment_effects
+        self.pd.equipment_effects = []
+        self.logger.debug("refreshing player equipment effects...")
+
+        page_index = 1
+        iterate_next_page = True
+        while iterate_next_page:
+            data = self.client.player_equipment_effects(updated_at=0, page=page_index)
+            if len(data['result']['_items']) <= 0:
+                iterate_next_page = False
+            self.pd.equipment_effects = self.pd.equipment_effects + data['result']['_items']
+            page_index += 1
+        return self.pd.equipment_effects
 
     def player_innocents(self, refresh=False):
         if len(self.pd.innocents) > 0 and not refresh:
