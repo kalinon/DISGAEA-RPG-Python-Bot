@@ -195,12 +195,17 @@ class EtnaResort(Items, metaclass=ABCMeta):
             innocent_count += 1
         return items_to_deposit
 
-    def etna_donate_innocents(self, max_innocent_rank=8, max_innocent_type=8):
+    def etna_donate_innocents(self, max_innocent_rank=8, innocent_types: set[int] = None, max_innocent_type=None,
+                              min_innocent_type=None):
         self.player_innocents()
         innos = []
         skipping = 0
         for i in self.pd.innocents:
-            if not self._filter_innocent(i, max_innocent_rank, max_innocent_type):
+            if not self._filter_innocent(i, max_innocent_rank,
+                                         innocent_types=innocent_types,
+                                         max_innocent_type=max_innocent_type,
+                                         min_innocent_type=min_innocent_type,
+                                         ):
                 skipping += 1
                 continue
             innos.append(i['id'])
@@ -340,11 +345,17 @@ class EtnaResort(Items, metaclass=ABCMeta):
              w['lv_max'], w['lock_flg'])
         )
 
-    def _filter_innocent(self, i, max_innocent_rank, max_innocent_type):
+    def _filter_innocent(self, i, max_innocent_rank, max_innocent_type=None, min_innocent_type: int = None,
+                         innocent_types: set[int] = None):
+
         if i['place_id'] > 0:
             return False
         if i['effect_rank'] > max_innocent_rank:
             return False
-        if i['innocent_type'] > max_innocent_type:
+        if max_innocent_type is not None and i['innocent_type'] > max_innocent_type:
+            return False
+        if min_innocent_type is not None and i['innocent_type'] < min_innocent_type:
+            return False
+        if innocent_types is not None and i['innocent_type'] not in innocent_types:
             return False
         return True
