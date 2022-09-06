@@ -11,6 +11,12 @@ a.config(
 )
 a.quick_login()
 
+## EXPLANATION
+## This script rerolls an item until a certain innocent % boost is reached, ignoring all other rolls
+## Specify and item ID and a target boost. The script will keep rerolling until the target boost is reached
+## If user runs out of HL or priprism the script will stop execution
+## Use a.print_team_info(team_num) to get the ID of the item
+
 #Item to be rolled
 item_id = 15259368
 
@@ -48,4 +54,4 @@ while effect < boost_target and prism_count> 0 and current_hl > Constants.Alchem
     if current_hl < Constants.Alchemy_Alchemize_Cost:
         a.log("Ran out of HL. Exiting...")
 
-a.log(f"Rolled {effect}% innocent boost - Attempt count: {attempt_count} - Priprism let: {prism_count}")
+a.log(f"Rolled {effect}% innocent boost - Attempt count: {attempt_count} - Priprism left: {prism_count}")

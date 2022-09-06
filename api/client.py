@@ -714,6 +714,14 @@ class Client:
         data = self.__rpc('weapon_equipment/add_effects', {"item_type": item_type, "id": id})
         return data
 
+    def etna_resort_reroll_alchemy_effect(self, item_type, item_id, place_no):
+        data = self.__rpc('weapon_equipment/update_effect_lottery', {"item_type": item_type, "id": item_id, "place_no": place_no})
+        return data
+
+    def etna_resort_lock_alchemy_effect(self, lock_flg:bool, t_weapon_effect_id=0, t_equipment_effect_id=0):
+        data = self.__rpc('weapon_equipment/update_effect_lottery', {"t_weapon_effect_id":t_weapon_effect_id,"t_equipment_effect_id":t_equipment_effect_id,"lock_flg":lock_flg})
+        return data
+
     #################
     # Shop Endpoints
     #################
