@@ -56,9 +56,9 @@ def do_gate(gate, team, rebirth, raid_team=None):
         current += 1
 
 
-def do_gates(gates_data, gem_team=7, hl_team=8, exp_team=None, raid_team=None):
-    team = None
-    rebirth = None
+def do_gates(gates_data, gem_team=7, hl_team=8, exp_team=None, raid_team=None, use_potions=False):
+    orig_potions_val = a.o.use_potions
+    a.o.use_potions = use_potions
     a.log("- checking gates")
     for data in gates_data:
         a.log("- checking gate {}".format(data['m_area_id']))
@@ -68,16 +68,22 @@ def do_gates(gates_data, gem_team=7, hl_team=8, exp_team=None, raid_team=None):
         elif data['m_area_id'] == 50107 or data['m_area_id'] == 50108:
             team = gem_team
             rebirth = False
-        elif exp_team is not None:
+        else:
             team = exp_team
             rebirth = True
+
+        if team is None:
+            continue
 
         for gate in data['gate_stage_data']:
             if a.current_ap < 10:
                 a.log('Too low on ap to do gates')
                 return
-            if team and rebirth:
+            if team is not None and rebirth is not None:
                 do_gate(gate, team, rebirth, raid_team=raid_team)
+            else:
+                a.log_err('no team or rebirth defined for: %s' % gate['m_stage_id'])
+    a.o.use_potions = orig_potions_val
 
 
 def daily(gem_team: int = 22, hl_team: int = 21, exp_team=None):
@@ -89,7 +95,7 @@ def daily(gem_team: int = 22, hl_team: int = 21, exp_team=None):
 
     # Do gates
     gates_data = a.client.player_gates()['result']
-    do_gates(gates_data, gem_team=gem_team, hl_team=hl_team, exp_team=exp_team)
+    do_gates(gates_data, gem_team=gem_team, hl_team=hl_team, exp_team=exp_team, use_potions=True)
 
 
 # Will return an array of event area ids based on the event id.
@@ -198,7 +204,7 @@ def train_innocents(innocent_type: int, initial_innocent_rank: int = 8, max_inno
         effect_rank = innocent['effect_rank']
         if effect_rank < initial_innocent_rank or effect_rank >= max_innocent_rank:
             continue
-        a.log(f"Found innocent to train. Starting value: {innocent['effect_values'][0]}")
+        a.log(f"Found innocent (type: {innocent_type}) to train. Starting value: {innocent['effect_values'][0]}")
         attempts = 0
         innocents_trained += 1
         while effect_rank < max_innocent_rank:
@@ -208,13 +214,14 @@ def train_innocents(innocent_type: int, initial_innocent_rank: int = 8, max_inno
                 a.log("No caretaker tickets left")
                 tickets_finished = True
                 break
+            if 'result' not in res: break
             effect_rank = res['result']['after_t_data']['innocents'][0]['effect_rank']
             a.log(
-                f"\tTrained innocent with result {a.innocent_get_training_result(res['result']['training_result'])} "
+                f"Trained innocent (type: {innocent_type}) with result {a.innocent_get_training_result(res['result']['training_result'])} "
                 f"- Current value: {res['result']['after_t_data']['innocents'][0]['effect_values'][0]}")
             attempts += 1
-        a.log(f"\tUpgraded innocent to Legendary. Finished training. Total attempts: {attempts}")
-    a.log(f"No innocents left to train. Total innocents trained: {innocents_trained}")
+        a.log(f"Upgraded innocent (type: {innocent_type}) to Legendary. Finished training. Total attempts: {attempts}")
+    a.log(f"No innocents (type: {innocent_type}) left to train. Total innocents trained: {innocents_trained}")
 
 
 def send_sardines():
@@ -310,8 +317,12 @@ def loop(team=9, rebirth: bool = False, farm_stage_id=None,
 def clean_inv():
     a.log("- donate equipment")
     a.etna_donate_innocents(max_innocent_rank=4, max_innocent_type=Innocent_ID.RES)
+    a.etna_donate_innocents(max_innocent_rank=6, innocent_types={
+        Innocent_ID.HP,
+        Innocent_ID.DEF,
+    })
     a.etna_resort_donate_items(max_item_rarity=69, remove_innocents=True)
-    a.etna_donate_innocents(max_innocent_rank=4, max_innocent_type=Innocent_ID.HL)
+
     a.etna_resort_get_all_daily_rewards()
     a.log("- selling excess items")
     a.sell_items(max_item_rank=39, skip_max_lvl=True, only_max_lvl=False, remove_innocents=True)
@@ -330,7 +341,7 @@ def clean_inv():
 # 1162105313 - Extra+ (1★)
 # 1162201103 - Hidden Stage -HARD-
 # do_quest(1162105312, team_num=9, auto_rebirth=True)
-
+clean_inv()
 # Daily tasks
 daily(gem_team=22, hl_team=21, exp_team=None)
 
