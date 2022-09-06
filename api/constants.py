@@ -13,6 +13,7 @@ class Constants:
     Weapon_Full_Error = 'Weapon Slot is full\nPlease expand slot or sell weapons'
     Armor_Full_Error = 'Armor Slot is full\nPlease expand slot or sell armor'
     Shop_Max_Free_Refresh = 5
+    Alchemy_Alchemize_Cost = 6000
 
     session_id = ''  # FILL SESSION_ID HERE
     user_id = ''  # FILL USER_ID HERE

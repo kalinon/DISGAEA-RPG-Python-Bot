@@ -710,6 +710,10 @@ class Client:
         data = self.__rpc('weapon_equipment/remake', {"item_type": item_type, "id": id})
         return data
 
+    def etna_resort_add_alchemy_effects(self, item_type, id):
+        data = self.__rpc('weapon_equipment/add_effects', {"item_type": item_type, "id": id})
+        return data
+
     #################
     # Shop Endpoints
     #################

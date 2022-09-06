@@ -361,3 +361,8 @@ class EtnaResort(Items, metaclass=ABCMeta):
             if min_innocent_type is not None and i['innocent_type'] < min_innocent_type:
                 return False
         return True
+
+    def etna_resort_can_item_be_rolled(self, item_id):
+        effects = self.pd.get_item_alchemy_effects(item_id)
+        locked_effects = [x for x in effects if x['lock_flg']]
+        return len(locked_effects) == 0

@@ -265,9 +265,10 @@ class PlayerData:
     def get_item_alchemy_effects(self, i):
 
         if isinstance(i, int):
-            i = self.get_weapon_by_id(i)
+            id = i
+            i = self.get_weapon_by_id(id)
             if i is None:
-                i = self.get_equipment_by_id(i)
+                i = self.get_equipment_by_id(id)
 
         if 'm_weapon_id' in i:
             effects = self.get_weapon_alchemy_effects(i['id'])
@@ -277,7 +278,9 @@ class PlayerData:
         for effect in effects:
             effect_data = self.gd.get_alchemy_effect(effect['m_equipment_effect_type_id'])
             is_max_value = effect['effect_value'] == effect_data['effect_value_max']
-            Logger.info(f"Effect: {effect_data['description']} - Value: {effect['effect_value']} - IsMaxValue: {is_max_value}")
+            Logger.info(f"Effect: {effect_data['description']} - Value: {effect['effect_value']} - IsMaxValue: {is_max_value} - Locked: {effect['lock_flg']}")
+
+        return effects
 
     def get_weapon_alchemy_effects(self, i):
         
@@ -298,5 +301,5 @@ class PlayerData:
             item_id = i['id']
 
         all_effects = self.equipment_effects
-        equipment_effects = [x for x in all_effects if x['t_weapon_id'] == item_id]
+        equipment_effects = [x for x in all_effects if x['t_equipment_id'] == item_id]
         return equipment_effects
