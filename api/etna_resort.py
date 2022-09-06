@@ -352,10 +352,12 @@ class EtnaResort(Items, metaclass=ABCMeta):
             return False
         if i['effect_rank'] > max_innocent_rank:
             return False
-        if max_innocent_type is not None and i['innocent_type'] > max_innocent_type:
-            return False
-        if min_innocent_type is not None and i['innocent_type'] < min_innocent_type:
-            return False
-        if innocent_types is not None and i['innocent_type'] not in innocent_types:
-            return False
+        if innocent_types is not None:
+            if i['innocent_type'] not in innocent_types:
+                return False
+        else:
+            if max_innocent_type is not None and i['innocent_type'] > max_innocent_type:
+                return False
+            if min_innocent_type is not None and i['innocent_type'] < min_innocent_type:
+                return False
         return True
