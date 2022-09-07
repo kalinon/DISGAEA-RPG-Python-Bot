@@ -14,6 +14,7 @@ class Constants:
     Armor_Full_Error = 'Armor Slot is full\nPlease expand slot or sell armor'
     Shop_Max_Free_Refresh = 5
     Alchemy_Alchemize_Cost = 6000
+    Unique_Innocent_Character_ID = 0
 
     session_id = ''  # FILL SESSION_ID HERE
     user_id = ''  # FILL USER_ID HERE
@@ -131,3 +132,18 @@ class Items(IntEnum):
 
 class Alchemy_Effect_Type(IntEnum):
     Innocent_Effect = 10001
+    CRT = 20001
+    CRD = 20002
+    Water_Damage = 30001
+    Fire_Damage = 30002
+    Wind_Damage = 30003
+    Star_Damage = 30004
+    Non_Elemental_Damage = 30005
+    Normal_Attack_Damage = 30006
+    Skill_Damage = 30007
+    SP_Per_Turn = 30022
+    Action_Gauge = 30023
+    Skill_Damage_Taken = 30035
+    Damage_Taken_From_Human = 30048
+    Restore_HP = 30049
+    AGRR = 30054

@@ -722,6 +722,10 @@ class Client:
         data = self.__rpc('weapon_equipment/update_effect_lottery', {"t_weapon_effect_id":t_weapon_effect_id,"t_equipment_effect_id":t_equipment_effect_id,"lock_flg":lock_flg})
         return data
 
+    def etna_resort_update_alchemy_effect(self, overwrite: bool):
+        data = self.__rpc('weapon_equipment/update_effect', {"overwrite":overwrite})
+        return data
+
     #################
     # Shop Endpoints
     #################
