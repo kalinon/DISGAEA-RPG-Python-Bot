@@ -374,14 +374,14 @@ class API(BaseAPI):
         return ss
 
     def completeStory(self, m_area_id=None, limit=None, farming_all=False, raid_team=None):
-        if not farming_all:
-            self.getDone()
         ss = []
         for s in self.gd.stages:
             ss.append(s['id'])
         ss.sort(reverse=False)
         i = 0
         blacklist = set()
+
+        complete = self.getDone()
         for rank in [1, 2, 3]:
             for s in ss:
                 if limit is not None and i >= limit:
@@ -394,12 +394,12 @@ class API(BaseAPI):
                 # Skip non story areas
                 if m_area_id is None and stage['m_area_id'] > 1000: continue
 
-                if not farming_all and s in self.pd.clear_stages:
+                if not farming_all and s in complete:
                     self.log('already complete - area: %s stage: %s rank: %s name: %s' % (
                         stage['m_area_id'], s, rank, stage['name']
                     ))
                     continue
-                if not stage['appear_m_stage_id'] in self.pd.clear_stages:
+                if not stage['appear_m_stage_id'] in complete:
                     self.log('not unlocked - area: %s stage: %s rank: %s name: %s' % (
                         stage['m_area_id'], s, rank, stage['name']
                     ))
@@ -409,6 +409,7 @@ class API(BaseAPI):
                     continue
                 try:
                     self.doQuest(s, auto_rebirth=self.o.auto_rebirth)
+                    complete.add(s)
                     self.raid_check_and_send()
                     if raid_team is not None:
                         self.do_raids(raid_team)

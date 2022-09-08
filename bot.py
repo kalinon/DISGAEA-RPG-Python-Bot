@@ -292,9 +292,9 @@ def loop(team=9, rebirth: bool = False, farm_stage_id=None,
         for i in a.gd.innocent_types:
             train_innocents(i["ID"])
         # Train all EXP innocents to max level
-        train_innocents(Innocent_ID.EXP, initial_innocent_rank=0, max_innocent_rank=10)
+        # train_innocents(Innocent_ID.EXP, initial_innocent_rank=0, max_innocent_rank=10)
         # Train all SPD innocents to max level
-        train_innocents(Innocent_ID.SPD, initial_innocent_rank=0, max_innocent_rank=10)
+        # train_innocents(Innocent_ID.SPD, initial_innocent_rank=0, max_innocent_rank=10)
 
         clean_inv()
 
@@ -341,7 +341,7 @@ def clean_inv():
 # exit(0)
 
 # clear_inbox()
-# complete_story(team_num=9, raid_team=23)
+complete_story(team_num=9, raid_team=23)
 
 # # Uncomment to clear a new event area. Provide the first 4 digits of the m_area_id.
 # clear_event(get_event_areas(1162), team_num=9, raid_team=23)
