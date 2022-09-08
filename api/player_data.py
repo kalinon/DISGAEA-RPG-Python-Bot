@@ -36,6 +36,8 @@ class PlayerData:
             "character_collections": self.character_collections,
             "clear_stages": self.clear_stages,
             "stage_missions": self.stage_missions,
+            "weapon_effects": self.weapon_effects,
+            "equipment_effects": self.equipment_effects,
         }
 
         if extra_data is not None:
@@ -301,7 +303,8 @@ class PlayerData:
         for effect in effects:
             effect_data = self.gd.get_alchemy_effect(effect['m_equipment_effect_type_id'])
             is_max_value = effect['effect_value'] == effect_data['effect_value_max']
-            Logger.info(f"Effect: {effect_data['description']} - Value: {effect['effect_value']} - IsMaxValue: {is_max_value} - Locked: {effect['lock_flg']}")
+            Logger.info(
+                f"Effect: {effect_data['description']} - Value: {effect['effect_value']} - IsMaxValue: {is_max_value} - Locked: {effect['lock_flg']}")
 
         return effects
 
