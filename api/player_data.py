@@ -1,3 +1,4 @@
+import json
 from typing import Iterable
 
 from api.constants import EquipmentType
@@ -18,7 +19,29 @@ class PlayerData:
         self.innocents: [dict[Iterable]] = []
         self.characters: [dict[Iterable]] = []
         self.character_collections: [dict[Iterable]] = []
-        self.stages_complete = set()
+        self.clear_stages: [dict[Iterable]] = []
+        self.stage_missions: [dict[Iterable]] = []
+
+    def dump_to_file(self, file_path: str, extra_data=None):
+        data = {
+            "decks": self.decks,
+            "gems": self.gems,
+            "items": self.items,
+            "weapons": self.weapons,
+            "equipment": self.equipment,
+            "innocents": self.innocents,
+            "characters": self.characters,
+            "character_collections": self.character_collections,
+            "clear_stages": self.clear_stages,
+            "stage_missions": self.stage_missions,
+        }
+
+        if extra_data is not None:
+            data["extra_data"] = extra_data
+
+        f = open(file_path, "w")
+        f.write(json.dumps(data, indent=2, sort_keys=True))
+        f.close()
 
     @property
     def get_current_deck(self):

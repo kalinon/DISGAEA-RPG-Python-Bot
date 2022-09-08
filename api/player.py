@@ -109,6 +109,36 @@ class Player(Base):
         self.pd.gems = data['result']['_items'][0]['num']
         return data
 
+    def player_clear_stages(self, refresh=False):
+        if len(self.pd.clear_stages) > 0 and not refresh:
+            return self.pd.clear_stages
+        self.pd.clear_stages = []
+        self.logger.debug("refreshing player stage missions...")
+        page_index = 1
+        iterate_next_page = True
+        while iterate_next_page:
+            data = self.client.player_clear_stages(updated_at=0, page=page_index)
+            if len(data['result']['_items']) <= 0:
+                iterate_next_page = False
+            self.pd.clear_stages = self.pd.clear_stages + data['result']['_items']
+            page_index += 1
+        return self.pd.clear_stages
+
+    def player_stage_missions(self, refresh=False):
+        if len(self.pd.stage_missions) > 0 and not refresh:
+            return self.pd.stage_missions
+        self.pd.stage_missions = []
+        self.logger.debug("refreshing player stage missions...")
+        page_index = 1
+        iterate_next_page = True
+        while iterate_next_page:
+            data = self.client.player_stage_missions(updated_at=0, page=page_index)
+            if len(data['result']['_items']) <= 0:
+                iterate_next_page = False
+            self.pd.stage_missions = self.pd.stage_missions + data['result']['_items']
+            page_index += 1
+        return self.pd.stage_missions
+
     def char_stage_info(self, unit_id, use_cache=False):
         self.log("Looking for character stage info, with id: %s" % unit_id)
         m_character_id = 0
@@ -132,7 +162,7 @@ class Player(Base):
 
     def print_team_info(self, team_num):
         data = self.client.player_decks()
-        team = data['result']['_items'][team_num-1]['t_character_ids']
+        team = data['result']['_items'][team_num - 1]['t_character_ids']
         for key in team.keys():
             unit_id = team[key]
             if unit_id == 0: continue
@@ -144,12 +174,13 @@ class Player(Base):
             unit_weapons = [x for x in self.pd.weapons if x['set_chara_id'] == unit_id]
             unit_gear = unit_weapons + unit_equipments
             print(f"{character['name']} - ID: {unit_id} - Level: {unit['lv']} - Equipped items:")
-            for equipment in unit_gear:        
+            for equipment in unit_gear:
                 if 'm_equipment_id' in equipment:
                     e = self.gd.get_equipment(equipment['m_equipment_id'])
-                else :
+                else:
                     e = self.gd.get_weapon(equipment['m_weapon_id'])
-                print(f"\t{e['name']} - Rarity: {equipment['rarity_value']} - Remake Count: {equipment['remake_count']} - ID: {equipment['id']}")
+                print(
+                    f"\t{e['name']} - Rarity: {equipment['rarity_value']} - Remake Count: {equipment['remake_count']} - ID: {equipment['id']}")
 
     def friend_print_full_list(self):
         print("\nPrinting full friend list....")
