@@ -10,6 +10,7 @@ class GameData:
         self.weapons = gamedata['weapon']
         self.equipment = gamedata['equip']
         self.innocent_types = gamedata['innocent_types']
+        self.equipment_effect_type = gamedata['equipment_effect_type']
         self.innocent_recipes = gamedata['innocent_recipes']
         self.innocent_recipe_map = self.__create_recipe_map()
 
@@ -69,6 +70,11 @@ class GameData:
         if item_rank > 100:
             item_rank = item_rank - 100
         return item_rank
+
+    def get_alchemy_effect(self, i):
+        for s in self.equipment_effect_type:
+            if i == s['id']:
+                return s
 
     def get_innocent_rank_min_max(self, rank: int):
         if rank == 1:

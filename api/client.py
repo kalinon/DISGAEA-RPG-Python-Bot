@@ -710,6 +710,18 @@ class Client:
         data = self.__rpc('weapon_equipment/remake', {"item_type": item_type, "id": id})
         return data
 
+    def etna_resort_add_alchemy_effects(self, item_type, id):
+        data = self.__rpc('weapon_equipment/add_effects', {"item_type": item_type, "id": id})
+        return data
+
+    def etna_resort_reroll_alchemy_effect(self, item_type, item_id, place_no):
+        data = self.__rpc('weapon_equipment/update_effect_lottery', {"item_type": item_type, "id": item_id, "place_no": place_no})
+        return data
+
+    def etna_resort_lock_alchemy_effect(self, lock_flg:bool, t_weapon_effect_id=0, t_equipment_effect_id=0):
+        data = self.__rpc('weapon_equipment/update_effect_lottery', {"t_weapon_effect_id":t_weapon_effect_id,"t_equipment_effect_id":t_equipment_effect_id,"lock_flg":lock_flg})
+        return data
+
     #################
     # Shop Endpoints
     #################
@@ -854,6 +866,17 @@ class Client:
         data = self.__rpc('item_world_survey/end',
                           {"t_weapon_ids": t_weapon_ids, "t_equipment_ids": t_equipment_ids, "cancel": cancel})
         return data
+
+    ##########################
+    # Dark Assembly endpoints
+    #########################
+
+    #m_agenda_id: 28 for renaming generic characters
+    def agenda_start(self, m_agenda_id):
+        return self.__rpc('agenda/lowmaker_details', {"m_agenda_id": m_agenda_id})
+
+    def agenda_vote(self, m_agenda_id, bribe_data):
+        return self.__rpc('agenda/vote', {"m_agenda_id" :m_agenda_id, "bribe_data": bribe_data})
 
     #################
     # Misc Endpoints

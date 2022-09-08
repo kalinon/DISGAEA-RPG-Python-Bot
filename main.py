@@ -42,9 +42,9 @@ class API(BaseAPI):
         self.client.login()
         self.player_characters(True)
         self.player_weapons(True)
-        # self.player_weapon_effects(True)
+        self.player_weapon_effects(True)
         self.player_equipment(True)
-        # self.player_equipment_effects(True)
+        self.player_equipment_effects(True)
         self.player_items(True)
         self.player_innocents(True)
 
