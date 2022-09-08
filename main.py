@@ -356,14 +356,15 @@ class API(BaseAPI):
 
         return drop_result
 
-    def getDone(self, page=1):
-        r = self.client.player_clear_stages(updated_at=0, page=page)['result']['_items']
+    def getDone(self):
+        stages = set()
+        r = self.player_clear_stages()
         if len(r) <= 0:
             return
         for i in r:
             if i['clear_num'] >= 1:
-                self.pd.stages_complete.add(i['m_stage_id'])
-        return self.getDone(page + 1)
+                stages.add(i['m_stage_id'])
+        return stages
 
     def getAreaStages(self, m_area_id):
         ss = []
@@ -393,12 +394,12 @@ class API(BaseAPI):
                 # Skip non story areas
                 if m_area_id is None and stage['m_area_id'] > 1000: continue
 
-                if not farming_all and s in self.pd.stages_complete:
+                if not farming_all and s in self.pd.clear_stages:
                     self.log('already complete - area: %s stage: %s rank: %s name: %s' % (
                         stage['m_area_id'], s, rank, stage['name']
                     ))
                     continue
-                if not stage['appear_m_stage_id'] in self.pd.stages_complete:
+                if not stage['appear_m_stage_id'] in self.pd.clear_stages:
                     self.log('not unlocked - area: %s stage: %s rank: %s name: %s' % (
                         stage['m_area_id'], s, rank, stage['name']
                     ))
@@ -447,3 +448,18 @@ class API(BaseAPI):
             available_free_rewards = [x for x in free_rewards if x['status'] == 1]
             if len(available_free_rewards) > 0:
                 print(f"There are {len(available_free_rewards)} free rewards available to claim.")
+
+    def dump_player_data(self, file_path: str):
+        self.player_stone_sum()
+        self.player_decks(True)
+        self.player_items(True)
+        self.player_weapons(True)
+        self.player_equipment(True)
+        self.player_innocents(True)
+        self.player_characters(True)
+        self.player_character_collections(True)
+        self.getDone()
+        self.player_stage_missions(True)
+        self.pd.dump_to_file(file_path, {
+            "app_constants": self.client.app_constants()['result'],
+        })

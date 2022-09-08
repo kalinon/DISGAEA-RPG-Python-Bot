@@ -22,8 +22,8 @@ class SparSpace(Player, metaclass=ABCMeta):
         self.check_resp(start)
         battle_exp = self.get_battle_exp_data_spar_space(start, character_ids)
         iv = self.client.c.randomiv()
-        common_battle_result = self.client.common_battle_result_jwt(iv, command_count=100)
-        division_battle_result = self.get_division_battle_result_jwt(iv, 100)
+        # common_battle_result = self.client.common_battle_result_jwt(iv, command_count=100)
+        # division_battle_result = self.get_division_battle_result_jwt(iv, 100)
         end = self.client.battle_end(
             current_iv=iv,
             battle_exp_data=battle_exp,

@@ -314,21 +314,31 @@ def loop(team=9, rebirth: bool = False, farm_stage_id=None,
         # clear_inbox()
 
 
+def find_recipe_innocents():
+    innos = []
+    for i in a.pd.innocents:
+        if i['m_innocent_id'] in a.gd.innocent_recipe_map:
+            if i['m_character_id'] in a.gd.innocent_recipe_map[i['m_innocent_id']]:
+                rank = a.gd.get_innocent_rank(i['effect_rank'])
+                if rank in a.gd.innocent_recipe_map[i['m_innocent_id']][i['m_character_id']]:
+                    innos.append(i)
+    return innos
+
+
 def clean_inv():
     a.log("- donate equipment")
-    a.etna_donate_innocents(max_innocent_rank=4, max_innocent_type=Innocent_ID.RES)
-    a.etna_donate_innocents(max_innocent_rank=6, innocent_types={
-        Innocent_ID.HP,
-        Innocent_ID.DEF,
-    })
+    inno_blacklist = [x['id'] for x in find_recipe_innocents()]
+    a.etna_donate_innocents(max_innocent_rank=6, max_innocent_type=Innocent_ID.RES, blacklist=inno_blacklist)
     a.etna_resort_donate_items(max_item_rarity=69, remove_innocents=True)
-
     a.etna_resort_get_all_daily_rewards()
     a.log("- selling excess items")
     a.sell_items(max_item_rank=39, skip_max_lvl=True, only_max_lvl=False, remove_innocents=True)
     # a.sell_items(max_item_rank=40, max_rarity=80, max_innocent_rank=7, max_innocent_type=Innocent_ID.RES)
     a.sell_r40_commons_with_no_innocents()
 
+
+# a.dump_player_data("./player_data.json")
+# exit(0)
 
 # clear_inbox()
 # complete_story(team_num=9, raid_team=23)
@@ -341,6 +351,7 @@ def clean_inv():
 # 1162105313 - Extra+ (1★)
 # 1162201103 - Hidden Stage -HARD-
 # do_quest(1162105312, team_num=9, auto_rebirth=True)
+
 clean_inv()
 # Daily tasks
 daily(gem_team=22, hl_team=21, exp_team=None)

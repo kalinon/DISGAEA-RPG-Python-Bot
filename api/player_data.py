@@ -1,3 +1,4 @@
+import json
 from typing import Iterable
 
 from api.constants import EquipmentType
@@ -20,7 +21,31 @@ class PlayerData:
         self.character_collections: [dict[Iterable]] = []
         self.weapon_effects: [dict[Iterable]] = []
         self.equipment_effects: [dict[Iterable]] = []
-        self.stages_complete = set()
+        self.clear_stages: [dict[Iterable]] = []
+        self.stage_missions: [dict[Iterable]] = []
+
+    def dump_to_file(self, file_path: str, extra_data=None):
+        data = {
+            "decks": self.decks,
+            "gems": self.gems,
+            "items": self.items,
+            "weapons": self.weapons,
+            "equipment": self.equipment,
+            "innocents": self.innocents,
+            "characters": self.characters,
+            "character_collections": self.character_collections,
+            "clear_stages": self.clear_stages,
+            "stage_missions": self.stage_missions,
+            "weapon_effects": self.weapon_effects,
+            "equipment_effects": self.equipment_effects,
+        }
+
+        if extra_data is not None:
+            data["extra_data"] = extra_data
+
+        f = open(file_path, "w")
+        f.write(json.dumps(data, indent=2, sort_keys=True))
+        f.close()
 
     @property
     def get_current_deck(self):
@@ -278,12 +303,13 @@ class PlayerData:
         for effect in effects:
             effect_data = self.gd.get_alchemy_effect(effect['m_equipment_effect_type_id'])
             is_max_value = effect['effect_value'] == effect_data['effect_value_max']
-            Logger.info(f"Effect: {effect_data['description']} - Value: {effect['effect_value']} - IsMaxValue: {is_max_value} - Locked: {effect['lock_flg']}")
+            Logger.info(
+                f"Effect: {effect_data['description']} - Value: {effect['effect_value']} - IsMaxValue: {is_max_value} - Locked: {effect['lock_flg']}")
 
         return effects
 
     def get_weapon_alchemy_effects(self, i):
-        
+
         if isinstance(i, int):
             item_id = i
         else:
@@ -294,7 +320,7 @@ class PlayerData:
         return weapon_effects
 
     def get_equipment_alchemy_effects(self, i):
-        
+
         if isinstance(i, int):
             item_id = i
         else:
