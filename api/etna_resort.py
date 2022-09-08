@@ -196,11 +196,14 @@ class EtnaResort(Items, metaclass=ABCMeta):
         return items_to_deposit
 
     def etna_donate_innocents(self, max_innocent_rank=8, innocent_types: set[int] = None, max_innocent_type=None,
-                              min_innocent_type=None):
+                              min_innocent_type=None, blacklist=[]):
         self.player_innocents()
         innos = []
         skipping = 0
         for i in self.pd.innocents:
+            if i['id'] in blacklist:
+                skipping += 1
+                continue
             if not self._filter_innocent(i, max_innocent_rank,
                                          innocent_types=innocent_types,
                                          max_innocent_type=max_innocent_type,
@@ -345,7 +348,8 @@ class EtnaResort(Items, metaclass=ABCMeta):
              w['lv_max'], w['lock_flg'])
         )
 
-    def _filter_innocent(self, i, max_innocent_rank, max_innocent_type=None, min_innocent_type: int = None,
+    def _filter_innocent(self, i, max_innocent_rank: int,
+                         max_innocent_type: int = None, min_innocent_type: int = None,
                          innocent_types: set[int] = None):
 
         if i['place_id'] > 0:

@@ -292,9 +292,9 @@ def loop(team=9, rebirth: bool = False, farm_stage_id=None,
         for i in a.gd.innocent_types:
             train_innocents(i["ID"])
         # Train all EXP innocents to max level
-        train_innocents(Innocent_ID.EXP, initial_innocent_rank=0, max_innocent_rank=10)
+        # train_innocents(Innocent_ID.EXP, initial_innocent_rank=0, max_innocent_rank=10)
         # Train all SPD innocents to max level
-        train_innocents(Innocent_ID.SPD, initial_innocent_rank=0, max_innocent_rank=10)
+        # train_innocents(Innocent_ID.SPD, initial_innocent_rank=0, max_innocent_rank=10)
 
         clean_inv()
 
@@ -314,15 +314,22 @@ def loop(team=9, rebirth: bool = False, farm_stage_id=None,
         # clear_inbox()
 
 
+def find_recipe_innocents():
+    innos = []
+    for i in a.pd.innocents:
+        if i['m_innocent_id'] in a.gd.innocent_recipe_map:
+            if i['m_character_id'] in a.gd.innocent_recipe_map[i['m_innocent_id']]:
+                rank = a.gd.get_innocent_rank(i['effect_rank'])
+                if rank in a.gd.innocent_recipe_map[i['m_innocent_id']][i['m_character_id']]:
+                    innos.append(i)
+    return innos
+
+
 def clean_inv():
     a.log("- donate equipment")
-    a.etna_donate_innocents(max_innocent_rank=4, max_innocent_type=Innocent_ID.RES)
-    a.etna_donate_innocents(max_innocent_rank=6, innocent_types={
-        Innocent_ID.HP,
-        Innocent_ID.DEF,
-    })
+    inno_blacklist = [x['id'] for x in find_recipe_innocents()]
+    a.etna_donate_innocents(max_innocent_rank=6, max_innocent_type=Innocent_ID.RES, blacklist=inno_blacklist)
     a.etna_resort_donate_items(max_item_rarity=69, remove_innocents=True)
-
     a.etna_resort_get_all_daily_rewards()
     a.log("- selling excess items")
     a.sell_items(max_item_rank=39, skip_max_lvl=True, only_max_lvl=False, remove_innocents=True)
@@ -330,8 +337,11 @@ def clean_inv():
     a.sell_r40_commons_with_no_innocents()
 
 
+# a.dump_player_data("./player_data.json")
+# exit(0)
+
 # clear_inbox()
-# complete_story(team_num=9, raid_team=23)
+complete_story(team_num=9, raid_team=23)
 
 # # Uncomment to clear a new event area. Provide the first 4 digits of the m_area_id.
 # clear_event(get_event_areas(1162), team_num=9, raid_team=23)
@@ -341,6 +351,7 @@ def clean_inv():
 # 1162105313 - Extra+ (1★)
 # 1162201103 - Hidden Stage -HARD-
 # do_quest(1162105312, team_num=9, auto_rebirth=True)
+
 clean_inv()
 # Daily tasks
 daily(gem_team=22, hl_team=21, exp_team=None)
