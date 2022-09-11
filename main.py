@@ -416,7 +416,7 @@ class API(BaseAPI):
                 except KeyboardInterrupt:
                     return False
                 except:
-                    self.log_err('failed %s %s' % (s, stage['m_area_id']))
+                    self.log_err('failed stage: %s area: %s' % (s, stage['m_area_id']))
                     blacklist.add(stage['m_area_id'])
                     continue
                 self.player_stone_sum()

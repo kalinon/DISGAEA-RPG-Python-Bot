@@ -370,3 +370,27 @@ class EtnaResort(Items, metaclass=ABCMeta):
         effects = self.pd.get_item_alchemy_effects(item_id)
         locked_effects = [x for x in effects if x['lock_flg']]
         return len(locked_effects) == 0
+
+
+    # Will return innocents that match a recipe
+    def find_recipe_innocents(self, override_min_rank=False):
+        innocents = []
+        for recipe in self.gd.innocent_recipes:
+            materials = recipe['materials']
+            for mat in materials:
+                for i in self.find_recipe_material_innocents(mat, override_min_rank):
+                    innocents.append(i)
+        return innocents
+
+    def find_recipe_material_innocents(self, material, override_min_rank=False):
+        innocents = []
+        m_character_id = material['m_character_id']
+        m_innocent_id = material['m_innocent_id']
+        min_r, max_r = self.gd.get_innocent_rank_min_max(material['rank'])
+        if override_min_rank:
+            min_r = 0
+        for i in self.pd.innocents:
+            if min_r <= i['effect_rank'] <= max_r and i['m_character_id'] == m_character_id and \
+                    i['m_innocent_id'] == m_innocent_id:
+                innocents.append(i)
+        return innocents

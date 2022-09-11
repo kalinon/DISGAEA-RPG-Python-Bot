@@ -193,11 +193,13 @@ def refine_items(max_rarity: int = 99, max_item_rank: int = 9999, min_rarity: in
         a.etna_resort_refine_item(i['id'])
 
 
-def train_innocents(innocent_type: int, initial_innocent_rank: int = 8, max_innocent_rank: int = 9):
+def train_innocents(innocent_type: int, initial_innocent_rank: int = 8, max_innocent_rank: int = 9, innocents=None):
     innocents_trained = 0
     tickets_finished = False
-    all_available_innocents = a.pd.innocent_get_all_of_type(innocent_type, only_unequipped=True)
-    for innocent in all_available_innocents:
+    if innocents is None:
+        innocents = a.pd.innocent_get_all_of_type(innocent_type, only_unequipped=True)
+
+    for innocent in innocents:
         if tickets_finished:
             break
 
@@ -288,9 +290,11 @@ def loop(team=9, rebirth: bool = False, farm_stage_id=None,
         raid_claim()
 
         a.log("- train innocents")
+        train_recipe_innocents()
+
         # Train innocents
-        for i in a.gd.innocent_types:
-            train_innocents(i["ID"])
+        # for i in a.gd.innocent_types:
+        #     train_innocents(i["ID"])
         # Train all EXP innocents to max level
         # train_innocents(Innocent_ID.EXP, initial_innocent_rank=0, max_innocent_rank=10)
         # Train all SPD innocents to max level
@@ -308,26 +312,34 @@ def loop(team=9, rebirth: bool = False, farm_stage_id=None,
         farm_item_world(
             team=iw_team, min_rarity=0, min_rank=40,
             min_item_rank=40, min_item_level=0,
-            only_weapons=only_weapons, item_limit=2
+            only_weapons=only_weapons, item_limit=10
         )
 
         # clear_inbox()
 
 
-def find_recipe_innocents():
-    innos = []
-    for i in a.pd.innocents:
-        if i['m_innocent_id'] in a.gd.innocent_recipe_map:
-            if i['m_character_id'] in a.gd.innocent_recipe_map[i['m_innocent_id']]:
-                rank = a.gd.get_innocent_rank(i['effect_rank'])
-                if rank in a.gd.innocent_recipe_map[i['m_innocent_id']][i['m_character_id']]:
-                    innos.append(i)
-    return innos
+def train_recipe_innocents():
+    for i in a.find_recipe_innocents(override_min_rank=True):
+        inno_type_id = i['m_innocent_id']
+        char_id = i['m_character_id']
+        ranks = a.gd.innocent_recipe_map[inno_type_id][char_id]
+        for target_rank in ranks:
+            min_r, max_r = a.gd.get_innocent_rank_min_max(target_rank)
+            # Skip if the innocent is already the required rarity
+            if i['effect_rank'] >= min_r or i['effect_rank'] <= max_r:
+                continue
+            if i['effect_rank'] > max_r:
+                a.log('innocent too high for recipe')
+                continue
+            train_innocents(innocents=[i],
+                            innocent_type=inno_type_id,
+                            initial_innocent_rank=i['effect_rank'],
+                            max_innocent_rank=min_r)
 
 
 def clean_inv():
     a.log("- donate equipment")
-    inno_blacklist = [x['id'] for x in find_recipe_innocents()]
+    inno_blacklist = [x['id'] for x in a.find_recipe_innocents()]
     a.etna_donate_innocents(max_innocent_rank=6, max_innocent_type=Innocent_ID.RES, blacklist=inno_blacklist)
     a.etna_resort_donate_items(max_item_rarity=69, remove_innocents=True)
     a.etna_resort_get_all_daily_rewards()
@@ -358,8 +370,8 @@ daily(gem_team=22, hl_team=21, exp_team=None)
 
 # Full loop
 loop(
-    team=9, rebirth=True, farm_stage_id=1162105313,
+    team=9, rebirth=True, farm_stage_id=None,
     raid_team=23, iw_team=9, event_team=9,
     gem_team=22, hl_team=21, exp_team=None,
-    ap_limit=1000,
+    ap_limit=5000,
 )
