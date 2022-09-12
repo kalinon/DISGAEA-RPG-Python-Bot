@@ -294,7 +294,7 @@ class PlayerData:
             i = self.get_weapon_by_id(id)
             if i is None:
                 i = self.get_equipment_by_id(id)
-
+        effects = []
         if 'm_weapon_id' in i:
             effects = self.get_weapon_alchemy_effects(i['id'])
         elif 'm_equipment_id' in i:
@@ -329,3 +329,16 @@ class PlayerData:
         all_effects = self.equipment_effects
         equipment_effects = [x for x in all_effects if x['t_equipment_id'] == item_id]
         return equipment_effects
+
+    def update_from_resp(self, resp):
+        if 'result' in resp:
+            if 'after_t_data' in resp['result']:
+                if 'innocents' in resp['result']['after_t_data']:
+                    for i in resp['result']['after_t_data']['innocents']:
+                        self.update_innocent(i)
+                if 'items' in resp['result']['after_t_data']:
+                    for i in resp['result']['after_t_data']['items']:
+                        self.update_items(i)
+            if 'consume_t_innocent_ids' in resp['result']:
+                for i in resp['result']['consume_t_innocent_ids']:
+                    self.innocents.remove(self.get_innocent_by_id(i))

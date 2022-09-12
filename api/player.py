@@ -131,7 +131,7 @@ class Player(Base):
                 iterate_next_page = False
             self.pd.items = self.pd.items + data['result']['_items']
             page_index += 1
-        return self.pd.innocents
+        return self.pd.items
 
     def player_stone_sum(self):
         data = self.client.player_stone_sum()

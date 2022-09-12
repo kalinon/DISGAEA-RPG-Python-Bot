@@ -371,7 +371,6 @@ class EtnaResort(Items, metaclass=ABCMeta):
         locked_effects = [x for x in effects if x['lock_flg']]
         return len(locked_effects) == 0
 
-
     # Will return innocents that match a recipe
     def find_recipe_innocents(self, override_min_rank=False):
         innocents = []
@@ -382,15 +381,43 @@ class EtnaResort(Items, metaclass=ABCMeta):
                     innocents.append(i)
         return innocents
 
-    def find_recipe_material_innocents(self, material, override_min_rank=False):
+    def find_recipe_material_innocents(self, material, override_min_rank=False, skip_equipped=False):
         innocents = []
         m_character_id = material['m_character_id']
         m_innocent_id = material['m_innocent_id']
         min_r, max_r = self.gd.get_innocent_rank_min_max(material['rank'])
         if override_min_rank:
             min_r = 0
-        for i in self.pd.innocents:
+        for i in self.player_innocents():
             if min_r <= i['effect_rank'] <= max_r and i['m_character_id'] == m_character_id and \
                     i['m_innocent_id'] == m_innocent_id:
+                if skip_equipped and i['place_id'] > 0:
+                    continue
                 innocents.append(i)
         return innocents
+
+    def etna_resort_graze(self, innocent: int | dict, target_character_id: int):
+        if type(innocent) == dict and 'id' in innocent:
+            iid = int(innocent['id'])
+        else:
+            iid = int(innocent)
+
+        ticket_item_def = self.gd.get_ranch_ticket(target_character_id)
+        ticket_item = self.pd.get_item_by_m_item_id(ticket_item_def['id'])
+        if ticket_item['num'] <= 0:
+            self.logger.error("Not enough tickets - %s" % ticket_item_def['name'])
+            return
+
+        self.log('using ticket: "%s" on %s' % (ticket_item_def['name'], iid))
+        resp = self.client.innocent_grazing(iid, ticket_item_def['id'])
+        self.check_resp(resp)
+        return resp
+
+    def etna_resort_complete_recipe(self, recipe_id: int, innocent_ids: list[int]):
+
+        recipe = self.gd.get_innocent_recipe(recipe_id)
+        self.log('completing recipe "%s" with innocents: %s' % (recipe['name'], innocent_ids))
+
+        resp = self.client.innocent_combine(recipe_id, innocent_ids)
+        self.check_resp(resp)
+        return resp

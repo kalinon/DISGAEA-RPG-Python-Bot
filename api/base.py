@@ -50,3 +50,5 @@ class Base(object, metaclass=ABCMeta):
         if 'api_error' in resp:
             self.log_err(resp['api_error']['message'])
             raise Exception(resp['api_error']['message'])
+        if 'result' in resp:
+            self.pd.update_from_resp(resp)

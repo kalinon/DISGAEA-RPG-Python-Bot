@@ -18,8 +18,6 @@ class Shop(Player, metaclass=ABCMeta):
             self.check_resp(data)
             if data['result']['after_t_data']:
                 self.player_update_equip_detail(e)
-                for i in data['result']['after_t_data']['innocents']:
-                    self.pd.update_innocent(i)
             return data
         return {}
 
