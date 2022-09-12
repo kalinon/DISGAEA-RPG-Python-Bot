@@ -352,8 +352,8 @@ def clean_inv():
 # a.dump_player_data("./player_data.json")
 # exit(0)
 
-clear_inbox()
-exit(0)
+# clear_inbox()
+# exit(0)
 # complete_story(team_num=9, raid_team=23)
 
 # # Uncomment to clear a new event area. Provide the first 4 digits of the m_area_id.
