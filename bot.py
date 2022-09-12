@@ -338,7 +338,7 @@ def train_recipe_innocents():
 
 
 def clean_inv():
-    a.log("- donate equipment")
+    a.log("- donate equipment/innocents")
     inno_blacklist = [x['id'] for x in a.find_recipe_innocents()]
     a.etna_donate_innocents(max_innocent_rank=6, max_innocent_type=Innocent_ID.RES, blacklist=inno_blacklist)
     a.etna_resort_donate_items(max_item_rarity=69, remove_innocents=True)
@@ -366,6 +366,7 @@ def clean_inv():
 # do_quest(1162105312, team_num=9, auto_rebirth=True)
 
 clean_inv()
+exit(0)
 # Daily tasks
 daily(gem_team=22, hl_team=21, exp_team=None)
 

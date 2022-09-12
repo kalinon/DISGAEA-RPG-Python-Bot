@@ -78,7 +78,7 @@ class Shop(Player, metaclass=ABCMeta):
             min_item_rank=40, max_item_rank=40,
             max_item_level=1,
             skip_equipped=True, skip_locked=True,
-            max_rarity=39, max_inocent_count=0
+            max_rarity=39, max_innocent_count=0
         )
         if item_count > 0:
             items = items[:item_count]
