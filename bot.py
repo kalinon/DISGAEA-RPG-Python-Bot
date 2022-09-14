@@ -1,10 +1,18 @@
-from api.constants import EquipmentType, Innocent_ID, Fish_Fleet_Survey_Duration
+import json
+
+from api.constants import EquipmentType, Innocent_ID, Fish_Fleet_Survey_Duration, Items, Constants, Alchemy_Effect_Type
 from main import API
 
 
 class Bot:
-    def __init__(self, api: API):
-        self.api = api
+    def __init__(self, api: API | None = None):
+        if api is None:
+            api = API()
+            api.o.wait = 0
+            api.o.set_region(2)
+            api.o.set_device(3)
+
+        self.api: API = api
 
     def farm_event_stage(self, times: int, stage_id: int, team: int, rebirth: bool, raid_team=None):
         for _ in range(times):
@@ -247,16 +255,17 @@ class Bot:
 
         if iw_team is None:
             iw_team = team
-        if raid_team is None:
-            raid_team = team
         if event_team is None:
             event_team = team
         if gem_team is None:
             gem_team = team
         if hl_team is None:
             hl_team = team
-        if exp_team is None:
-            exp_team = team
+
+        # if exp_team is None:
+        #     exp_team = team
+        # if raid_team is None:
+        #     raid_team = team
 
         if self.api.current_ap >= ap_limit:
             self.use_ap(stage_id=farm_stage_id, raid_team=raid_team)
@@ -266,8 +275,8 @@ class Bot:
             self.api.get_mail_and_rewards()
             self.api.spin_hospital()
 
-            self.api.log("- checking item world survey")
-            self.api.item_survey_complete_and_start_again(min_item_rank_to_deposit=40, auto_donate=True)
+            # self.api.log("- checking item world survey")
+            # self.api.item_survey_complete_and_start_again(min_item_rank_to_deposit=40, auto_donate=True)
 
             self.api.log("- checking expeditions")
             self.api.survey_complete_all_expeditions_and_start_again(use_bribes=True,
@@ -336,7 +345,25 @@ class Bot:
 
     def use_codes(self, codes: list[str]):
         for code in codes:
-            a.client.boltrend_exchange_code(code)
+            self.api.client.boltrend_exchange_code(code)
+
+    def load_from_file(self):
+        f = open('player_data.json', 'r')
+        data = json.loads(str(f.read()))
+        f.close()
+
+        self.api.pd.decks = data['decks']
+        self.api.pd.gems = data['gems']
+        self.api.pd.items = data['items']
+        self.api.pd.weapons = data['weapons']
+        self.api.pd.equipment = data['equipment']
+        self.api.pd.innocents = data['innocents']
+        self.api.pd.characters = data['characters']
+        self.api.pd.character_collections = data['character_collections']
+        self.api.pd.clear_stages = data['clear_stages']
+        self.api.pd.stage_missions = data['stage_missions']
+        self.api.pd.weapon_effects = data['weapon_effects']
+        self.api.pd.equipment_effects = data['equipment_effects']
 
 
 # Example

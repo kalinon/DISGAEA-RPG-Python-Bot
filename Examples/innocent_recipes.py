@@ -194,6 +194,29 @@ def innocents_to_convert(recipe):
     return conversions
 
 
+# Uncomment to remove all innocents from all equipment
+try:
+    matches, skipping = a.pd.filter_items(min_innocent_count=1, skip_locked=False,
+                                          max_rarity=999, max_item_rank=99)
+    for e in matches:
+        a.log('removing innocents from %s' % e['id'])
+        a.remove_innocents(e)
+except:
+    a.log('Max innocents reached')
+
+
+def print_results():
+    print("Completed:")
+    for name in completed:
+        print('\t"%s" => %d' % (name, completed[name]))
+
+    print('Tickets Needed:')
+    for tid in tickets_to_buy:
+        item = a.gd.get_item(tid)
+        print('\t"%s" => %d' % (item['name'], tickets_to_buy[tid]))
+    exit(0)
+
+
 while True:
     # # Uncomment to remove all innocents from all equipment
     # try:
@@ -207,8 +230,6 @@ while True:
 
     total = complete_recipes(skip_equipped=True, skip_advanced=False)
     if total == 0:
-        print("Completed:")
-        for name in completed:
-            print('\t"%s" => %d' % (name, completed[name]))
-        exit(0)
+        print_results()
+
 # a.dump_player_data("./player_data.json")

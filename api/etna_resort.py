@@ -1,6 +1,7 @@
 from abc import ABCMeta
 
-from api.constants import Constants, Innocent_Training_Result, Innocent_ID
+from api.constants import Constants, Innocent_Training_Result, Innocent_ID, Alchemy_Effect_Type
+from api.constants import Items as ItemsC
 from api.items import Items
 
 
@@ -421,3 +422,48 @@ class EtnaResort(Items, metaclass=ABCMeta):
         resp = self.client.innocent_combine(recipe_id, innocent_ids)
         self.check_resp(resp)
         return resp
+
+    # This function re-rolls an item until a certain innocent % boost is reached, ignoring all other rolls
+    # Specify and item ID and a target boost. The script will keep re-rolling until the target boost is reached
+    # If user runs out of HL or priprism the script will stop execution
+    # Use a.print_team_info(team_num) to get the ID of the item
+    def etna_resort_roll_alchemy_effect(self, item_id: int, boost_target: int = 40,
+                                        effect_id: int = Alchemy_Effect_Type.Innocent_Effect):
+        if not self.etna_resort_can_item_be_rolled(item_id):
+            self.log("{item_id} - Item has effects(s) locked and cannot be rolled. Exiting...")
+            return
+
+        e = self.pd.get_weapon_by_id(item_id)
+        if e is not None:
+            item_type = 3
+            t_data_key = 'weapon_effects'
+        else:
+            item_type = 4
+            t_data_key = 'equipment_effects'
+
+        effect = 0
+        attempt_count = 0
+
+        prism_count = self.pd.get_item_by_m_item_id(ItemsC.PriPrism.value)['num']
+        current_hl = self.pd.get_item_by_m_item_id(ItemsC.HL.value)['num']
+        self.log(f"{item_id} - Re-rolling item - Priprism count: {prism_count} - Current HL: {current_hl}")
+
+        while effect < boost_target and prism_count > 0 and current_hl > Constants.Alchemy_Alchemize_Cost:
+            res = self.client.etna_resort_add_alchemy_effects(item_type, item_id)
+            effects = res['result']['after_t_data'][t_data_key]
+
+            innocent_effect = next(
+                (x for x in effects if x['m_equipment_effect_type_id'] == effect_id), None)
+            effect = innocent_effect['effect_value']
+            attempt_count += 1
+            prism_count -= 1
+            if prism_count == 0:
+                self.log(f"{item_id} - Ran out of priprism. Exiting...")
+            current_hl -= Constants.Alchemy_Alchemize_Cost
+            if current_hl < Constants.Alchemy_Alchemize_Cost:
+                self.log(f"{item_id} - Ran out of HL. Exiting...")
+
+        self.log(
+            f"{item_id} - Rolled {effect}% innocent boost - Attempt count: {attempt_count} - "
+            f"Priprism left: {prism_count}"
+        )

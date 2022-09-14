@@ -129,5 +129,17 @@ class Items(IntEnum):
     PriPrism = 4101
     Prilixir = 4201
 
+
 class Alchemy_Effect_Type(IntEnum):
     Innocent_Effect = 10001
+    CritRate = 20001
+    CritDmg = 20002
+    HumanDmgPlus = 30020
+    DmgDealtMon = 30019
+    DmgDealtHuman = 30020
+    DmgTakenMon = 30047
+    DmgTakenHuman = 30048
+    PoisonRes = 30050
+    ParalysisRes = 30051
+    SleepRes = 30052
+    ForgetRes = 30053

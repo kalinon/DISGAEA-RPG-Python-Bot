@@ -170,7 +170,7 @@ class PlayerData:
 
         # Change this to DEBUG (10) or INFO (20) if you want to see logs
         log_level = 0
-        
+
         if log_level > 0:
             self.__log_item("checking", item)
 
@@ -304,8 +304,14 @@ class PlayerData:
         for effect in effects:
             effect_data = self.gd.get_alchemy_effect(effect['m_equipment_effect_type_id'])
             is_max_value = effect['effect_value'] == effect_data['effect_value_max']
-            Logger.info(
-                f"Effect: {effect_data['description']} - Value: {effect['effect_value']} - IsMaxValue: {is_max_value} - Locked: {effect['lock_flg']}")
+
+            Logger.info('%s - Effect: "%s" - Value: %s - IsMaxValue: %s - Locked: %s' % (
+                i['id'],
+                effect_data['description'].format(effect['effect_value']),
+                effect['effect_value'],
+                is_max_value,
+                effect['lock_flg']
+            ))
 
         return effects
 
@@ -343,3 +349,19 @@ class PlayerData:
             if 'consume_t_innocent_ids' in resp['result']:
                 for i in resp['result']['consume_t_innocent_ids']:
                     self.innocents.remove(self.get_innocent_by_id(i))
+
+    # Fetch effects on weapon based on id
+    def get_weapon_effects(self, wid: int):
+        effects = []
+        for effect in self.weapon_effects:
+            if effect['t_weapon_id'] == wid:
+                effects.append(effect)
+        return effects
+
+    # Fetch effects on equipment based on id
+    def get_equipment_effects(self, eid: int):
+        effects = []
+        for effect in self.equipment_effects:
+            if effect['t_equipment_id'] == eid:
+                effects.append(effect)
+        return effects

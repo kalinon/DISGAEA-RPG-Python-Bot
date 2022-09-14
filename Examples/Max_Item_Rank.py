@@ -16,7 +16,7 @@ raid_farming_party = 7
 
 item = a.pd.get_weapon_by_id(item_id)
 if item is None:
-    item = a.pd.get_equipment_by_id(item_id)    
+    item = a.pd.get_equipment_by_id(item_id)
 
 current_hl = a.pd.get_item_by_m_item_id(Items.HL.value)['num']
 remake_count = item['remake_count']
@@ -31,7 +31,7 @@ while True:
     if current_hl < 1000000:
         a.log("Not enough money to remake")
         break
-        
+
     a.etna_resort_remake_item(item['id'])
     a.upgrade_items(items=[item])
     remake_count += 1
