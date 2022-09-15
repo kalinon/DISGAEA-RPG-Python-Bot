@@ -1,11 +1,20 @@
+from bot import Bot
 from main import API
 
+DRY_RUN = False
+
 a = API()
+bot = Bot(a)
+
 # a.setProxy("127.0.0.1:8080")
 a.o.wait = 0
 a.o.set_region(2)
 a.o.set_device(3)
-a.quick_login()
+
+if DRY_RUN:
+    bot.load_from_file()
+else:
+    a.quick_login()
 
 inno_blacklist = [x['id'] for x in a.find_recipe_innocents(True)]
 tickets_used = {}
@@ -13,7 +22,7 @@ tickets_to_buy = {}
 completed = {}
 
 
-def complete_recipes(skip_equipped: bool = False, skip_advanced=True):
+def complete_recipes(skip_equipped: bool = True, skip_advanced: bool = True, dry_run: bool = False):
     total_completed = 0
     recipes = []
     for recipe in a.gd.innocent_recipes:
@@ -23,12 +32,16 @@ def complete_recipes(skip_equipped: bool = False, skip_advanced=True):
         #     continue
 
         recipes.append(recipe)
-
+    conversions = []
     for recipe in recipes:
         conversions = check_recipe(recipe_id=recipe['id'], skip_equipped=skip_equipped)
+        conversions = conversions + check_recipe(recipe_id=recipe['id'], skip_equipped=skip_equipped,
+                                                 override_min_rank=True)
         for data in conversions:
+            # check_innocent_rank(data, dry_run)
             log_conversion(data)
-            a.etna_resort_graze(data['subject_id'], data['target_character_id'])
+            if not dry_run:
+                a.etna_resort_graze(data['subject_id'], data['target_character_id'])
 
     for recipe in recipes:
         missing_mats, iids = check_recipe_mats(recipe, skip_equipped=skip_equipped)
@@ -36,13 +49,31 @@ def complete_recipes(skip_equipped: bool = False, skip_advanced=True):
             # a.log('complete %s' % recipe['name'])
             if recipe['name'] not in completed:
                 completed[recipe['name']] = 0
-            a.etna_resort_complete_recipe(recipe['id'], iids)
-            completed[recipe['name']] += 1
-            total_completed += 1
+            if not dry_run:
+                a.etna_resort_complete_recipe(recipe['id'], iids)
+                completed[recipe['name']] += 1
+                total_completed += 1
     return total_completed
 
 
-def check_recipe(recipe_id: int, skip_equipped: bool = True):
+def check_innocent_rank_and_train(data, dry_run: bool = False):
+    min_r = data['min_r']
+    iid = data['subject_id']
+    innocent = a.pd.get_innocent_by_id(iid=iid)
+    i = a.pd.get_innocent_by_id(iid)
+    subject_char_name = a.gd.get_innocent_name(i)
+
+    if innocent['effect_rank'] < min_r:
+        a.log('[%s] - lvl innocent from %s to %s' % (subject_char_name, innocent['effect_rank'], min_r))
+        if not dry_run:
+            bot.train_innocents(
+                innocents=[innocent],
+                innocent_type=None,
+                max_innocent_rank=min_r
+            )
+
+
+def check_recipe(recipe_id: int, skip_equipped: bool = True, override_min_rank: bool = False):
     conversions = []
     recipe = a.gd.get_innocent_recipe(recipe_id)
     missing_mats, iids = check_recipe_mats(recipe, skip_equipped=skip_equipped)
@@ -51,8 +82,8 @@ def check_recipe(recipe_id: int, skip_equipped: bool = True):
     if missing_mats is None:
         return conversions
 
-        # gather all the possible conversions
-    innocent_conversions = innocents_to_convert(recipe)
+    # gather all the possible conversions
+    innocent_conversions = innocents_to_convert(recipe, override_min_rank=override_min_rank)
     for mat in missing_mats:
         for data in innocent_conversions:
             i = a.pd.get_innocent_by_id(data['subject_id'])
@@ -88,7 +119,7 @@ def check_recipe(recipe_id: int, skip_equipped: bool = True):
     return conversions
 
 
-def check_recipe_mats(recipe, skip_equipped: bool = True):
+def check_recipe_mats(recipe, skip_equipped: bool = True, ):
     materials = recipe['materials']
     mat_map = {material['id']: a.find_recipe_material_innocents(material, skip_equipped=skip_equipped) for material in
                materials}
@@ -116,44 +147,20 @@ def sort_data(e):
 
 
 def log_conversion(data):
-    recipe = a.gd.get_innocent_recipe(data['recipe_id'])
+    i = a.pd.get_innocent_by_id(data['subject_id'])
 
     # Grab human-readable names
     target_type_name = a.gd.get_innocent_type(data['target_innocent_id'])['name']
-    target_char = a.gd.get_character(data['target_character_id'])
-    target_char_name = "%s %s" % (
-        target_char['name'], target_char['linkage_character_ids'].index(data['target_character_id']) + 1)
-
-    subject_char = a.gd.get_character(data['subject_character_id'])
-    subject_char_name = "%s %s" % (
-        subject_char['name'], subject_char['linkage_character_ids'].index(data['subject_character_id']) + 1)
-
-    i = a.pd.get_innocent_by_id(data['subject_id'])
-
+    subject_char_name = a.gd.get_innocent_name(i)
     ticket_item_def = a.gd.get_ranch_ticket(data['target_character_id'])
-    ticket_item = a.pd.get_item_by_id(data['ticket_id'])
-
-    rank = a.gd.get_innocent_rank(i['effect_rank'])
-
-    # a.log(
-    #     'complete_recipes - %s - want to convert '
-    #     'innocent: [id: %s, type: "%s", char: "%s", rank: %s, value: %s] to type "%s" - ticket: "%s"' % (
-    #         recipe['name'],
-    #         data['subject_id'],
-    #         target_type_name,
-    #         subject_char_name,
-    #         a.gd.get_innocent_rank(i['effect_rank']),
-    #         i['effect_values'][0],
-    #         target_char_name,
-    #         ticket_item_def['name'],
-    #     ))
 
     a.log('ticket: "%s" -> "%s" : "%s" %s' % (
         ticket_item_def['name'], target_type_name, subject_char_name, i['effect_values'][0]))
 
 
 # will provide a list of innocents that could be converted to complete recipe
-def innocents_to_convert(recipe):
+# if loose_check is True it will ignore the innocents rank, so it can be leveled up later
+def innocents_to_convert(recipe, override_min_rank: bool = False):
     conversions = []
     materials = recipe['materials']
     mat_map = {material['id']: a.find_recipe_material_innocents(material) for material in materials}
@@ -170,8 +177,8 @@ def innocents_to_convert(recipe):
 
             # a.log('complete_recipes - %s - missing materials, mat_id: %s' % (recipe['name'], mat['id']))
             # look for an innocent with matching rank and type
-            for i in a.pd.innocents:
-                if min_r <= i['effect_rank'] <= max_r and i['m_innocent_id'] == m_innocent_id:
+            for i in a.player_innocents():
+                if i['m_innocent_id'] == m_innocent_id and bot.check_innocent_rank(i, mat['rank'], override_min_rank):
                     conversions.append({
                         'recipe_id': recipe['id'],
                         'material_id': mat['id'],
@@ -181,28 +188,11 @@ def innocents_to_convert(recipe):
                         'subject_character_id': i['m_character_id'],
                         'subject_innocent_id': m_innocent_id,
                         'ticket_id': ticket_item['id'],
+                        'min_r': min_r,
+                        'max_r': max_r,
                     })
 
-                    # conversions.append((
-                    #     recipe['name'],
-                    #     target_type_name,
-                    #     i['id'],
-                    #     target_char_name,
-                    #     i['effect_rank'],
-                    #     subject_char_name,
-                    # ))
     return conversions
-
-
-# Uncomment to remove all innocents from all equipment
-try:
-    matches, skipping = a.pd.filter_items(min_innocent_count=1, skip_locked=False,
-                                          max_rarity=999, max_item_rank=99)
-    for e in matches:
-        a.log('removing innocents from %s' % e['id'])
-        a.remove_innocents(e)
-except:
-    a.log('Max innocents reached')
 
 
 def print_results():
@@ -228,7 +218,11 @@ while True:
     # except:
     #     a.log('Max innocents reached')
 
-    total = complete_recipes(skip_equipped=True, skip_advanced=False)
+    total = complete_recipes(skip_advanced=False, dry_run=DRY_RUN)
+
+    if not DRY_RUN:
+        bot.train_recipe_innocents()
+
     if total == 0:
         print_results()
 

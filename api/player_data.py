@@ -244,11 +244,11 @@ class PlayerData:
         Logger.log('item passed check', log_level)
         return True
 
-    def filter_items(self, max_rarity: int = 99, min_rarity: int = 0,
-                     max_item_rank: int = 39, min_item_rank: int = 0,
+    def filter_items(self, max_rarity: int = 999, min_rarity: int = 0,
+                     max_item_rank: int = 999, min_item_rank: int = 0,
                      max_item_level: int = 9999, min_item_level: int = 0,
                      skip_max_lvl: bool = False, only_max_lvl: bool = False,
-                     skip_equipped: bool = False, skip_locked: bool = True,
+                     skip_equipped: bool = False, skip_locked: bool = False,
                      max_innocent_rank: int = 8, max_innocent_type: int = 8,
                      min_innocent_rank: int = 0, min_innocent_type: int = 0,
                      min_innocent_count: int = 0, max_innocent_count: int = 999,

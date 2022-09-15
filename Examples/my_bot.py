@@ -22,20 +22,20 @@ bot.use_codes(codes)
 # bot.complete_story(team_num=9, raid_team=23)
 
 # # Uncomment to clear a new event area. Provide the first 4 digits of the m_area_id.
-# bot.clear_event(get_event_areas(1162), team_num=9, raid_team=23)
+# bot.clear_event(bot.get_event_areas(1178), team_num=9, raid_team=23)
 
-# 1162105311 - Extra+ (HL)
-# 1162105312 - Extra+ (EXP)
-# 1162105313 - Extra+ (1★)
-# 1162201103 - Hidden Stage -HARD-
-# bot.do_quest(1162105312, team_num=9, auto_rebirth=True)
+# 1178105311 - Extra+ (HL)
+# 1178105312 - Extra+ (EXP)
+# 1178105313 - Extra+ (1★)
+# 1178201103 - Hidden Stage -HARD-
+# bot.do_quest(1178105312, team_num=9, auto_rebirth=True)
 
 # Daily tasks
 bot.daily(gem_team=22, hl_team=21, exp_team=None)
 
 # Full loop
 bot.loop(
-    team=9, rebirth=True, farm_stage_id=None,
+    team=9, rebirth=True, farm_stage_id=1178105312,
     raid_team=23, iw_team=9, event_team=9,
     gem_team=22, hl_team=21, exp_team=None,
     ap_limit=5000,

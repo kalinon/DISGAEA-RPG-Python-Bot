@@ -171,6 +171,7 @@ class Shop(Player, metaclass=ABCMeta):
         items, skipping = self.pd.filter_items(
             max_item_level=1, max_item_rank=min_item_rank,
             skip_equipped=True, skip_locked=True,
+            skip_max_lvl=True,
         )
         for item in items:
             _id = item['id']
@@ -218,7 +219,7 @@ class Shop(Player, metaclass=ABCMeta):
             skip_max_lvl=skip_max_lvl, skip_equipped=True,
             max_innocent_rank=max_innocent_rank, max_innocent_type=max_innocent_type,
             max_item_rank=max_item_rank, max_rarity=max_rarity,
-            only_max_lvl=only_max_lvl
+            only_max_lvl=only_max_lvl, skip_locked=True,
         )
 
         if limit is not None and limit < len(selling):

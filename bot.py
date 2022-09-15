@@ -1,6 +1,6 @@
 import json
 
-from api.constants import EquipmentType, Innocent_ID, Fish_Fleet_Survey_Duration, Items, Constants, Alchemy_Effect_Type
+from api.constants import EquipmentType, Innocent_ID, Fish_Fleet_Survey_Duration
 from main import API
 
 
@@ -19,7 +19,7 @@ class Bot:
             self.do_quest(stage_id, True, team_num=team, auto_rebirth=rebirth, raid_team=raid_team)
 
     def farm_item_world(self, team=1, min_rarity=0, min_rank=0, min_item_rank=0, min_item_level=0, only_weapons=False,
-                        item_limit=None):
+                        item_limit=None, ensure_drops=True):
         # Change the party: 1-9
         self.api.o.team_num = team
         # This changes the minimum rarity of equipments found in the item-world. 1 = common, 40 = rare, 70 = Legendary
@@ -33,6 +33,7 @@ class Bot:
 
         items = self.api.items_to_upgrade()
         if len(items) == 0:
+            self.remake_items()
             self.refine_items(min_rarity=89, min_item_rank=40, limit=5)
             items = self.api.items_to_upgrade()
 
@@ -43,7 +44,7 @@ class Bot:
         self.api.log('found %s items to upgrade' % len(items))
 
         # This runs item-world to level all your items.
-        self.api.upgrade_items(only_weapons=only_weapons, ensure_drops=True, item_limit=item_limit, items=items)
+        self.api.upgrade_items(only_weapons=only_weapons, ensure_drops=ensure_drops, item_limit=item_limit, items=items)
 
     def do_gate(self, gate, team, rebirth, raid_team=None):
         self.api.log("[*] running gate {}".format(gate['m_stage_id']))
@@ -99,7 +100,7 @@ class Bot:
         tmp = event_id * 1000
         return [tmp + 101, tmp + 102, tmp + 103, tmp + 104, tmp + 105]
 
-    def clear_event(self, area_lt, team_num, raid_team: int):
+    def clear_event(self, area_lt, team_num, raid_team: int | None = None):
         self.api.o.use_potions = True
         dic = self.api.gd.stages
         rank = [1, 2, 3]
@@ -153,6 +154,21 @@ class Bot:
         if raid_team is not None:
             self.api.do_raids(raid_team)
 
+    def remake_items(self):
+        items, skipped = self.api.pd.filter_items(
+            min_rarity=100,
+            max_rarity=100,
+            min_item_rank=40,
+            only_max_lvl=True,
+            # item_type=EquipmentType.WEAPON,
+            max_item_rank=99,
+            skip_equipped=False,
+            skip_locked=False,
+        )
+        for i in items:
+            # print(i['id'])
+            self.api.etna_resort_remake_item(i['id'])
+
     def refine_items(self, max_rarity: int = 99, max_item_rank: int = 9999, min_rarity: int = 90,
                      min_item_rank: int = 40,
                      limit=None):
@@ -184,7 +200,7 @@ class Bot:
         for i in equipments:
             self.api.etna_resort_refine_item(i['id'])
 
-    def train_innocents(self, innocent_type: int, initial_innocent_rank: int = 8, max_innocent_rank: int = 9,
+    def train_innocents(self, innocent_type: int | None, initial_innocent_rank: int = 0, max_innocent_rank: int = 9,
                         innocents=None):
         innocents_trained = 0
         tickets_finished = False
@@ -194,7 +210,7 @@ class Bot:
         for innocent in innocents:
             if tickets_finished:
                 break
-
+            innocent_type = innocent['m_innocent_id']
             effect_rank = innocent['effect_rank']
             if effect_rank < initial_innocent_rank or effect_rank >= max_innocent_rank:
                 continue
@@ -205,14 +221,18 @@ class Bot:
             while effect_rank < max_innocent_rank:
                 res = self.api.client.innocent_training(innocent['id'])
                 if ('self.api.error' in res and 'message' in res['self.api.error'] and
-                        res['self.api.error']['message'] == 'Not enough item.'):
+                        (
+                                res['self.api.error']['message'] == 'Not enough item.' or
+                                res['self.api.error']['message'] == 'Insufficient Items'
+                        )):
                     self.api.log("No caretaker tickets left")
                     tickets_finished = True
                     break
-                if 'result' not in res: break
+                if 'result' not in res:
+                    break
                 effect_rank = res['result']['after_t_data']['innocents'][0]['effect_rank']
                 self.api.log(
-                    f"Trained innocent (type: {innocent_type}) with result"
+                    f"Trained innocent (type: {str(innocent_type)}) with result"
                     f" {self.api.innocent_get_training_result(res['result']['training_result'])} "
                     f"- Current value: {res['result']['after_t_data']['innocents'][0]['effect_values'][0]}"
                 )
@@ -306,13 +326,19 @@ class Bot:
                 self.use_ap(stage_id=farm_stage_id, event_team=event_team)
 
             self.api.log("- farming item world")
+            # Go through rank 41+ items first
+            items, skipped = self.api.pd.filter_items(min_item_rank=41, max_item_rank=49, max_item_level=0)
+            self.api.upgrade_items(ensure_drops=False, items=items)
+
+            # Then do normal farm
             self.farm_item_world(
                 team=iw_team, min_rarity=0, min_rank=40,
                 min_item_rank=40, min_item_level=0,
                 only_weapons=only_weapons, item_limit=10
             )
 
-            # clear_inbox()
+            self.remake_items()
+            self.clear_inbox()
 
     def train_recipe_innocents(self):
         for i in self.api.find_recipe_innocents(override_min_rank=True):
@@ -322,7 +348,7 @@ class Bot:
             for target_rank in ranks:
                 min_r, max_r = self.api.gd.get_innocent_rank_min_max(target_rank)
                 # Skip if the innocent is already the required rarity
-                if i['effect_rank'] >= min_r or i['effect_rank'] <= max_r:
+                if self.check_innocent_rank(i, target_rank):
                     continue
                 if i['effect_rank'] > max_r:
                     self.api.log('innocent too high for recipe')
@@ -332,10 +358,30 @@ class Bot:
                                      initial_innocent_rank=i['effect_rank'],
                                      max_innocent_rank=min_r)
 
+    def check_innocent_rank(self, i: int | dict, target_rank: int, override_min_rank: bool = False):
+        if type(i) is int:
+            i = self.api.pd.get_innocent_by_id(i)
+        min_r, max_r = self.api.gd.get_innocent_rank_min_max(target_rank)
+        if override_min_rank and i['effect_rank'] < min_r:
+            return True
+        return min_r <= i['effect_rank'] <= max_r
+
+    def check_innocent_mat_match(self, i: int | dict, mat: dict, override_min_rank: bool = False):
+        if type(i) is int:
+            i = self.api.pd.get_innocent_by_id(i)
+        min_r, max_r = self.api.gd.get_innocent_rank_min_max(mat['rank'])
+        m_innocent_id = mat['m_innocent_id']
+        if i['m_innocent_id'] == m_innocent_id:
+            if override_min_rank and i['effect_rank'] < min_r:
+                return True
+            return min_r <= i['effect_rank'] <= max_r
+        return False
+
     def clean_inv(self):
         self.api.log("- donate equipment/innocents")
         inno_blacklist = [x['id'] for x in self.api.find_recipe_innocents()]
-        self.api.etna_donate_innocents(max_innocent_rank=6, max_innocent_type=Innocent_ID.RES, blacklist=inno_blacklist)
+        self.api.etna_donate_innocents(max_innocent_rank=6, max_innocent_type=Innocent_ID.RES,
+                                       blacklist=inno_blacklist)
         self.api.etna_resort_donate_items(max_item_rarity=69, remove_innocents=True)
         self.api.etna_resort_get_all_daily_rewards()
         self.api.log("- selling excess items")
@@ -365,28 +411,27 @@ class Bot:
         self.api.pd.weapon_effects = data['weapon_effects']
         self.api.pd.equipment_effects = data['equipment_effects']
 
+    # Example
+    ###############
 
-# Example
-###############
-
-# a = API()
-# a.o.wait = 0
-# a.o.set_region(2)
-# a.o.set_device(3)
-# a.quick_login()
-#
-# codes = []
-#
-# bot = Bot(api=a)
-# bot.use_codes(codes)
-#
-# # Daily tasks
-# bot.daily(gem_team=22, hl_team=21, exp_team=None)
-#
-# # Full loop
-# bot.loop(
-#     team=9, rebirth=True, farm_stage_id=None,
-#     raid_team=23, iw_team=9, event_team=9,
-#     gem_team=22, hl_team=21, exp_team=None,
-#     ap_limit=5000,
-# )
+    # a = API()
+    # a.o.wait = 0
+    # a.o.set_region(2)
+    # a.o.set_device(3)
+    # a.quick_login()
+    #
+    # codes = []
+    #
+    # bot = Bot(api=a)
+    # bot.use_codes(codes)
+    #
+    # # Daily tasks
+    # bot.daily(gem_team=22, hl_team=21, exp_team=None)
+    #
+    # # Full loop
+    # bot.loop(
+    #     team=9, rebirth=True, farm_stage_id=None,
+    #     raid_team=23, iw_team=9, event_team=9,
+    #     gem_team=22, hl_team=21, exp_team=None,
+    #     ap_limit=5000,
+    # )

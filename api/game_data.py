@@ -117,3 +117,9 @@ class GameData:
         for x in self.innocent_recipes:
             if rid == x['id']:
                 return x
+
+    def get_innocent_name(self, innocent):
+        subject_char = self.get_character(innocent['m_character_id'])
+        subject_char_name = "%s %s" % (
+            subject_char['name'], subject_char['linkage_character_ids'].index(innocent['m_character_id']) + 1)
+        return subject_char_name
