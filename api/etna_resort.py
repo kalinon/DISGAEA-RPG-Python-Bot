@@ -423,12 +423,20 @@ class EtnaResort(Items, metaclass=ABCMeta):
         self.check_resp(resp)
         return resp
 
-    # This function re-rolls an item until a certain innocent % boost is reached, ignoring all other rolls
-    # Specify and item ID and a target boost. The script will keep re-rolling until the target boost is reached
+    # This function re-rolls an item until a certain % boost is reached for a specific effect, ignoring all other rolls
+    # Specify and item ID, and effect and a target for the effect. The script will keep re-rolling until the target is reached
+    # unique_innocent will force the effect to contain a unique innocent
     # If user runs out of HL or priprism the script will stop execution
     # Use a.print_team_info(team_num) to get the ID of the item
-    def etna_resort_roll_alchemy_effect(self, item_id: int, boost_target: int = 40,
-                                        effect_id: int = Alchemy_Effect_Type.Innocent_Effect):
+    def etna_resort_roll_alchemy_effect(self, item_id: int, effect_target: int = 40,
+                                        effect_id: int = Alchemy_Effect_Type.Innocent_Effect,
+                                        unique_innocent: bool = False):
+        
+        effect = self.gd.get_alchemy_effect(Alchemy_Effect_Type.Innocent_Effect)
+        if effect is None or effect_target > effect['effect_value_max']:
+            self.log(f"The specified value is higher than the maximun possible roll ({effect['effect_value_max']}). Exiting...")
+            return 
+        
         if not self.etna_resort_can_item_be_rolled(item_id):
             self.log("{item_id} - Item has effects(s) locked and cannot be rolled. Exiting...")
             return
@@ -441,20 +449,25 @@ class EtnaResort(Items, metaclass=ABCMeta):
             item_type = 4
             t_data_key = 'equipment_effects'
 
-        effect = 0
+        effect_value = 0
         attempt_count = 0
 
         prism_count = self.pd.get_item_by_m_item_id(ItemsC.PriPrism.value)['num']
         current_hl = self.pd.get_item_by_m_item_id(ItemsC.HL.value)['num']
         self.log(f"{item_id} - Re-rolling item - Priprism count: {prism_count} - Current HL: {current_hl}")
 
-        while effect < boost_target and prism_count > 0 and current_hl > Constants.Alchemy_Alchemize_Cost:
+        while effect_value < effect_target and prism_count > 0 and current_hl > Constants.Alchemy_Alchemize_Cost:
             res = self.client.etna_resort_add_alchemy_effects(item_type, item_id)
             effects = res['result']['after_t_data'][t_data_key]
 
-            innocent_effect = next(
+            effect = next(
                 (x for x in effects if x['m_equipment_effect_type_id'] == effect_id), None)
-            effect = innocent_effect['effect_value']
+            effect_value = effect['effect_value']
+
+            # If looking for unique innocent ignore value unless the effect contains a unique inno
+            if unique_innocent and Constants.Unique_Innocent_Character_ID not in effect['m_character_ids'] :
+                effect_value = 0
+
             attempt_count += 1
             prism_count -= 1
             if prism_count == 0:
@@ -464,6 +477,6 @@ class EtnaResort(Items, metaclass=ABCMeta):
                 self.log(f"{item_id} - Ran out of HL. Exiting...")
 
         self.log(
-            f"{item_id} - Rolled {effect}% innocent boost - Attempt count: {attempt_count} - "
+            f"{item_id} - Rolled {effect_value}% effect - Attempt count: {attempt_count} - "
             f"Priprism left: {prism_count}"
         )
