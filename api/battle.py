@@ -2,6 +2,8 @@ import random
 import time
 from abc import ABCMeta
 
+from api.constants import Item_World_Drop_Mode
+
 from api.constants import Battle_Finish_Type
 from api.player import Player
 
@@ -79,14 +81,14 @@ class Battle(Player, metaclass=ABCMeta):
                                      result=1)
         return end
 
-    def parse_start(self, start, ensure_drops: bool = False, only_weapons: bool = False):
+    def parse_start(self, start):
         if 'result' in start and 'reward_id' in start['result']:
             reward_id = start['result']['reward_id'][10]
             reward_type = start['result']['reward_type'][10]
             reward_rarity = start['result']['reward_rarity'][10]
 
             # stage with no drops or ensure_drops is false, continue
-            if start['result']['stage'] % 10 != 0 or not ensure_drops:
+            if start['result']['stage'] % 10 != 0 or not self.options.item_world_ensure_drops:
                 return 1
 
             # no drop, ensuring drops, retry
@@ -106,8 +108,9 @@ class Battle(Player, metaclass=ABCMeta):
                 return 5
 
             # equipment drop, but farming only weapons, retry
-            if reward_type == 4 and only_weapons:
+            if reward_type == 4 and self.options.item_world_drop_mode == Item_World_Drop_Mode.Drop_Weapons_Only:
                 return 5
+
             item = self.gd.get_weapon(reward_id) if reward_type == 3 else self.gd.get_equipment(reward_id)
 
             # drop, rank less than min_rank, retry

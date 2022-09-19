@@ -15,7 +15,7 @@ class Constants:
     Shop_Max_Free_Refresh = 5
     Alchemy_Alchemize_Cost = 6000
     Unique_Innocent_Character_ID = 0
-
+    
     session_id = ''  # FILL SESSION_ID HERE
     user_id = ''  # FILL USER_ID HERE
     ticket = ''  # FILL TICKET FOR STEAM LOGIN
@@ -130,6 +130,14 @@ class Items(IntEnum):
     PriPrism = 4101
     Prilixir = 4201
 
+class Item_World_Mode(IntEnum):
+    Run_Weapons_Only = 1
+    Run_Equipment_Only = 2
+    Run_All_Items = 3
+
+class Item_World_Drop_Mode(IntEnum):
+    Drop_Weapons_Only = 1
+    Drop_All_Items = 3
 
 class Alchemy_Effect_Type(IntEnum):
     Innocent_Effect = 10001

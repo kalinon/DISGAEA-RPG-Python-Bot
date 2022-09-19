@@ -1,3 +1,5 @@
+from api.constants import Item_World_Mode, Item_World_Drop_Mode
+
 class Options:
 
     def __init__(self, region, device):
@@ -36,6 +38,10 @@ class Options:
         self.auto_rebirth: bool = False
         self.use_potions: bool = False
         self.current_ap = 0
+        ## Item world options
+        self.item_world_mode: Item_World_Mode = Item_World_Mode.Run_All_Items
+        self.item_world_drop_mode: Item_World_Drop_Mode = Item_World_Drop_Mode.Drop_All_Items
+        self.item_world_ensure_drops: bool = True
 
     @property
     def team_num(self):
