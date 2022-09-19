@@ -165,11 +165,12 @@ class PlayerData:
                    skip_equipped: bool = False, skip_locked: bool = True,
                    max_innocent_rank: int = 8, max_innocent_type: int = 8,
                    min_innocent_rank: int = 0, min_innocent_type: int = 0,
-                   min_inocent_count: int = 0, max_inocent_count: int = 999,
+                   min_innocent_count: int = 0, max_innocent_count: int = 999,
                    item_type: int = 0) -> bool:
 
         # Change this to DEBUG (10) or INFO (20) if you want to see logs
         log_level = 0
+
         if log_level > 0:
             self.__log_item("checking", item)
 
@@ -208,11 +209,11 @@ class PlayerData:
             return False
 
         innos = self.get_item_innocents(item)
-        if len(innos) > max_inocent_count:
+        if len(innos) > max_innocent_count:
             Logger.log('skip due to max innocent count', log_level)
             return False
 
-        if len(innos) < min_inocent_count:
+        if len(innos) < min_innocent_count:
             Logger.log('skip due to min innocent count', log_level)
             return False
 
@@ -243,14 +244,14 @@ class PlayerData:
         Logger.log('item passed check', log_level)
         return True
 
-    def filter_items(self, max_rarity: int = 99, min_rarity: int = 0,
-                     max_item_rank: int = 39, min_item_rank: int = 0,
+    def filter_items(self, max_rarity: int = 999, min_rarity: int = 0,
+                     max_item_rank: int = 999, min_item_rank: int = 0,
                      max_item_level: int = 9999, min_item_level: int = 0,
                      skip_max_lvl: bool = False, only_max_lvl: bool = False,
-                     skip_equipped: bool = False, skip_locked: bool = True,
+                     skip_equipped: bool = False, skip_locked: bool = False,
                      max_innocent_rank: int = 8, max_innocent_type: int = 8,
                      min_innocent_rank: int = 0, min_innocent_type: int = 0,
-                     min_inocent_count: int = 0, max_inocent_count: int = 999,
+                     min_innocent_count: int = 0, max_innocent_count: int = 999,
                      item_type=0):
         matches = []
         skipping = 0
@@ -262,7 +263,7 @@ class PlayerData:
                                      skip_equipped=skip_equipped, skip_locked=skip_locked,
                                      max_innocent_rank=max_innocent_rank, max_innocent_type=max_innocent_type,
                                      min_innocent_rank=min_innocent_rank, min_innocent_type=min_innocent_type,
-                                     min_inocent_count=min_inocent_count, max_inocent_count=max_inocent_count,
+                                     min_innocent_count=min_innocent_count, max_innocent_count=max_innocent_count,
                                      item_type=item_type)
             if not result:
                 skipping += 1
@@ -294,7 +295,7 @@ class PlayerData:
             i = self.get_weapon_by_id(id)
             if i is None:
                 i = self.get_equipment_by_id(id)
-
+        effects = []
         if 'm_weapon_id' in i:
             effects = self.get_weapon_alchemy_effects(i['id'])
         elif 'm_equipment_id' in i:
@@ -303,8 +304,14 @@ class PlayerData:
         for effect in effects:
             effect_data = self.gd.get_alchemy_effect(effect['m_equipment_effect_type_id'])
             is_max_value = effect['effect_value'] == effect_data['effect_value_max']
-            Logger.info(
-                f"Effect: {effect_data['description']} - Value: {effect['effect_value']} - IsMaxValue: {is_max_value} - Locked: {effect['lock_flg']}")
+
+            Logger.info('%s - Effect: "%s" - Value: %s - IsMaxValue: %s - Locked: %s' % (
+                i['id'],
+                effect_data['description'].format(effect['effect_value']),
+                effect['effect_value'],
+                is_max_value,
+                effect['lock_flg']
+            ))
 
         return effects
 
@@ -329,3 +336,32 @@ class PlayerData:
         all_effects = self.equipment_effects
         equipment_effects = [x for x in all_effects if x['t_equipment_id'] == item_id]
         return equipment_effects
+
+    def update_from_resp(self, resp):
+        if 'result' in resp:
+            if 'after_t_data' in resp['result']:
+                if 'innocents' in resp['result']['after_t_data']:
+                    for i in resp['result']['after_t_data']['innocents']:
+                        self.update_innocent(i)
+                if 'items' in resp['result']['after_t_data']:
+                    for i in resp['result']['after_t_data']['items']:
+                        self.update_items(i)
+            if 'consume_t_innocent_ids' in resp['result']:
+                for i in resp['result']['consume_t_innocent_ids']:
+                    self.innocents.remove(self.get_innocent_by_id(i))
+
+    # Fetch effects on weapon based on id
+    def get_weapon_effects(self, wid: int):
+        effects = []
+        for effect in self.weapon_effects:
+            if effect['t_weapon_id'] == wid:
+                effects.append(effect)
+        return effects
+
+    # Fetch effects on equipment based on id
+    def get_equipment_effects(self, eid: int):
+        effects = []
+        for effect in self.equipment_effects:
+            if effect['t_equipment_id'] == eid:
+                effects.append(effect)
+        return effects

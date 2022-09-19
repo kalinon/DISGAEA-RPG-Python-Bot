@@ -131,7 +131,7 @@ class Player(Base):
                 iterate_next_page = False
             self.pd.items = self.pd.items + data['result']['_items']
             page_index += 1
-        return self.pd.innocents
+        return self.pd.items
 
     def player_stone_sum(self):
         data = self.client.player_stone_sum()
@@ -193,17 +193,15 @@ class Player(Base):
         self.pd.update_equip(data['result'])
 
     def print_team_info(self, team_num):
-        data = self.client.player_decks()
-        team = data['result']['_items'][team_num - 1]['t_character_ids']
+        data = self.player_decks()
+        team = data[team_num - 1]['t_character_ids']
         for key in team.keys():
             unit_id = team[key]
             if unit_id == 0: continue
             unit = self.pd.get_character_by_id(unit_id)
             character = self.gd.get_character(unit['m_character_id'])
-            self.player_equipment()
-            unit_equipments = [x for x in self.pd.equipment if x['set_chara_id'] == unit_id]
-            self.player_weapons()
-            unit_weapons = [x for x in self.pd.weapons if x['set_chara_id'] == unit_id]
+            unit_equipments = [x for x in self.player_equipment() if x['set_chara_id'] == unit_id]
+            unit_weapons = [x for x in self.player_weapons() if x['set_chara_id'] == unit_id]
             unit_gear = unit_weapons + unit_equipments
             print(f"{character['name']} - ID: {unit_id} - Level: {unit['lv']} - Equipped items:")
             for equipment in unit_gear:

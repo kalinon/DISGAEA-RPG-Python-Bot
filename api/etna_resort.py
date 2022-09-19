@@ -1,6 +1,7 @@
 from abc import ABCMeta
 
-from api.constants import Constants, Innocent_Training_Result, Innocent_ID
+from api.constants import Constants, Innocent_Training_Result, Innocent_ID, Alchemy_Effect_Type
+from api.constants import Items as ItemsC
 from api.items import Items
 
 
@@ -370,3 +371,99 @@ class EtnaResort(Items, metaclass=ABCMeta):
         effects = self.pd.get_item_alchemy_effects(item_id)
         locked_effects = [x for x in effects if x['lock_flg']]
         return len(locked_effects) == 0
+
+    # Will return innocents that match a recipe
+    def find_recipe_innocents(self, override_min_rank=False):
+        innocents = []
+        for recipe in self.gd.innocent_recipes:
+            materials = recipe['materials']
+            for mat in materials:
+                for i in self.find_recipe_material_innocents(mat, override_min_rank):
+                    innocents.append(i)
+        return innocents
+
+    def find_recipe_material_innocents(self, material, override_min_rank=False, skip_equipped=False):
+        innocents = []
+        m_character_id = material['m_character_id']
+        m_innocent_id = material['m_innocent_id']
+        min_r, max_r = self.gd.get_innocent_rank_min_max(material['rank'])
+        if override_min_rank:
+            min_r = 0
+        for i in self.player_innocents():
+            if min_r <= i['effect_rank'] <= max_r and i['m_character_id'] == m_character_id and \
+                    i['m_innocent_id'] == m_innocent_id:
+                if skip_equipped and i['place_id'] > 0:
+                    continue
+                innocents.append(i)
+        return innocents
+
+    def etna_resort_graze(self, innocent: int | dict, target_character_id: int):
+        if type(innocent) == dict and 'id' in innocent:
+            iid = int(innocent['id'])
+        else:
+            iid = int(innocent)
+
+        ticket_item_def = self.gd.get_ranch_ticket(target_character_id)
+        ticket_item = self.pd.get_item_by_m_item_id(ticket_item_def['id'])
+        if ticket_item['num'] <= 0:
+            self.logger.error("Not enough tickets - %s" % ticket_item_def['name'])
+            return
+
+        self.log('using ticket: "%s" on %s' % (ticket_item_def['name'], iid))
+        resp = self.client.innocent_grazing(iid, ticket_item_def['id'])
+        self.check_resp(resp)
+        return resp
+
+    def etna_resort_complete_recipe(self, recipe_id: int, innocent_ids: list[int]):
+
+        recipe = self.gd.get_innocent_recipe(recipe_id)
+        self.log('completing recipe "%s" with innocents: %s' % (recipe['name'], innocent_ids))
+
+        resp = self.client.innocent_combine(recipe_id, innocent_ids)
+        self.check_resp(resp)
+        return resp
+
+    # This function re-rolls an item until a certain innocent % boost is reached, ignoring all other rolls
+    # Specify and item ID and a target boost. The script will keep re-rolling until the target boost is reached
+    # If user runs out of HL or priprism the script will stop execution
+    # Use a.print_team_info(team_num) to get the ID of the item
+    def etna_resort_roll_alchemy_effect(self, item_id: int, boost_target: int = 40,
+                                        effect_id: int = Alchemy_Effect_Type.Innocent_Effect):
+        if not self.etna_resort_can_item_be_rolled(item_id):
+            self.log("{item_id} - Item has effects(s) locked and cannot be rolled. Exiting...")
+            return
+
+        e = self.pd.get_weapon_by_id(item_id)
+        if e is not None:
+            item_type = 3
+            t_data_key = 'weapon_effects'
+        else:
+            item_type = 4
+            t_data_key = 'equipment_effects'
+
+        effect = 0
+        attempt_count = 0
+
+        prism_count = self.pd.get_item_by_m_item_id(ItemsC.PriPrism.value)['num']
+        current_hl = self.pd.get_item_by_m_item_id(ItemsC.HL.value)['num']
+        self.log(f"{item_id} - Re-rolling item - Priprism count: {prism_count} - Current HL: {current_hl}")
+
+        while effect < boost_target and prism_count > 0 and current_hl > Constants.Alchemy_Alchemize_Cost:
+            res = self.client.etna_resort_add_alchemy_effects(item_type, item_id)
+            effects = res['result']['after_t_data'][t_data_key]
+
+            innocent_effect = next(
+                (x for x in effects if x['m_equipment_effect_type_id'] == effect_id), None)
+            effect = innocent_effect['effect_value']
+            attempt_count += 1
+            prism_count -= 1
+            if prism_count == 0:
+                self.log(f"{item_id} - Ran out of priprism. Exiting...")
+            current_hl -= Constants.Alchemy_Alchemize_Cost
+            if current_hl < Constants.Alchemy_Alchemize_Cost:
+                self.log(f"{item_id} - Ran out of HL. Exiting...")
+
+        self.log(
+            f"{item_id} - Rolled {effect}% innocent boost - Attempt count: {attempt_count} - "
+            f"Priprism left: {prism_count}"
+        )

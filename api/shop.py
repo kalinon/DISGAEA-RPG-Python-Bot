@@ -18,8 +18,6 @@ class Shop(Player, metaclass=ABCMeta):
             self.check_resp(data)
             if data['result']['after_t_data']:
                 self.player_update_equip_detail(e)
-                for i in data['result']['after_t_data']['innocents']:
-                    self.pd.update_innocent(i)
             return data
         return {}
 
@@ -80,7 +78,7 @@ class Shop(Player, metaclass=ABCMeta):
             min_item_rank=40, max_item_rank=40,
             max_item_level=1,
             skip_equipped=True, skip_locked=True,
-            max_rarity=39, max_inocent_count=0
+            max_rarity=39, max_innocent_count=0
         )
         if item_count > 0:
             items = items[:item_count]
@@ -173,6 +171,7 @@ class Shop(Player, metaclass=ABCMeta):
         items, skipping = self.pd.filter_items(
             max_item_level=1, max_item_rank=min_item_rank,
             skip_equipped=True, skip_locked=True,
+            skip_max_lvl=True,
         )
         for item in items:
             _id = item['id']
@@ -220,7 +219,7 @@ class Shop(Player, metaclass=ABCMeta):
             skip_max_lvl=skip_max_lvl, skip_equipped=True,
             max_innocent_rank=max_innocent_rank, max_innocent_type=max_innocent_type,
             max_item_rank=max_item_rank, max_rarity=max_rarity,
-            only_max_lvl=only_max_lvl
+            only_max_lvl=only_max_lvl, skip_locked=True,
         )
 
         if limit is not None and limit < len(selling):

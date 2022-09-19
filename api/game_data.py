@@ -18,11 +18,13 @@ class GameData:
         innocent_recipe_map = {}
         for recipe in self.innocent_recipes:
             for mat in recipe['materials']:
-                if not mat['m_innocent_id'] in innocent_recipe_map:
-                    innocent_recipe_map[mat['m_innocent_id']] = {}
-                if not mat['m_character_id'] in innocent_recipe_map[mat['m_innocent_id']]:
-                    innocent_recipe_map[mat['m_innocent_id']][mat['m_character_id']] = set()
-                innocent_recipe_map[mat['m_innocent_id']][mat['m_character_id']].add(mat['rank'])
+                inno_id = mat['m_innocent_id']
+                if inno_id not in innocent_recipe_map:
+                    innocent_recipe_map[inno_id] = {}
+                char_id = mat['m_character_id']
+                if char_id not in innocent_recipe_map[inno_id]:
+                    innocent_recipe_map[inno_id][char_id] = []
+                innocent_recipe_map[inno_id][char_id].append(mat['rank'])
         return innocent_recipe_map
 
     def get_equipment(self, i):
@@ -76,6 +78,11 @@ class GameData:
             if i == s['id']:
                 return s
 
+    def get_innocent_type(self, iid: int):
+        for x in self.innocent_types:
+            if iid == x['id']:
+                return x
+
     def get_innocent_rank_min_max(self, rank: int):
         if rank == 1:
             return 1, 4
@@ -99,3 +106,20 @@ class GameData:
             return 4
         else:
             raise Exception('Unknown innocent effect rank of %s' % effect_rank)
+
+    def get_ranch_ticket(self, m_character_id: int):
+        for item in self.items:
+            if 'Ranch Ticket' not in item['name']: continue
+            if 'effect_value' in item and m_character_id in item['effect_value']:
+                return item
+
+    def get_innocent_recipe(self, rid: int):
+        for x in self.innocent_recipes:
+            if rid == x['id']:
+                return x
+
+    def get_innocent_name(self, innocent):
+        subject_char = self.get_character(innocent['m_character_id'])
+        subject_char_name = "%s %s" % (
+            subject_char['name'], subject_char['linkage_character_ids'].index(innocent['m_character_id']) + 1)
+        return subject_char_name

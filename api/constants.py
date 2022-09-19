@@ -130,20 +130,17 @@ class Items(IntEnum):
     PriPrism = 4101
     Prilixir = 4201
 
+
 class Alchemy_Effect_Type(IntEnum):
     Innocent_Effect = 10001
-    CRT = 20001
-    CRD = 20002
-    Water_Damage = 30001
-    Fire_Damage = 30002
-    Wind_Damage = 30003
-    Star_Damage = 30004
-    Non_Elemental_Damage = 30005
-    Normal_Attack_Damage = 30006
-    Skill_Damage = 30007
-    SP_Per_Turn = 30022
-    Action_Gauge = 30023
-    Skill_Damage_Taken = 30035
-    Damage_Taken_From_Human = 30048
-    Restore_HP = 30049
-    AGRR = 30054
+    CritRate = 20001
+    CritDmg = 20002
+    HumanDmgPlus = 30020
+    DmgDealtMon = 30019
+    DmgDealtHuman = 30020
+    DmgTakenMon = 30047
+    DmgTakenHuman = 30048
+    PoisonRes = 30050
+    ParalysisRes = 30051
+    SleepRes = 30052
+    ForgetRes = 30053

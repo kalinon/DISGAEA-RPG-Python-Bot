@@ -715,11 +715,14 @@ class Client:
         return data
 
     def etna_resort_reroll_alchemy_effect(self, item_type, item_id, place_no):
-        data = self.__rpc('weapon_equipment/update_effect_lottery', {"item_type": item_type, "id": item_id, "place_no": place_no})
+        data = self.__rpc('weapon_equipment/update_effect_lottery',
+                          {"item_type": item_type, "id": item_id, "place_no": place_no})
         return data
 
-    def etna_resort_lock_alchemy_effect(self, lock_flg:bool, t_weapon_effect_id=0, t_equipment_effect_id=0):
-        data = self.__rpc('weapon_equipment/update_effect_lottery', {"t_weapon_effect_id":t_weapon_effect_id,"t_equipment_effect_id":t_equipment_effect_id,"lock_flg":lock_flg})
+    def etna_resort_lock_alchemy_effect(self, lock_flg: bool, t_weapon_effect_id=0, t_equipment_effect_id=0):
+        data = self.__rpc('weapon_equipment/update_effect_lottery',
+                          {"t_weapon_effect_id": t_weapon_effect_id, "t_equipment_effect_id": t_equipment_effect_id,
+                           "lock_flg": lock_flg})
         return data
 
     def etna_resort_update_alchemy_effect(self, overwrite: bool):
@@ -875,12 +878,12 @@ class Client:
     # Dark Assembly endpoints
     #########################
 
-    #m_agenda_id: 28 for renaming generic characters
+    # m_agenda_id: 28 for renaming generic characters
     def agenda_start(self, m_agenda_id):
         return self.__rpc('agenda/lowmaker_details', {"m_agenda_id": m_agenda_id})
 
     def agenda_vote(self, m_agenda_id, bribe_data):
-        return self.__rpc('agenda/vote', {"m_agenda_id" :m_agenda_id, "bribe_data": bribe_data})
+        return self.__rpc('agenda/vote', {"m_agenda_id": m_agenda_id, "bribe_data": bribe_data})
 
     #################
     # Misc Endpoints
@@ -996,6 +999,15 @@ class Client:
 
     def innocent_training(self, t_innocent_id):
         return self.__rpc('innocent/training', {"t_innocent_id": t_innocent_id})
+
+    def innocent_combine(self, m_innocent_recipe_id: int, t_innocent_ids: List[int]):
+        return self.__rpc('innocent/combine', {
+            "m_innocent_recipe_id": m_innocent_recipe_id,
+            "t_innocent_ids": t_innocent_ids
+        })
+
+    def innocent_grazing(self, t_innocent_id: int, m_item_id: int):
+        return self.__rpc('innocent/grazing', {"t_innocent_id": t_innocent_id, "m_item_id": m_item_id})
 
     def hospital_index(self):
         return self.__rpc('hospital/index', {})
