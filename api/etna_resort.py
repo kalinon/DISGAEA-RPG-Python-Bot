@@ -10,10 +10,6 @@ class EtnaResort(Items, metaclass=ABCMeta):
     def __init__(self):
         super().__init__()
 
-    # def breeding_center_list(self):
-    #     data = self.rpc('breeding_center/list', {})
-    #     return data
-
     # Donate equipments
     def kingdom_weapon_equipment_entry(self, weapon_ids=[], equipment_ids=[]):
         data = self.client.kingdom_weapon_equipment_entry(weapon_ids, equipment_ids)
@@ -438,7 +434,7 @@ class EtnaResort(Items, metaclass=ABCMeta):
                                         unique_innocent: bool = False,
                                         all_effects_unlocked: bool = False):
         
-        effect = self.gd.get_alchemy_effect(Alchemy_Effect_Type.Innocent_Effect)
+        effect = self.gd.get_alchemy_effect(effect_id)
         if effect is None or effect_target > effect['effect_value_max']:
             self.log(f"The specified value is higher than the maximun possible roll ({effect['effect_value_max']}). Exiting...")
             return 
@@ -501,3 +497,75 @@ class EtnaResort(Items, metaclass=ABCMeta):
             f"{item_id} - Rolled {effect_value}% effect - Attempt count: {attempt_count} - "
             f"Priprism left: {prism_count}"
         )
+
+    def etna_resort_roll_until_maxed_effect(self, item_id: int,
+                                        alchemy_effects: set[int] = [],
+                                        unique_innocent: bool = False,
+                                        all_effects_unlocked: bool = True):
+
+        if len(alchemy_effects) == 0:
+            self.log(f"Please specify at least one effect to roll for. Exiting...")
+            return         
+
+        if not self.etna_resort_can_item_be_rolled(item_id):
+            self.log("{item_id} - Item has effects(s) locked and cannot be rolled. Exiting...")
+            return
+
+        e = self.pd.get_weapon_by_id(item_id)
+        if e is not None:
+            item_type = 3
+            t_data_key = 'weapon_effects'
+        else:
+            item_type = 4
+            t_data_key = 'equipment_effects'
+
+
+        possible_effects = []
+        for effect_id in alchemy_effects:
+            if not self.etna_resort_can_effect_be_rolled(effect_id, item_type):
+                effect = self.gd.get_alchemy_effect(effect_id)
+                self.log(f"{effect['description']} cannot be rolled for this equipment type.")
+            else:
+                possible_effects.append(effect_id)
+
+        if len(possible_effects) == 0:
+            self.log(f"None of the specified effects can be rolled on this equipment. Exiting....")
+
+        attempt_count = 0
+
+        prism_count = self.pd.get_item_by_m_item_id(ItemsC.PriPrism.value)['num']
+        current_hl = self.pd.get_item_by_m_item_id(ItemsC.HL.value)['num']
+        self.log(f"{item_id} - Re-rolling item - Priprism count: {prism_count} - Current HL: {current_hl}")
+
+        roll = True
+
+        while roll and prism_count > 0 and current_hl > Constants.Alchemy_Alchemize_Cost:
+            res = self.client.etna_resort_add_alchemy_effects(item_type, item_id)
+            effects = res['result']['after_t_data'][t_data_key]
+
+            # if looking to have all effects unlocked, skip if less than 4 effects
+            if all_effects_unlocked and len(effects) < 4:
+                continue
+
+            # Check if any of the sought after affects is maxed
+            for e in effects:
+                # look for effects specified in list
+                if e['m_equipment_effect_type_id'] in possible_effects:
+                    is_max_effect = self.gd.get_alchemy_effect(Alchemy_Effect_Type.Innocent_Effect)['effect_value_max'] == e['effect_value']
+                    # if the effect is maxed
+                    if is_max_effect:
+                        # If looking for unique innocent ignore value unless the effect contains a unique inno
+                        if unique_innocent and Constants.Unique_Innocent_Character_ID in e['m_character_ids'] :
+                            roll = False
+                        else:
+                            roll = False                  
+
+            attempt_count += 1
+            prism_count -= 1
+            if prism_count == 0:
+                self.log(f"{item_id} - Ran out of priprism. Exiting...")
+            current_hl -= Constants.Alchemy_Alchemize_Cost
+            if current_hl < Constants.Alchemy_Alchemize_Cost:
+                self.log(f"{item_id} - Ran out of HL. Exiting...")
+
+        self.log(f"{item_id} - Rolled - Attempt count: {attempt_count} - Priprism left: {prism_count}")

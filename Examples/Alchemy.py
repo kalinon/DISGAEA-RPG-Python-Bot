@@ -31,4 +31,17 @@ effect_target = 40
 # NOTE: Looking for a max effect with a unique innocent can use all your prism, use with care
 unique_innocent = False
 
-a.etna_resort_roll_alchemy_effect(item_id, effect_target=effect_target, effect_id=effect_id, unique_innocent=unique_innocent)
+# Set this to true if you want all 4 effects to be unlocked. 
+# It will keep rolling until the desired effect is obtained with all 4 effects unlocked, so they can be individually rerolled later
+# set to false if rolling only for innocent boost
+all_effects_unlocked = False
+
+a.etna_resort_roll_alchemy_effect(item_id, effect_target=effect_target, effect_id=effect_id, unique_innocent=unique_innocent, all_effects_unlocked=all_effects_unlocked)
+
+# This method allows to specify a set of effects to look for
+# The bot will roll the item until any of the effects specified is maxed
+# Example alchemy_effects = [Alchemy_Effect_Type.CritDmg, Alchemy_Effect_Type.CritRate, Alchemy_Effect_Type.Fire_Damage, Alchemy_Effect_Type.Wind_Damage]
+# If the bot rolls 20% CRT OR 100% CRD or 30% Fire OR 30% Wind, it will stop r
+
+alchemy_effects = [Alchemy_Effect_Type.CritDmg, Alchemy_Effect_Type.CritRate, Alchemy_Effect_Type.Fire_Damage, Alchemy_Effect_Type.Wind_Damage]
+a.etna_resort_roll_until_maxed_effect(item_id=item_id, alchemy_effects=alchemy_effects, unique_innocent=unique_innocent, all_effects_unlocked=all_effects_unlocked)

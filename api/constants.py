@@ -145,7 +145,8 @@ class Alchemy_Effect_Type(IntEnum):
     Innocent_Effect = 10001
     CritRate = 20001
     CritDmg = 20002
-    Fire_Damage = 30002
+    Water_Damage = 30001
+    Fire_Damage = 30002    
     Wind_Damage = 30003
     Star_Damage = 30004
     Non_Elemental_Damage = 30005
