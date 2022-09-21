@@ -372,6 +372,11 @@ class EtnaResort(Items, metaclass=ABCMeta):
         locked_effects = [x for x in effects if x['lock_flg']]
         return len(locked_effects) == 0
 
+    def etna_resort_can_effect_be_rolled(self, alchemy_effect_id:int, equipment_type:int):
+        if equipment_type == 3:
+            return alchemy_effect_id in Constants.Weapon_Alchemy_Effects
+        return alchemy_effect_id in Constants.Equipment_Alchemy_Effects
+
     # Will return innocents that match a recipe
     def find_recipe_innocents(self, override_min_rank=False):
         innocents = []
@@ -430,7 +435,8 @@ class EtnaResort(Items, metaclass=ABCMeta):
     # Use a.print_team_info(team_num) to get the ID of the item
     def etna_resort_roll_alchemy_effect(self, item_id: int, effect_target: int = 40,
                                         effect_id: int = Alchemy_Effect_Type.Innocent_Effect,
-                                        unique_innocent: bool = False):
+                                        unique_innocent: bool = False,
+                                        all_effects_unlocked: bool = False):
         
         effect = self.gd.get_alchemy_effect(Alchemy_Effect_Type.Innocent_Effect)
         if effect is None or effect_target > effect['effect_value_max']:
@@ -449,6 +455,10 @@ class EtnaResort(Items, metaclass=ABCMeta):
             item_type = 4
             t_data_key = 'equipment_effects'
 
+        if not self.etna_resort_can_effect_be_rolled(effect_id, item_type):
+            self.log(f"The specified alchemy effect cannot be rolled for this equipment type. Exiting...")
+            return 
+
         effect_value = 0
         attempt_count = 0
 
@@ -460,13 +470,24 @@ class EtnaResort(Items, metaclass=ABCMeta):
             res = self.client.etna_resort_add_alchemy_effects(item_type, item_id)
             effects = res['result']['after_t_data'][t_data_key]
 
-            effect = next(
-                (x for x in effects if x['m_equipment_effect_type_id'] == effect_id), None)
+            effect = next((x for x in effects if x['m_equipment_effect_type_id'] == effect_id), None)
+
+            if effect is None:
+                continue
+            
             effect_value = effect['effect_value']
 
             # If looking for unique innocent ignore value unless the effect contains a unique inno
             if unique_innocent and Constants.Unique_Innocent_Character_ID not in effect['m_character_ids'] :
                 effect_value = 0
+
+            # if looking to have all effects unlocked, skip if less than 4 effects
+            if all_effects_unlocked and len(effects) < 4:
+                effect_value = 0
+            
+            # for future usage, check if any affect is maxed
+            for e in effects:
+                is_max = self.gd.get_alchemy_effect(Alchemy_Effect_Type.Innocent_Effect)['effect_value_max'] == effect['effect_value']
 
             attempt_count += 1
             prism_count -= 1
