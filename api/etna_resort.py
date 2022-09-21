@@ -530,6 +530,7 @@ class EtnaResort(Items, metaclass=ABCMeta):
 
         if len(possible_effects) == 0:
             self.log(f"None of the specified effects can be rolled on this equipment. Exiting....")
+            return
 
         attempt_count = 0
 
@@ -557,7 +558,7 @@ class EtnaResort(Items, metaclass=ABCMeta):
                         # If looking for unique innocent ignore value unless the effect contains a unique inno
                         if unique_innocent and Constants.Unique_Innocent_Character_ID in e['m_character_ids'] :
                             roll = False
-                        else:
+                        if not unique_innocent:
                             roll = False                  
 
             attempt_count += 1
