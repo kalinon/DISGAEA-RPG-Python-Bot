@@ -1,4 +1,5 @@
 from abc import ABCMeta
+from inspect import ismemberdescriptor
 
 from api.constants import Constants, Innocent_Training_Result, Innocent_ID, Alchemy_Effect_Type
 from api.constants import Items as ItemsC
@@ -9,10 +10,6 @@ class EtnaResort(Items, metaclass=ABCMeta):
 
     def __init__(self):
         super().__init__()
-
-    # def breeding_center_list(self):
-    #     data = self.rpc('breeding_center/list', {})
-    #     return data
 
     # Donate equipments
     def kingdom_weapon_equipment_entry(self, weapon_ids=[], equipment_ids=[]):
@@ -372,6 +369,16 @@ class EtnaResort(Items, metaclass=ABCMeta):
         locked_effects = [x for x in effects if x['lock_flg']]
         return len(locked_effects) == 0
 
+    def etna_resort_can_effect_be_rerolled(self, item_id:int, place_no:int):
+        effects = self.pd.get_item_alchemy_effects(item_id)
+        effect = next((x for x in effects if x['place_no'] == place_no),None)
+        return effect is not None and not effect['lock_flg']
+
+    def etna_resort_can_effect_be_rolled(self, alchemy_effect_id:int, equipment_type:int):
+        if equipment_type == 3:
+            return alchemy_effect_id in Constants.Weapon_Alchemy_Effects
+        return alchemy_effect_id in Constants.Equipment_Alchemy_Effects
+
     # Will return innocents that match a recipe
     def find_recipe_innocents(self, override_min_rank=False):
         innocents = []
@@ -423,12 +430,21 @@ class EtnaResort(Items, metaclass=ABCMeta):
         self.check_resp(resp)
         return resp
 
-    # This function re-rolls an item until a certain innocent % boost is reached, ignoring all other rolls
-    # Specify and item ID and a target boost. The script will keep re-rolling until the target boost is reached
+    # This function re-rolls an item until a certain % boost is reached for a specific effect, ignoring all other rolls
+    # Specify and item ID, and effect and a target for the effect. The script will keep re-rolling until the target is reached
+    # unique_innocent will force the effect to contain a unique innocent
     # If user runs out of HL or priprism the script will stop execution
     # Use a.print_team_info(team_num) to get the ID of the item
-    def etna_resort_roll_alchemy_effect(self, item_id: int, boost_target: int = 40,
-                                        effect_id: int = Alchemy_Effect_Type.Innocent_Effect):
+    def etna_resort_roll_alchemy_effect(self, item_id: int, effect_target: int = 40,
+                                        effect_id: int = Alchemy_Effect_Type.Innocent_Effect,
+                                        unique_innocent: bool = False,
+                                        all_effects_unlocked: bool = False):
+        
+        effect = self.gd.get_alchemy_effect(effect_id)
+        if effect is None or effect_target > effect['effect_value_max']:
+            self.log(f"The specified value is higher than the maximun possible roll ({effect['effect_value_max']}). Exiting...")
+            return 
+        
         if not self.etna_resort_can_item_be_rolled(item_id):
             self.log("{item_id} - Item has effects(s) locked and cannot be rolled. Exiting...")
             return
@@ -441,21 +457,37 @@ class EtnaResort(Items, metaclass=ABCMeta):
             item_type = 4
             t_data_key = 'equipment_effects'
 
-        effect = 0
+        if not self.etna_resort_can_effect_be_rolled(effect_id, item_type):
+            self.log(f"The specified alchemy effect cannot be rolled for this equipment type. Exiting...")
+            return 
+
+        effect_value = 0
         attempt_count = 0
 
         prism_count = self.pd.get_item_by_m_item_id(ItemsC.PriPrism.value)['num']
         current_hl = self.pd.get_item_by_m_item_id(ItemsC.HL.value)['num']
         self.log(f"{item_id} - Re-rolling item - Priprism count: {prism_count} - Current HL: {current_hl}")
 
-        while effect < boost_target and prism_count > 0 and current_hl > Constants.Alchemy_Alchemize_Cost:
+        while effect_value < effect_target and prism_count > 0 and current_hl > Constants.Alchemy_Alchemize_Cost:
             res = self.client.etna_resort_add_alchemy_effects(item_type, item_id)
             self.check_resp(res)
             effects = res['result']['after_t_data'][t_data_key]
 
-            innocent_effect = next(
-                (x for x in effects if x['m_equipment_effect_type_id'] == effect_id), None)
-            effect = innocent_effect['effect_value']
+            effect = next((x for x in effects if x['m_equipment_effect_type_id'] == effect_id), None)
+
+            if effect is None:
+                continue
+            
+            effect_value = effect['effect_value']
+
+            # If looking for unique innocent ignore value unless the effect contains a unique inno
+            if unique_innocent and Constants.Unique_Innocent_Character_ID not in effect['m_character_ids'] :
+                effect_value = 0
+
+            # if looking to have all effects unlocked, skip if less than 4 effects
+            if all_effects_unlocked and len(effects) < 4:
+                effect_value = 0
+
             attempt_count += 1
             prism_count -= 1
             if prism_count == 0:
@@ -465,6 +497,175 @@ class EtnaResort(Items, metaclass=ABCMeta):
                 self.log(f"{item_id} - Ran out of HL. Exiting...")
 
         self.log(
-            f"{item_id} - Rolled {effect}% innocent boost - Attempt count: {attempt_count} - "
+            f"{item_id} - Rolled {effect_value}% effect - Attempt count: {attempt_count} - "
             f"Priprism left: {prism_count}"
         )
+
+    # This function re-rolls an item until a certain effect is rolled with max value
+    # Specify and item ID, and a list of effects to roll for on the alchemy_effects list
+    # Optional: all effects unlocked, unique innocent
+    def etna_resort_roll_until_maxed_effect(self, item_id: int,
+                                        alchemy_effects: set[int] = [],
+                                        unique_innocent: bool = False,
+                                        all_effects_unlocked: bool = True):
+
+        if len(alchemy_effects) == 0:
+            self.log(f"Please specify at least one effect to roll for. Exiting...")
+            return         
+
+        if not self.etna_resort_can_item_be_rolled(item_id):
+            self.log("{item_id} - Item has effects(s) locked and cannot be rolled. Exiting...")
+            return
+
+        e = self.pd.get_weapon_by_id(item_id)
+        if e is not None:
+            item_type = 3
+            t_data_key = 'weapon_effects'
+        else:
+            item_type = 4
+            t_data_key = 'equipment_effects'
+
+
+        possible_effects = []
+        for effect_id in alchemy_effects:
+            if not self.etna_resort_can_effect_be_rolled(effect_id, item_type):
+                effect = self.gd.get_alchemy_effect(effect_id)
+                self.log(f"{effect['description']} cannot be rolled for this equipment type.")
+            else:
+                possible_effects.append(effect_id)
+
+        if len(possible_effects) == 0:
+            self.log(f"None of the specified effects can be rolled on this equipment. Exiting....")
+            return
+
+        attempt_count = 0
+
+        prism_count = self.pd.get_item_by_m_item_id(ItemsC.PriPrism.value)['num']
+        current_hl = self.pd.get_item_by_m_item_id(ItemsC.HL.value)['num']
+        self.log(f"{item_id} - Re-rolling item - Priprism count: {prism_count} - Current HL: {current_hl}")
+
+        roll = True
+
+        while roll and prism_count > 0 and current_hl > Constants.Alchemy_Alchemize_Cost:
+            res = self.client.etna_resort_add_alchemy_effects(item_type, item_id)
+            effects = res['result']['after_t_data'][t_data_key]
+
+            attempt_count += 1
+            prism_count -= 1
+            if prism_count == 0:
+                self.log(f"{item_id} - Ran out of priprism.")
+            current_hl -= Constants.Alchemy_Alchemize_Cost
+            if current_hl < Constants.Alchemy_Alchemize_Cost:
+                self.log(f"{item_id} - Ran out of HL")
+
+            # if looking to have all effects unlocked, skip if less than 4 effects
+            if all_effects_unlocked and len(effects) < 4:
+                continue
+
+            # Check if any of the sought after affects is maxed
+            for e in effects:
+                # look for effects specified in list
+                if e['m_equipment_effect_type_id'] in possible_effects:
+                    effect_data = self.gd.get_alchemy_effect(e['m_equipment_effect_type_id'])
+                    is_max_effect = effect_data['effect_value_max'] == e['effect_value']
+                    # if the effect is maxed
+                    if is_max_effect:
+                        # If looking for unique innocent ignore value unless the effect contains a unique inno
+                        if unique_innocent and Constants.Unique_Innocent_Character_ID in e['m_character_ids'] :
+                            roll = False
+                        if not unique_innocent:
+                            roll = False                  
+
+        self.log(f"{item_id} - Rolled - Attempt count: {attempt_count} - Priprism left: {prism_count}")
+        
+        if item_type == 3:
+            self.player_weapons(True)
+            self.player_weapon_effects(True)                
+        else:
+            self.player_equipment(True)
+            self.player_equipment_effects(True)
+        self.pd.get_item_alchemy_effects(item_id)
+
+    def etna_resort_reroll_effect(self, item_id: int,
+                                        alchemy_effect_id: int,
+                                        place_no: int,
+                                        effect_target:int =0):
+        # verify value can be rolled
+        if effect_target != 0:
+            effect = self.gd.get_alchemy_effect(alchemy_effect_id)
+            if effect is None or effect_target > effect['effect_value_max']:
+                self.log(f"The specified value is higher than the maximun possible roll ({effect['effect_value_max']}). Exiting...")
+                return 
+
+        # verify slot is not locked
+        if not self.etna_resort_can_effect_be_rerolled(item_id, place_no):
+            self.log("The effect is locked and cannot be rerolled. Exiting...")
+            return
+
+        e = self.pd.get_weapon_by_id(item_id)
+        if e is not None:
+            item_type = 3
+            t_data_key = 'weapon_effects'
+        else:
+            item_type = 4
+            t_data_key = 'equipment_effects'
+
+        # verify effect can be rerolled for that equipment
+        if not self.etna_resort_can_effect_be_rolled(alchemy_effect_id, item_type):
+            effect = self.gd.get_alchemy_effect(alchemy_effect_id)
+            self.log(f"{effect['description']} cannot be rolled for this equipment type.")
+            return
+
+        # verify effect can be rolled in that slot
+        if not self.etna_resort_can_effect_be_rolled_in_place(alchemy_effect_id, place_no):
+            effect = self.gd.get_alchemy_effect(alchemy_effect_id)
+            self.log(f"{effect['description']} cannot be rolled on slot {place_no}.")
+            return
+        
+        
+        attempt_count = 0
+
+        prilixir_count = self.pd.get_item_by_m_item_id(ItemsC.Prilixir.value)['num']
+        current_hl = self.pd.get_item_by_m_item_id(ItemsC.HL.value)['num']
+        self.log(f"{item_id} - Re-rolling item - Prilixir count: {prilixir_count} - Current HL: {current_hl}")
+
+        roll = True
+
+        while roll and prilixir_count > 0 and current_hl > Constants.Alchemy_Alchemize_Cost:
+            res = self.client.etna_resort_reroll_alchemy_effect(item_type, item_id, place_no)
+
+            effect = res['result']['after_t_data'][t_data_key][0]
+
+            attempt_count += 1
+            prilixir_count -= 1
+            if prilixir_count == 0:
+                self.log(f"{item_id} - Ran out of prilixir.")
+            current_hl -= Constants.Alchemy_Alchemize_Cost
+            if current_hl < Constants.Alchemy_Alchemize_Cost:
+                self.log(f"{item_id} - Ran out of HL.")
+
+            # Not the effect we are looking for
+            if not effect['m_equipment_effect_type_id'] == alchemy_effect_id:
+                continue
+
+            is_max_effect = self.gd.get_alchemy_effect(alchemy_effect_id)['effect_value_max'] == effect['effect_value']     
+
+            # if effect is maxed finish rolling and overwrite
+            # if effect target is manually specified
+            if is_max_effect or (effect_target != 0 and effect['effect_value'] >= effect_target):
+                r =self.client.etna_resort_update_alchemy_effect(True)  
+                roll = False
+            else:
+                r = self.client.etna_resort_update_alchemy_effect(False)             
+
+        self.log(
+            f"{item_id} - Rolled {effect['effect_value']}%  - Attempt count: {attempt_count} - "
+            f"Prilixir left: {prilixir_count}")
+
+    def etna_resort_can_effect_be_rolled_in_place(self, alchemy_effect_id:int, place_no:int):
+        if alchemy_effect_id in Constants.Place_1_Effects:
+            return place_no == 1
+        elif alchemy_effect_id in Constants.Place_2_Effects:
+            return place_no == 2
+        else:
+            return place_no >= 3

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import datetime
+from api.constants import Item_World_Mode
 
 from dateutil import parser
 
@@ -216,14 +217,14 @@ class API(BaseAPI):
         res = self.parseReward(end)
         return res
 
-    def upgrade_items(self, ensure_drops: bool = False, only_weapons: bool = False, item_limit: int = None, items=None):
+    def upgrade_items(self, item_limit: int = None, items=None):
         if items is None:
-            items = self.items_to_upgrade(only_weapons=only_weapons)
+            items = self.items_to_upgrade()
         if item_limit is not None and len(items) > int(item_limit):
             items = items[0:item_limit]
-        self.upgrade_item_list(items, ensure_drops=ensure_drops, only_weapons=only_weapons)
+        self.upgrade_item_list(items)
 
-    def upgrade_item_list(self, items, ensure_drops: bool = False, only_weapons: bool = False):
+    def upgrade_item_list(self, items):
         if len(items) == 0:
             self.log_err('No items found to upgrade')
 
@@ -233,17 +234,22 @@ class API(BaseAPI):
             while 1:
                 if not self.doItemWorld(
                         equipment_id=w['id'],
-                        equipment_type=self.pd.get_equip_type(w),
-                        ensure_drops=ensure_drops,
-                        only_weapons=only_weapons
+                        equipment_type=self.pd.get_equip_type(w)
                 ):
                     break
 
     # Will return a list of items that match the upgrade options filter
-    def items_to_upgrade(self, only_weapons: bool = False):
-        items = self.player_weapons(False)
-        if not only_weapons:
-            items = items + self.player_equipment(False)
+    def items_to_upgrade(self):
+        weapons = self.player_weapons(False)
+        equipments = self.player_equipment(False)
+
+        if self.options.item_world_mode == Item_World_Mode.Run_Weapons_Only:
+            items  = weapons
+        elif self.options.item_world_mode == Item_World_Mode.Run_Equipment_Only:
+            items  = equipments
+        else:
+            items = equipments + weapons
+            
         item_list = []
         for w in filter(self.__item_filter, items):
             item_list.append(w)
@@ -284,11 +290,11 @@ class API(BaseAPI):
                                      battle_type=4, result=1)
         return end
 
-    def doItemWorld(self, equipment_id=None, equipment_type=1, ensure_drops: bool = False, only_weapons: bool = False):
+    def doItemWorld(self, equipment_id=None, equipment_type=1):
         if equipment_id is None:
             self.log_err('missing equip')
             return
-        start, result = self.__start_item_world(equipment_id, equipment_type, ensure_drops, only_weapons)
+        start, result = self.__start_item_world(equipment_id, equipment_type)
 
         # Loop until we get a good result, should also prevent too deep recursion
         while result != 1:
@@ -303,7 +309,7 @@ class API(BaseAPI):
                 equipment_type=start['result']['equipment_type'],
                 equipment_id=start['result']['equipment_id'],
             )
-            start, result = self.__start_item_world(equipment_id, equipment_type, ensure_drops, only_weapons)
+            start, result = self.__start_item_world(equipment_id, equipment_type)
 
         # End the battle and keep the equipment
         end = self.client.battle_end(
@@ -320,14 +326,14 @@ class API(BaseAPI):
             self.log(res)
         return res
 
-    def __start_item_world(self, equipment_id, equipment_type, ensure_drops, only_weapons):
+    def __start_item_world(self, equipment_id, equipment_type):
         start = self.client.item_world_start(equipment_id, equipment_type=equipment_type,
                                              deck_no=self.o.team_num,
                                              deck=self.pd.deck(self.o.team_num) if self.o.auto_rebirth else [])
         if start is None or 'result' not in start:
             return None, None
 
-        result = self.parse_start(start, ensure_drops=ensure_drops, only_weapons=only_weapons)
+        result = self.parse_start(start)
 
         return start, result
 
