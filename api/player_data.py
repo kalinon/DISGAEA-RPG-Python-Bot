@@ -177,7 +177,7 @@ class PlayerData:
         equip_type = self.get_equip_type(item)
         rank = self.gd.get_item_rank(item)
 
-        if 0 < item_type != equip_type:
+        if item_type is not None and 0 < item_type != equip_type:
             Logger.log('skip due to item_type', log_level)
             return False
         if skip_max_lvl and item['lv'] == item['lv_max']:

@@ -141,7 +141,9 @@ class Bot:
             else:
                 self.api.sell_items(max_rarity=39, max_item_rank=40, skip_max_lvl=True, only_max_lvl=False,
                                     max_innocent_rank=4, max_innocent_type=Innocent_ID.RES)
-
+                # self.api.sell_items(max_rarity=70, max_item_rank=40, skip_max_lvl=True, only_max_lvl=False,
+                #                     remove_innocents=True, item_type=EquipmentType.ARMOR,
+                #                     max_innocent_rank=4, max_innocent_type=Innocent_ID.RES)
             last_id = new_last_id
 
     def do_quest(self, stage_id, use_tower_attack: bool = False, team_num=None, auto_rebirth=None, raid_team=None):
@@ -306,8 +308,8 @@ class Bot:
             self.api.do_raids(raid_team)
             self.raid_claim()
 
-            self.api.log("- train innocents")
-            self.train_recipe_innocents()
+            # self.api.log("- train innocents")
+            # self.train_recipe_innocents()
 
             # Train innocents
             # for i in a.gd.innocent_types:
@@ -337,7 +339,7 @@ class Bot:
                 only_weapons=only_weapons, item_limit=10
             )
 
-            self.remake_items()
+            # self.remake_items()
             self.clear_inbox()
 
     def train_recipe_innocents(self):
@@ -381,6 +383,8 @@ class Bot:
         self.api.log("- donate equipment/innocents")
         inno_blacklist = [x['id'] for x in self.api.find_recipe_innocents()]
         self.api.etna_donate_innocents(max_innocent_rank=6, max_innocent_type=Innocent_ID.RES,
+                                       blacklist=inno_blacklist)
+        self.api.etna_donate_innocents(max_innocent_rank=4, innocent_types=[Innocent_ID.SPD],
                                        blacklist=inno_blacklist)
         self.api.etna_resort_donate_items(max_item_rarity=69, remove_innocents=True)
         self.api.etna_resort_get_all_daily_rewards()

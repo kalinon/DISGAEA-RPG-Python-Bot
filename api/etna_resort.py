@@ -196,7 +196,7 @@ class EtnaResort(Items, metaclass=ABCMeta):
             innocent_count += 1
         return items_to_deposit
 
-    def etna_donate_innocents(self, max_innocent_rank=8, innocent_types: set[int] = None, max_innocent_type=None,
+    def etna_donate_innocents(self, max_innocent_rank=8, innocent_types: list = None, max_innocent_type=None,
                               min_innocent_type=None, blacklist=[]):
         self.player_innocents()
         innos = []
@@ -450,6 +450,7 @@ class EtnaResort(Items, metaclass=ABCMeta):
 
         while effect < boost_target and prism_count > 0 and current_hl > Constants.Alchemy_Alchemize_Cost:
             res = self.client.etna_resort_add_alchemy_effects(item_type, item_id)
+            self.check_resp(res)
             effects = res['result']['after_t_data'][t_data_key]
 
             innocent_effect = next(

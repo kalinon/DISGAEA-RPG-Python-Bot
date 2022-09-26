@@ -220,8 +220,8 @@ while True:
 
     total = complete_recipes(skip_advanced=False, dry_run=DRY_RUN)
 
-    if not DRY_RUN:
-        bot.train_recipe_innocents()
+    # if not DRY_RUN:
+    #     bot.train_recipe_innocents()
 
     if total == 0:
         print_results()

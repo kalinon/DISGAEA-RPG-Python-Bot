@@ -206,7 +206,7 @@ class Shop(Player, metaclass=ABCMeta):
                 tickets_left = False
 
     def sell_items(self, max_rarity=40, max_item_rank=100, skip_max_lvl=False, only_max_lvl=False, max_innocent_rank=10,
-                   max_innocent_type=Innocent_ID.HL, remove_innocents: bool = False, limit=None):
+                   max_innocent_type=Innocent_ID.HL, remove_innocents: bool = False, limit=None, item_type=None):
         self.player_equipment(True)
         self.player_weapons(True)
 
@@ -220,6 +220,7 @@ class Shop(Player, metaclass=ABCMeta):
             max_innocent_rank=max_innocent_rank, max_innocent_type=max_innocent_type,
             max_item_rank=max_item_rank, max_rarity=max_rarity,
             only_max_lvl=only_max_lvl, skip_locked=True,
+            item_type=item_type
         )
 
         if limit is not None and limit < len(selling):
@@ -228,18 +229,22 @@ class Shop(Player, metaclass=ABCMeta):
 
         self.log('skipping %s items, selling %s items' % (skipping, len(selling)))
         if len(selling) >= 1:
-            sell_list = []
-            for i in selling:
-                sell_list.append({'eqtype': self.pd.get_equip_type(i), 'eqid': i['id']})
-                if remove_innocents:
-                    self.remove_innocents(i)
-
-                self.log_sell(i)
-            data = self.client.shop_sell_equipment(sell_list)
-            self.check_resp(data)
+            data = self.sell_item_list(selling, remove_innocents)
             # self.player_weapons(True)
             # self.player_equipment(True)
             return data
+
+    def sell_item_list(self, selling: list, remove_innocents: bool = True):
+        sell_list = []
+        for i in selling:
+            sell_list.append({'eqtype': self.pd.get_equip_type(i), 'eqid': i['id']})
+            if remove_innocents:
+                self.remove_innocents(i)
+
+            self.log_sell(i)
+        data = self.client.shop_sell_equipment(sell_list)
+        self.check_resp(data)
+        return data
 
     def log_sell(self, w):
         self.log_item("[-] sell item", w)
