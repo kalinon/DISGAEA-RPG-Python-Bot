@@ -187,7 +187,7 @@ class Raid(Player, metaclass=ABCMeta):
         self.client.raid_exchange_surplus_points(points_to_exchange)
         self.log(f"Exchanged {points_to_exchange} points")
 
-    def raid_farm_shared_bosses(self, party_to_use):
+    def raid_farm_shared_bosses(self, party_to_use:int=1):
         boss_count = 0
         available_raid_bosses = self.raid_find_all_available_bosses()
         for raid_boss in available_raid_bosses:

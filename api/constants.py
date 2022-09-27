@@ -2,12 +2,12 @@ from enum import IntEnum
 
 
 class Constants:
-    Current_Raid_ID = 165
-    Current_Raid_Event_Point_Gacha = 61
-    Current_Raid_Innocent_Regular_Roulette = 62
-    Current_Raid_Innocent_Special_Roulette = 63
-    Current_Raid_Normal_Boss_ID = 1651
-    Current_Raid_Badass_Boss_ID = 1652
+    Current_Raid_ID = 182
+    Current_Raid_Event_Point_Gacha = 64
+    Current_Raid_Innocent_Regular_Roulette = 65
+    Current_Raid_Innocent_Special_Roulette = 66
+    Current_Raid_Normal_Boss_ID = 1821
+    Current_Raid_Badass_Boss_ID = 1822
     Current_Bingo_ID = 2
     Item_Survey_Deposit_Size = 10
     Weapon_Full_Error = 'Weapon Slot is full\nPlease expand slot or sell weapons'
@@ -23,6 +23,7 @@ class Constants:
     session_id = ''  # FILL SESSION_ID HERE
     user_id = ''  # FILL USER_ID HERE
     ticket = ''  # FILL TICKET FOR STEAM LOGIN
+
 
 class Raid_Gacha_ID(IntEnum):
     SUMMER_PRINNY_EVENT_POINT = 49

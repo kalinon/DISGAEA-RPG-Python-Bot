@@ -32,6 +32,9 @@ current_ap = player_data['result']['status']['act']
 max_ap = player_data['result']['status']['act_max']
 ap_filled_date = datetime.datetime.utcnow() + datetime.timedelta(minutes=(max_ap - current_ap) * 2)
 
+# when ap is full run axel contest for one character to burn AP. Specify highest floot to run here
+highest_axel_contest_level_to_clear = 100
+
 while True:
 
     serverTime = datetime.datetime.utcnow() + datetime.timedelta(hours=-4)
@@ -41,7 +44,7 @@ while True:
         lastRouletteTime = parser.parse(lastRouleteTimeString)
 
     if datetime.datetime.utcnow() > ap_filled_date or current_ap >= max_ap:
-        a.do_axel_contest_multiple_characters(1, 50)
+        a.do_axel_contest_multiple_characters(1, highest_axel_contest_level_to_clear)
         player_data = a.client.player_index()
         current_ap = player_data['result']['status']['act']
         max_ap = player_data['result']['status']['act_max']
@@ -54,5 +57,5 @@ while True:
             battle_start_data = a.raid_battle_start(raid_stage_id, raid_boss['id'], party_to_use)
             battle_end_data = a.raid_battle_end_giveup(raid_stage_id, raid_boss['id'])
             boss_count += 1
-            print(f"Farmed boss with level {raid_boss['level']}. Total bosses farmed: {boss_count}")
+            a.log(f"Farmed boss with level {raid_boss['level']}. Total bosses farmed: {boss_count}")
     time.sleep(10)
