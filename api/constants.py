@@ -6,8 +6,8 @@ class Constants:
     Current_Raid_Event_Point_Gacha = 61
     Current_Raid_Innocent_Regular_Roulette = 62
     Current_Raid_Innocent_Special_Roulette = 63
-    Current_Raid_Normal_Boss_ID = 1651
-    Current_Raid_Badass_Boss_ID = 1652
+    Current_Raid_Normal_Boss_ID = 1821
+    Current_Raid_Badass_Boss_ID = 1822
     Current_Bingo_ID = 2
     Item_Survey_Deposit_Size = 10
     Weapon_Full_Error = 'Weapon Slot is full\nPlease expand slot or sell weapons'
@@ -15,14 +15,17 @@ class Constants:
     Shop_Max_Free_Refresh = 5
     Alchemy_Alchemize_Cost = 6000
     Unique_Innocent_Character_ID = 0
-    Equipment_Alchemy_Effects = [10001, 20003, 20004, 20005, 30035, 30047, 30048, 30049, 30050, 30051, 30052, 30053, 30054]
-    Weapon_Alchemy_Effects = [10001, 20001, 20002, 30001, 30002, 30003, 30004, 30005, 30006, 30007, 30019, 30020, 30022, 30023]
+    Equipment_Alchemy_Effects = [10001, 20003, 20004, 20005, 30035, 30047, 30048, 30049, 30050, 30051, 30052, 30053,
+                                 30054]
+    Weapon_Alchemy_Effects = [10001, 20001, 20002, 30001, 30002, 30003, 30004, 30005, 30006, 30007, 30019, 30020, 30022,
+                              30023]
     Place_1_Effects = [10001]
     Place_2_Effects = [20001, 20002, 20003, 20004, 20005]
 
     session_id = ''  # FILL SESSION_ID HERE
     user_id = ''  # FILL USER_ID HERE
     ticket = ''  # FILL TICKET FOR STEAM LOGIN
+
 
 class Raid_Gacha_ID(IntEnum):
     SUMMER_PRINNY_EVENT_POINT = 49
@@ -133,14 +136,17 @@ class Items(IntEnum):
     PriPrism = 4101
     Prilixir = 4201
 
+
 class Item_World_Mode(IntEnum):
     Run_Weapons_Only = 1
     Run_Equipment_Only = 2
     Run_All_Items = 3
 
+
 class Item_World_Drop_Mode(IntEnum):
     Drop_Weapons_Only = 1
     Drop_All_Items = 3
+
 
 class Alchemy_Effect_Type(IntEnum):
     Innocent_Effect = 10001
@@ -150,7 +156,7 @@ class Alchemy_Effect_Type(IntEnum):
     DEF = 20004
     RES = 20005
     Water_Damage = 30001
-    Fire_Damage = 30002    
+    Fire_Damage = 30002
     Wind_Damage = 30003
     Star_Damage = 30004
     Non_Elemental_Damage = 30005
