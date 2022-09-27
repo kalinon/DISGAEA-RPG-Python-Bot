@@ -4,6 +4,11 @@ from api.constants import EquipmentType, Innocent_ID, Fish_Fleet_Survey_Duration
 from main import API
 
 
+def get_event_areas(event_id):
+    tmp = event_id * 1000
+    return [tmp + 101, tmp + 102, tmp + 103, tmp + 104, tmp + 105]
+
+
 class Bot:
     def __init__(self, api: API | None = None):
         if api is None:
@@ -18,8 +23,7 @@ class Bot:
         for _ in range(times):
             self.do_quest(stage_id, True, team_num=team, auto_rebirth=rebirth, raid_team=raid_team)
 
-    def farm_item_world(self, team=1, min_rarity=0, min_rank=0, min_item_rank=0, min_item_level=0, only_weapons=False,
-                        item_limit=None, ensure_drops=True):
+    def farm_item_world(self, team=1, min_rarity=0, min_rank=0, min_item_rank=0, min_item_level=0, item_limit=None):
         # Change the party: 1-9
         self.api.o.team_num = team
         # This changes the minimum rarity of equipments found in the item-world. 1 = common, 40 = rare, 70 = Legendary
@@ -44,7 +48,7 @@ class Bot:
         self.api.log('found %s items to upgrade' % len(items))
 
         # This runs item-world to level all your items.
-        self.api.upgrade_items(only_weapons=only_weapons, ensure_drops=ensure_drops, item_limit=item_limit, items=items)
+        self.api.upgrade_items(item_limit=item_limit, items=items)
 
     def do_gate(self, gate, team, rebirth, raid_team=None):
         self.api.log("[*] running gate {}".format(gate['m_stage_id']))
@@ -96,9 +100,6 @@ class Bot:
 
     # Will return an array of event area ids based on the event id.
     # clear_event([1132101, 1132102, 1132103, 1132104, 1132105])
-    def get_event_areas(self, event_id):
-        tmp = event_id * 1000
-        return [tmp + 101, tmp + 102, tmp + 103, tmp + 104, tmp + 105]
 
     def clear_event(self, area_lt, team_num, raid_team: int | None = None):
         self.api.o.use_potions = True
@@ -141,7 +142,9 @@ class Bot:
             else:
                 self.api.sell_items(max_rarity=39, max_item_rank=40, skip_max_lvl=True, only_max_lvl=False,
                                     max_innocent_rank=4, max_innocent_type=Innocent_ID.RES)
-
+                # self.api.sell_items(max_rarity=70, max_item_rank=40, skip_max_lvl=True, only_max_lvl=False,
+                #                     remove_innocents=True, item_type=EquipmentType.ARMOR,
+                #                     max_innocent_rank=4, max_innocent_type=Innocent_ID.RES)
             last_id = new_last_id
 
     def do_quest(self, stage_id, use_tower_attack: bool = False, team_num=None, auto_rebirth=None, raid_team=None):
@@ -265,7 +268,7 @@ class Bot:
         self.api.raid_spin_innocent_roulette()
 
     def loop(self, team=9, rebirth: bool = False, farm_stage_id=None,
-             only_weapons=False, iw_team: int = None, raid_team: int = None, event_team: int = None,
+             iw_team: int = None, raid_team: int = None, event_team: int = None,
              gem_team: int = None, hl_team: int = None, exp_team: int = None,
              ap_limit: int = 6000,
              ):
@@ -306,8 +309,8 @@ class Bot:
             self.api.do_raids(raid_team)
             self.raid_claim()
 
-            self.api.log("- train innocents")
-            self.train_recipe_innocents()
+            # self.api.log("- train innocents")
+            # self.train_recipe_innocents()
 
             # Train innocents
             # for i in a.gd.innocent_types:
@@ -328,16 +331,16 @@ class Bot:
             self.api.log("- farming item world")
             # Go through rank 41+ items first
             items, skipped = self.api.pd.filter_items(min_item_rank=41, max_item_rank=49, max_item_level=0)
-            self.api.upgrade_items(ensure_drops=False, items=items)
+            self.api.upgrade_items(items=items)
 
             # Then do normal farm
             self.farm_item_world(
                 team=iw_team, min_rarity=0, min_rank=40,
                 min_item_rank=40, min_item_level=0,
-                only_weapons=only_weapons, item_limit=10
+                item_limit=10
             )
 
-            self.remake_items()
+            # self.remake_items()
             self.clear_inbox()
 
     def train_recipe_innocents(self):
@@ -381,6 +384,8 @@ class Bot:
         self.api.log("- donate equipment/innocents")
         inno_blacklist = [x['id'] for x in self.api.find_recipe_innocents()]
         self.api.etna_donate_innocents(max_innocent_rank=6, max_innocent_type=Innocent_ID.RES,
+                                       blacklist=inno_blacklist)
+        self.api.etna_donate_innocents(max_innocent_rank=4, innocent_types=[Innocent_ID.SPD],
                                        blacklist=inno_blacklist)
         self.api.etna_resort_donate_items(max_item_rarity=69, remove_innocents=True)
         self.api.etna_resort_get_all_daily_rewards()

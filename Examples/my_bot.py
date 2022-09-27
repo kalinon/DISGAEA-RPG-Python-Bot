@@ -30,13 +30,15 @@ bot.use_codes(codes)
 # 1178201103 - Hidden Stage -HARD-
 # bot.do_quest(1178105312, team_num=9, auto_rebirth=True)
 
+# bot.clear_inbox()
+
 # Daily tasks
-bot.daily(gem_team=22, hl_team=21, exp_team=None)
+bot.daily(gem_team=22, hl_team=21, exp_team=24)
 
 # Full loop
 bot.loop(
-    team=9, rebirth=True, farm_stage_id=1178105312,
-    raid_team=23, iw_team=9, event_team=9,
-    gem_team=22, hl_team=21, exp_team=None,
-    ap_limit=5000,
+    team=9, rebirth=True, farm_stage_id=1178105311,
+    raid_team=23, iw_team=25, event_team=25,
+    gem_team=22, hl_team=21, exp_team=24,
+    ap_limit=600,
 )
