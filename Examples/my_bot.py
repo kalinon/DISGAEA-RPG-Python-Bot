@@ -40,5 +40,5 @@ bot.loop(
     team=9, rebirth=True, farm_stage_id=1178105311,
     raid_team=23, iw_team=25, event_team=25,
     gem_team=22, hl_team=21, exp_team=24,
-    ap_limit=5000,
+    ap_limit=600,
 )
