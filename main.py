@@ -74,7 +74,9 @@ class API(BaseAPI):
         self.client.player_clear_stages(updated_at=0, page=1)
         self.client.player_stage_missions(updated_at=0, page=1)
         self.player_innocents(True)
-        self.client.player_index()
+        data= self.client.player_index()
+        if 'result' in data:
+            self.o.current_ap = int(data['result']['status']['act'])
         self.client.player_agendas()
         self.client.player_boosts()
         self.player_character_collections()

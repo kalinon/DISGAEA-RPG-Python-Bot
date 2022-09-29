@@ -143,7 +143,7 @@ class Raid(Player, metaclass=ABCMeta):
             innocent_type = [x for x in innocent_types if
                              x['id'] == data['result']['after_t_data']['innocents'][0]['m_innocent_id']]
             self.log(
-                f"{special_spin}Obtained innocent of type {innocent_type} and" +
+                f"{special_spin}Obtained innocent of type {innocent_type['name']} and" +
                 f" value: {data['result']['after_t_data']['innocents'][0]['effect_values'][0]}")
 
         self.log(f"Finished spinning the raid roulette")
@@ -166,7 +166,7 @@ class Raid(Player, metaclass=ABCMeta):
                         self.log(
                             f"\tSpecial type id = {reward_data['result']['after_t_data']['innocents'][0]['m_innocent_id']}")
                     self.log(
-                        f"\tObtained innocent of type {innocent_type} and value: {reward_data['result']['after_t_data']['innocents'][0]['effect_values'][0]}")
+                        f"\tObtained innocent of type {innocent_type['name']} and value: {reward_data['result']['after_t_data']['innocents'][0]['effect_values'][0]}")
         self.log("Finished claiming raid rewards.")
 
     def raid_claim_surplus_points(self):
@@ -187,7 +187,7 @@ class Raid(Player, metaclass=ABCMeta):
         self.client.raid_exchange_surplus_points(points_to_exchange)
         self.log(f"Exchanged {points_to_exchange} points")
 
-    def raid_farm_shared_bosses(self, party_to_use):
+    def raid_farm_shared_bosses(self, party_to_use:int=1):
         boss_count = 0
         available_raid_bosses = self.raid_find_all_available_bosses()
         for raid_boss in available_raid_bosses:
