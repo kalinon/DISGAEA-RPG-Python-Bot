@@ -719,10 +719,10 @@ class Client:
                           {"item_type": item_type, "id": item_id, "place_no": place_no})
         return data
 
-    # def etna_resort_lock_alchemy_effect(self, lock_flg: bool, t_weapon_effect_id=0, t_equipment_effect_id=0):
-    #     data = self.__rpc('weapon_equipment/update_effect_lottery',
-    #                       {"t_weapon_effect_id": t_weapon_effect_id, "t_equipment_effect_id": t_equipment_effect_id,
-    #                        "lock_flg": lock_flg})
+    def etna_resort_lock_alchemy_effect(self, lock_flg: bool, t_weapon_effect_id=0, t_equipment_effect_id=0):
+        data = self.__rpc('weapon_equipment/lock_effect',
+                          {"t_weapon_effect_id": t_weapon_effect_id, "t_equipment_effect_id": t_equipment_effect_id,
+                           "lock_flg": lock_flg})
         return data
 
     def etna_resort_update_alchemy_effect(self, overwrite: bool):
@@ -1014,7 +1014,18 @@ class Client:
 
     def hospital_roulette(self):
         data = self.__rpc('hospital/roulette', {})
-        if data['error'] == 'Not the time to recover':
-            return data['error']
+        if data['api_error']['message'] == 'Unable to restore yet':
+            return
         Logger.info(f"Hospital Roulettte - Recovered {data['result']['recovery_num']} AP")
         return data
+
+    ##########################
+    # 4D Netherworld endpoints
+    #########################
+    
+    def super_reincarnate(self,t_character_id:int, magic_element_num:int ):
+        return self.__rpc('character/super_rebirth', {"t_character_id":t_character_id,"magic_element_num":magic_element_num})
+    
+    # status_up example (atk) [{"type":2,"num":1,"karma":340}]}
+    def enhance_stats(self,t_character_id:int, status_ups ):
+        return self.__rpc('character/status_up', {"t_character_id":t_character_id,"status_ups":status_ups})
