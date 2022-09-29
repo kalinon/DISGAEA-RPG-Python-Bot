@@ -141,9 +141,9 @@ class Raid(Player, metaclass=ABCMeta):
             spins_left = data['result']['after_t_data']['t_events'][0]['gacha_data']['chance_stock_num']
             is_big_chance = data['result']['after_t_data']['t_events'][0]['gacha_data']['exist_big_chance']
             innocent_type = [x for x in innocent_types if
-                             x['ID'] == data['result']['after_t_data']['innocents'][0]['m_innocent_id']]
+                             x['id'] == data['result']['after_t_data']['innocents'][0]['m_innocent_id']]
             self.log(
-                f"{special_spin}Obtained innocent of type {innocent_type} and" +
+                f"{special_spin}Obtained innocent of type {innocent_type['name']} and" +
                 f" value: {data['result']['after_t_data']['innocents'][0]['effect_values'][0]}")
 
         self.log(f"Finished spinning the raid roulette")
@@ -160,13 +160,13 @@ class Raid(Player, metaclass=ABCMeta):
                 reward_data = self.client.raid_reward(i['t_raid_status']['id'])
                 if len(reward_data['result']['after_t_data']['innocents']) > 0:
                     innocent_type = next((x for x in innocent_types if
-                                          x['ID'] == reward_data['result']['after_t_data']['innocents'][0][
+                                          x['id'] == reward_data['result']['after_t_data']['innocents'][0][
                                               'm_innocent_id']), None)
                     if innocent_type is None:
                         self.log(
                             f"\tSpecial type id = {reward_data['result']['after_t_data']['innocents'][0]['m_innocent_id']}")
                     self.log(
-                        f"\tObtained innocent of type {innocent_type} and value: {reward_data['result']['after_t_data']['innocents'][0]['effect_values'][0]}")
+                        f"\tObtained innocent of type {innocent_type['name']} and value: {reward_data['result']['after_t_data']['innocents'][0]['effect_values'][0]}")
         self.log("Finished claiming raid rewards.")
 
     def raid_claim_surplus_points(self):
