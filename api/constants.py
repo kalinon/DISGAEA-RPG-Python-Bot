@@ -2,10 +2,10 @@ from enum import IntEnum
 
 
 class Constants:
-    Current_Raid_ID = 165
-    Current_Raid_Event_Point_Gacha = 61
-    Current_Raid_Innocent_Regular_Roulette = 62
-    Current_Raid_Innocent_Special_Roulette = 63
+    Current_Raid_ID = 182
+    Current_Raid_Event_Point_Gacha = 64
+    Current_Raid_Innocent_Regular_Roulette = 65
+    Current_Raid_Innocent_Special_Roulette = 66
     Current_Raid_Normal_Boss_ID = 1821
     Current_Raid_Badass_Boss_ID = 1822
     Current_Bingo_ID = 2

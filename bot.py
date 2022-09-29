@@ -383,7 +383,7 @@ class Bot:
     def clean_inv(self):
         self.api.log("- donate equipment/innocents")
         inno_blacklist = [x['id'] for x in self.api.find_recipe_innocents()]
-        self.api.etna_donate_innocents(max_innocent_rank=6, max_innocent_type=Innocent_ID.RES,
+        self.api.etna_donate_innocents(max_innocent_rank=8, max_innocent_type=Innocent_ID.RES,
                                        blacklist=inno_blacklist)
         self.api.etna_donate_innocents(max_innocent_rank=4, innocent_types=[Innocent_ID.SPD],
                                        blacklist=inno_blacklist)
