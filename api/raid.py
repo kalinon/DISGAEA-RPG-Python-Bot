@@ -63,7 +63,7 @@ class Raid(Player, metaclass=ABCMeta):
         return available_bosses
 
     # Will check for if there is an active boss, fight, give up and share.
-    def raid_share_own_boss(self, party_to_use):
+    def raid_share_own_boss(self, party_to_use:int=1):
         own_boss = self.client.raid_current()['result']['current_t_raid_status']
         if own_boss is not None:
             # Battle and give up automatically

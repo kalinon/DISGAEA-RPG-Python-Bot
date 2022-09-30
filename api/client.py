@@ -1029,3 +1029,16 @@ class Client:
     # status_up example (atk) [{"type":2,"num":1,"karma":340}]}
     def enhance_stats(self,t_character_id:int, status_ups ):
         return self.__rpc('character/status_up', {"t_character_id":t_character_id,"status_ups":status_ups})
+
+    ##########################
+    # Story event endpoints
+    #########################
+    
+    def story_event_missions(self):
+        return self.__rpc('event/missions', {"m_event_id":Constants.Current_Story_Event_ID})
+
+    def story_event_daily_missions(self):
+        return self.__rpc('event/mission_dailies', {"m_event_id":Constants.Current_Story_Event_ID})
+        
+    def story_event_claim_daily_missions(self, mission_ids:List[int] = []):
+        return self.__rpc('event/receive_mission_daily', {"ids":mission_ids})
