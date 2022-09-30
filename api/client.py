@@ -740,7 +740,7 @@ class Client:
         return self.__rpc('shop/equipment_shop', {})
 
     def shop_buy_equipment(self, item_type: int, itemid: List[int]):
-        return self.__rpc('shop/buy_equipment', {"item_type": item_type, "ids": [itemid]})
+        return self.__rpc('shop/buy_equipment', {"item_type": item_type, "ids": itemid})
 
     def shop_buy_item(self, itemid: int, quantity: int):
         return self.__rpc('shop/buy_item', {"id": itemid, "quantity": quantity})
@@ -1014,7 +1014,7 @@ class Client:
 
     def hospital_roulette(self):
         data = self.__rpc('hospital/roulette', {})
-        if data['api_error']['message'] == 'Unable to restore yet':
+        if 'api_error' in data and data['api_error']['message'] == 'Unable to restore yet':
             return
         Logger.info(f"Hospital Roulettte - Recovered {data['result']['recovery_num']} AP")
         return data
