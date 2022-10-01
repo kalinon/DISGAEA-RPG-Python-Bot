@@ -39,7 +39,7 @@ class ItemSurvey(Shop, metaclass=ABCMeta):
                     sell_weapons = result['error'] == Constants.Weapon_Full_Error
                     self.shop_free_inventory_space(sell_weapons, sell_equipments, 10)
                     retry = True
-        if auto_donate:
+        if auto_donate and (len(weapons_finished) > 0 or len (equipments_finished)> 0):
             self.client.kingdom_weapon_equipment_entry(weap_ids=weapons_finished, equip_ids=equipments_finished)
 
         iw_survey_data = self.client.item_world_survey_index()
@@ -86,14 +86,14 @@ class ItemSurvey(Shop, metaclass=ABCMeta):
         if free_slots > 0:
             self.log(f"\tSearching for {free_slots} items for item world survey...")
 
-            self.client.player_weapons(True)
-            self.client.player_equipments(True)
+            self.player_weapons(True)
+            self.player_equipment(True)
             equipments_to_deposit = []
             weapons_to_deposit = []
             etd, _ = self.pd.filter_items(
                 max_item_rank=40, max_rarity=39, max_item_level=1,
                 skip_locked=True, skip_equipped=True,
-                max_innocent_rank=4, max_innocent_type=Innocent_ID.RES,
+                max_innocent_rank=4,
                 min_item_rank=min_item_rank_to_deposit,
                 item_type=EquipmentType.ARMOR
             )
@@ -112,9 +112,16 @@ class ItemSurvey(Shop, metaclass=ABCMeta):
             else:
                 equipments_to_deposit = etd[0:free_slots]
 
-            if len(weapons_to_deposit) > 0 or len(equipments_to_deposit) > 0:
+            equipment_ids = []
+            weapons_ids = []
+            for equipment in equipments_to_deposit:
+                equipment_ids.append(equipment['id'])
+            for weapon in weapons_to_deposit:
+                weapons_ids.append(weapon['id'])
+
+            if len(weapons_ids) > 0 or len(equipment_ids) > 0:
                 self.log(
-                    'found %s armor and %s weapons for survey' % (len(equipments_to_deposit), len(weapons_to_deposit)))
-                self.client.item_world_survey_start(weapons_to_deposit, equipments_to_deposit)
+                    'found %s armor and %s weapons for survey' % (len(equipment_ids), len(weapons_ids)))
+                self.client.item_world_survey_start(weapons_ids, equipment_ids)
             else:
                 self.log('unable to find items for survey')
