@@ -473,6 +473,14 @@ class EtnaResort(Items, metaclass=ABCMeta):
             self.check_resp(res)
             effects = res['result']['after_t_data'][t_data_key]
 
+            attempt_count += 1
+            prism_count -= 1
+            if prism_count == 0:
+                self.log(f"{item_id} - Ran out of priprism. Exiting...")
+            current_hl -= Constants.Alchemy_Alchemize_Cost
+            if current_hl < Constants.Alchemy_Alchemize_Cost:
+                self.log(f"{item_id} - Ran out of HL. Exiting...")
+
             effect = next((x for x in effects if x['m_equipment_effect_type_id'] == effect_id), None)
 
             if effect is None:
@@ -487,14 +495,6 @@ class EtnaResort(Items, metaclass=ABCMeta):
             # if looking to have all effects unlocked, skip if less than 4 effects
             if all_effects_unlocked and len(effects) < 4:
                 effect_value = 0
-
-            attempt_count += 1
-            prism_count -= 1
-            if prism_count == 0:
-                self.log(f"{item_id} - Ran out of priprism. Exiting...")
-            current_hl -= Constants.Alchemy_Alchemize_Cost
-            if current_hl < Constants.Alchemy_Alchemize_Cost:
-                self.log(f"{item_id} - Ran out of HL. Exiting...")
 
         self.log(
             f"{item_id} - Rolled {effect_value}% effect - Attempt count: {attempt_count} - "
