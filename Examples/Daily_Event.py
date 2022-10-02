@@ -30,16 +30,10 @@ for stageID in daily_bonus_stage_IDS:
     a.raid_share_own_boss(party_to_use=raid_team)
 
 # Buy 5 AP pots daily
-product_data = a.client.shop_index()['result']['shop_buy_products']['_items']
-ap_pot = next((x for x in product_data if x['m_product_id'] == 278001),None)
-if ap_pot is not None and ap_pot['buy_num'] == 0:
-    a.client.shop_buy_item(itemid=278001, quantity=5)
+a.event_buy_daily_AP()
 
 # Claim daily missions
-r = a.client.story_event_daily_missions()
-mission_ids = []
-for mission in r['result']['missions']:
-    if mission['status'] == Mission_Status.Cleared:
-        mission_ids.append(mission['id'])
-if len(mission_ids) > 0:
-    a.client.story_event_claim_daily_missions(mission_ids)
+a.event_claim_daily_missions()
+
+# Claim event missions
+a.event_claim_missions()

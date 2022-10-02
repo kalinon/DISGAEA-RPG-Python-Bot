@@ -1,13 +1,11 @@
-import datetime
 from abc import ABCMeta
 
-from dateutil import parser
+from api.base import Base
 
-from api import Shop
-from api.constants import Constants, Mission_Status
+from api.constants import Mission_Status
 
 
-class Event(Shop, metaclass=ABCMeta):
+class Event(Base, metaclass=ABCMeta):
     def __init__(self):
         super().__init__()
 

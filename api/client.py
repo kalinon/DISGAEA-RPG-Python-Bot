@@ -527,6 +527,27 @@ class Client:
             "m_stage_ids": m_stage_ids
         })
 
+
+    def pvp_battle_give_up(self):
+        return self.__rpc('battle/end', {
+            "m_stage_id": 0,
+            "m_tower_no": 0,
+            "equipment_id": 0,
+            "equipment_type": 0,
+            "innocent_dead_flg": 0,
+            "t_raid_status_id": 0,
+            "raid_battle_result": "",
+            "m_character_id": 0,
+            "division_battle_result": "",
+            "arena_battle_result":"eyJhbGciOiJIUzI1NiJ9.eyJUeDJFQk5oWmNGNFlkOUIyIjoxNzQ1LCJSZzhQandZQlc3ZHNKdnVrIjo1LCJKNWdtVHA3WXI0SFU4dUFOIjpbXX0.oXH33OXjnaK18IcCpSR4MzrruG7mRg1G1GWLhdaaP8U",
+            "battle_type": 9,
+            "result": 0,
+            "battle_exp_data": [],
+            "common_battle_result": "eyJhbGciOiJIUzI1NiJ9.eyJoZmJtNzg0a2hrMjYzOXBmIjoiIiwieXBiMjgydXR0eno3NjJ3eCI6MCwiZHBwY2JldzltejhjdXd3biI6MCwiemFjc3Y2amV2NGl3emp6bSI6MCwia3lxeW5pM25ubTNpMmFxYSI6MCwiZWNobTZ0aHR6Y2o0eXR5dCI6MCwiZWt1c3ZhcGdwcGlrMzVqaiI6MCwieGE1ZTMyMm1nZWo0ZjR5cSI6MH0.9DYl6QK2TkTIq81M98itbAqafdUE4nIPTYB_pp_NTd4",
+            "skip_party_update_flg": True
+        })
+
+
     #################
     # Raid Endpoints
     #################
@@ -1061,6 +1082,9 @@ class Client:
 
     def pvp_history(self, battle_at:int):
         return self.__rpc('arena/history', {"battle_at":battle_at})
+
+    def pvp_start_battle(self, t_deck_no, enemy_t_player_id):
+        return self.__rpc('arena/start', {"t_deck_no":t_deck_no,"enemy_t_player_id":enemy_t_player_id,"t_arena_battle_history_id":0,"act":1})
 
 
     def decrypt(self, content, iv):
