@@ -1042,3 +1042,33 @@ class Client:
         
     def story_event_claim_daily_missions(self, mission_ids:List[int] = []):
         return self.__rpc('event/receive_mission_daily', {"ids":mission_ids})
+
+    def story_event_claim_missions(self, mission_ids:List[int] = []):
+        return self.__rpc('event/receive_mission', {"ids":mission_ids})
+
+    ##########################
+    # PvP endpoints
+    #########################
+    
+    def pvp_enemy_player_list(self):
+        return self.__rpc('arena/enemy_players', {})
+
+    def pvp_enemy_player_detail(self, t_player_id:int):
+        return self.__rpc('arena/enemy_player_detail', {"t_player_id":t_player_id})
+        
+    def pvp_info(self):
+        return self.__rpc('arena/current', {})
+
+    def pvp_history(self, battle_at:int):
+        return self.__rpc('arena/history', {"battle_at":battle_at})
+
+
+    def decrypt(self, content, iv):
+        res = self.c.decrypt(content,iv)
+        if 'fuji_key' in res:
+            if sys.version_info >= (3, 0):
+                self.c.key = bytes(res['fuji_key'], encoding='utf8')
+            else:
+                self.c.key = bytes(res['fuji_key'])
+            self.session_id = res['session_id']
+            print('found fuji_key:%s' % (self.c.key))  
