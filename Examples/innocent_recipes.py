@@ -16,18 +16,44 @@ if DRY_RUN:
 else:
     a.quick_login()
 
-inno_blacklist = [x['id'] for x in a.find_recipe_innocents(True)]
+r_ids = [
+    # Base stats
+    1, 4, 7, 10, 13,
+    # WM Enhancer
+    16,
+    # Super SKill
+    19,
+    # ATK&DEF
+    22, 25, 28,
+    # INT&RES
+    31, 34, 37,
+    # HP&DEF
+    40, 43, 46,
+    # HP&RES
+    49, 52, 55,
+    # Tutor
+    58, 61, 64,
+    # Almighty
+    67
+]
+
+inno_blacklist = [x['id'] for x in a.find_recipe_innocents(True, recipe_ids=r_ids)]
 tickets_used = {}
 tickets_to_buy = {}
 completed = {}
 
 
-def complete_recipes(skip_equipped: bool = True, skip_advanced: bool = True, dry_run: bool = False):
+def complete_recipes(skip_equipped: bool = True, skip_advanced: bool = True, dry_run: bool = False,
+                     recipe_ids=None):
     total_completed = 0
     recipes = []
     for recipe in a.gd.innocent_recipes:
+        if recipe_ids is not None and recipe['id'] not in recipe_ids:
+            continue
+
         if skip_advanced and recipe['id'] > 15:
             continue
+
         # if recipe['id'] != 1:
         #     continue
 
@@ -38,7 +64,7 @@ def complete_recipes(skip_equipped: bool = True, skip_advanced: bool = True, dry
         conversions = conversions + check_recipe(recipe_id=recipe['id'], skip_equipped=skip_equipped,
                                                  override_min_rank=True)
         for data in conversions:
-            # check_innocent_rank(data, dry_run)
+            check_innocent_rank_and_train(data, dry_run)
             log_conversion(data)
             if not dry_run:
                 a.etna_resort_graze(data['subject_id'], data['target_character_id'])
@@ -207,6 +233,7 @@ def print_results():
     exit(0)
 
 
+# recipes = range(40, 69)
 while True:
     # # Uncomment to remove all innocents from all equipment
     # try:
@@ -218,10 +245,10 @@ while True:
     # except:
     #     a.log('Max innocents reached')
 
-    total = complete_recipes(skip_advanced=False, dry_run=DRY_RUN)
+    total = complete_recipes(skip_advanced=False, dry_run=DRY_RUN, recipe_ids=r_ids)
 
-    # if not DRY_RUN:
-    #     bot.train_recipe_innocents()
+    if not DRY_RUN:
+        bot.train_recipe_innocents()
 
     if total == 0:
         print_results()
