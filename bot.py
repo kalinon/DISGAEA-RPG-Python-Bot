@@ -210,18 +210,26 @@ class Bot:
         if innocents is None:
             innocents = self.api.pd.innocent_get_all_of_type(innocent_type, only_unequipped=True)
 
+        if len(innocents) == 0:
+            return
+
         for innocent in innocents:
             if tickets_finished:
                 break
             innocent_type = innocent['m_innocent_id']
-            effect_rank = innocent['effect_rank']
-            if effect_rank < initial_innocent_rank or effect_rank >= max_innocent_rank:
+            innocent_rank = self.api.gd.get_innocent_rank(innocent['effect_rank'])
+            if innocent_rank < initial_innocent_rank or innocent_rank >= max_innocent_rank:
                 continue
             self.api.log(
                 f"Found innocent (type: {innocent_type}) to train. Starting value: {innocent['effect_values'][0]}")
             attempts = 0
             innocents_trained += 1
-            while effect_rank < max_innocent_rank:
+            tickets = self.api.get_caretaker_tickets(innocent_type)
+            while innocent_rank < max_innocent_rank:
+                if tickets['num'] <= 0:
+                    self.api.log("No caretaker tickets left")
+                    break
+
                 res = self.api.client.innocent_training(innocent['id'])
                 if ('self.api.error' in res and 'message' in res['self.api.error'] and
                         (
@@ -233,7 +241,8 @@ class Bot:
                     break
                 if 'result' not in res:
                     break
-                effect_rank = res['result']['after_t_data']['innocents'][0]['effect_rank']
+                innocent_rank = self.api.gd.get_innocent_rank(
+                    res['result']['after_t_data']['innocents'][0]['effect_rank'])
                 self.api.log(
                     f"Trained innocent (type: {str(innocent_type)}) with result"
                     f" {self.api.innocent_get_training_result(res['result']['training_result'])} "
@@ -241,7 +250,7 @@ class Bot:
                 )
                 attempts += 1
             self.api.log(
-                f"Upgraded innocent (type: {innocent_type}) to Legendary. "
+                f"Upgraded innocent (type: {innocent_type}) to rank {self.api.gd.get_innocent_rank(innocent_rank)}. "
                 f"Finished training. Total attempts: {attempts}"
             )
         self.api.log(
