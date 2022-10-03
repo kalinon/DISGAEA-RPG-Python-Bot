@@ -155,7 +155,7 @@ class API(BaseAPI):
         self.log("Finished claiming presents.")
 
     def doQuest(self, m_stage_id=101102, use_tower_attack: bool = False, team_num=None, auto_rebirth: bool = None,
-                help_t_player_id: int = 0):
+                help_t_player_id: int = 0, send_friend_request:bool=False):
         if auto_rebirth is None:
             auto_rebirth = self.o.auto_rebirth
 
@@ -193,6 +193,7 @@ class API(BaseAPI):
             help_t_character_lv=help_player['t_character']['lv'],
             deck_no=team_num, deck=deck,
         )
+
         if 'result' not in start:
             return
 
@@ -202,28 +203,11 @@ class API(BaseAPI):
             battle_exp_data=exp_data, m_stage_id=m_stage_id,
             battle_type=1, result=1)
         res = self.parseReward(end)
-        return res
 
-    def doQuest_force_friend(self, m_stage_id, help_t_player_id):
-        stage = self.gd.get_stage(m_stage_id)
-        self.log('doing quest:%s [%s]' % (stage['name'], m_stage_id))
-        if stage['exp'] == 0:
-            return self.client.battle_story(m_stage_id)
-        help_player = self.battle_help_get_friend_by_id(help_t_player_id)
-        start = self.client.battle_start(
-            m_stage_id=m_stage_id,
-            help_t_player_id=help_player['t_player_id'],
-            help_t_character_id=help_player['t_character']['id'],
-            act=stage['act'],
-            help_t_character_lv=help_player['t_character']['lv'])
-        if 'result' not in start:
-            return
-        self.client.battle_help_list()
-        end = self.client.battle_end(battle_exp_data=self.get_battle_exp_data(start),
-                                     m_stage_id=m_stage_id,
-                                     battle_type=1,
-                                     result=1)
-        res = self.parseReward(end)
+        if not self.is_helper_in_friend_list(help_player['t_player_id']) and send_friend_request:
+            self.log(f"Send friend request to {help_player['name']} - Rank {help_player['rank']}")
+            self.client.friend_send_request(help_player['t_player_id'])
+
         return res
 
     def do_conquest_battle(self, m_stage_id=101102, t_character_ids=[]):
@@ -311,12 +295,17 @@ class API(BaseAPI):
              w['lv_max'], w['lock_flg'])
         )
 
-    def doTower(self, m_tower_no=1, deck_no=1):
-        start = self.client.tower_start(m_tower_no, deck_no)
-        end = self.client.battle_end(battle_exp_data=self.get_battle_exp_data(start), m_tower_no=m_tower_no,
-                                     m_stage_id=0,
-                                     battle_type=4, result=1)
-        return end
+    def Complete_Overlord_Tower(self, team_no:int=1):
+        tower_level =1
+        while tower_level < Constants.Highest_Tower_Level:
+            self.log(f"Clearing Overlord Tower level {tower_level}...")
+            start = self.client.tower_start(m_tower_no=tower_level, deck_no=team_no)
+            end = self.client.battle_end(battle_exp_data=self.get_battle_exp_data(start), m_tower_no=tower_level,
+                                        m_stage_id=0,
+                                        battle_type=4, result=1)
+            tower_level+=1
+        self.log("Completed Overlod Tower")
+        
 
     def doItemWorld(self, equipment_id=None, equipment_type=1):
         if equipment_id is None:
@@ -483,6 +472,13 @@ class API(BaseAPI):
             available_free_rewards = [x for x in free_rewards if x['status'] == 1]
             if len(available_free_rewards) > 0:
                 print(f"There are {len(available_free_rewards)} free rewards available to claim.")
+
+    def is_helper_in_friend_list(self, player_id):
+        friend_data = self.client.friend_index()
+        all_friends = self.client.friend_index()['result']['friends']
+        friend = next((x for x in all_friends if x['id'] == player_id), None)
+        return friend is not None
+
 
     def dump_player_data(self, file_path: str):
         self.player_stone_sum()

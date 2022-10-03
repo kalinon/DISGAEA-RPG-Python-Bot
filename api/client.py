@@ -805,6 +805,9 @@ class Client:
             return data['error']
         Logger.info(f"Sent sardines to {data['result']['send_count_total']} friends")
 
+    def friend_send_request(self, target_t_player_id):
+        return self.__rpc('friend/send_request', {"target_t_player_id":target_t_player_id})
+
     #################
     # Bingo Endpoints
     #################

@@ -14,6 +14,7 @@ class Constants:
     Weapon_Full_Error = 'Weapon Slot is full\nPlease expand slot or sell weapons'
     Armor_Full_Error = 'Armor Slot is full\nPlease expand slot or sell armor'
     Shop_Max_Free_Refresh = 5
+    Highest_Tower_Level = 50
     Alchemy_Alchemize_Cost = 6000
     Unique_Innocent_Character_ID = 0
     Equipment_Alchemy_Effects = [10001, 20003, 20004, 20005, 30035, 30047, 30048, 30049, 30050, 30051, 30052, 30053,
@@ -26,7 +27,7 @@ class Constants:
     session_id = ''  # FILL SESSION_ID HERE
     user_id = ''  # FILL USER_ID HERE
     ticket = ''  # FILL TICKET FOR STEAM LOGIN
-    
+
 class Raid_Gacha_ID(IntEnum):
     SUMMER_PRINNY_EVENT_POINT = 49
     SUMMER_PRINNY_INNOCENT_REGULAR_ROULETTE = 50
