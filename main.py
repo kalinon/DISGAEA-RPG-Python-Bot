@@ -136,6 +136,24 @@ class API(BaseAPI):
             print(f"Claimed {ap['present_num']} AP")
             self.o.current_ap += int(ap['present_num'])
 
+    def present_receive_all_except_equip_and_AP(self):
+        initial_nq = self.player_stone_sum()['result']['_items'][0]['num']
+        current_nq = initial_nq
+        present_data = self.client.present_index(conditions=[0,1,3,99],order=0)
+        while len(present_data['result']['_items']) > 0:
+            item_ids = []
+            for item in present_data['result']['_items']:
+                item_ids.append(item['id'])
+            if len(item_ids) > 0:
+                data =self.client.present_receive(receive_ids = item_ids, order=0, conditions=[0,1,3,99])
+                print(f"Claimed {len(item_ids)} presents")
+                if len(data['result']['stones']) > 0:
+                    current_nq = data['result']['stones'][0]['num']
+            present_data = self.client.present_index(conditions=[0,1,3,99],order=0)
+        if current_nq > initial_nq:
+            self.log(f"Total Nether Quartz gained: {current_nq - initial_nq}")
+        self.log("Finished claiming presents.")
+
     def doQuest(self, m_stage_id=101102, use_tower_attack: bool = False, team_num=None, auto_rebirth: bool = None,
                 help_t_player_id: int = 0):
         if auto_rebirth is None:

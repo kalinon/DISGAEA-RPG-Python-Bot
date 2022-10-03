@@ -548,6 +548,8 @@ class Client:
         })
 
 
+
+
     #################
     # Raid Endpoints
     #################
@@ -899,10 +901,20 @@ class Client:
     # Dark Assembly endpoints
     #########################
 
+    def agenda_index(self,):
+        return self.__rpc('agenda/index', {})
+
+    def agenda_get_boost(self,):
+        return self.__rpc('agenda/get_boost_agenda', {})
+
+    def agenda_get_campaign(self,):
+        return self.__rpc('aagenda/get_agenda_campaign', {})
+
     # m_agenda_id: 28 for renaming generic characters
     def agenda_start(self, m_agenda_id):
         return self.__rpc('agenda/lowmaker_details', {"m_agenda_id": m_agenda_id})
 
+    # [{"lowmaker_id":26776096,"item_id":402,"num":1},{"lowmaker_id":26776096,"item_id":401,"num":1}]
     def agenda_vote(self, m_agenda_id, bribe_data):
         return self.__rpc('agenda/vote', {"m_agenda_id": m_agenda_id, "bribe_data": bribe_data})
 
@@ -1080,12 +1092,14 @@ class Client:
     def pvp_info(self):
         return self.__rpc('arena/current', {})
 
-    def pvp_history(self, battle_at:int):
+    def pvp_history(self, battle_at:int=14400):
         return self.__rpc('arena/history', {"battle_at":battle_at})
 
     def pvp_start_battle(self, t_deck_no, enemy_t_player_id):
         return self.__rpc('arena/start', {"t_deck_no":t_deck_no,"enemy_t_player_id":enemy_t_player_id,"t_arena_battle_history_id":0,"act":1})
 
+    def pvp_receive_rewards(self):
+        return self.__rpc('arena/receive', {})
 
     def decrypt(self, content, iv):
         res = self.c.decrypt(content,iv)

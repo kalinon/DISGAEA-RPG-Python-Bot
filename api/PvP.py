@@ -12,20 +12,31 @@ class PvP(Base, metaclass=ABCMeta):
         super().__init__()
 
     def pvp_do_battle(self, pvp_team:int=1):
-        current_orbs = self.pvp_get_remaining_orbs()
+        pvp_data = self.client.pvp_info()
+
+        if not pvp_data['result']['t_arena']['is_previous_reward_received']:
+            self.log("Claimed previous season PvP reward")
+            self.client.pvp_receive_rewards()
+
+        pvp_recover_date_string = pvp_data['result']['t_arena']['act_at']
+        pvp_recover_date = parser.parse(pvp_recover_date_string)        
+        server_time = datetime.datetime.utcnow() + datetime.timedelta(hours=-4)
+        # if server_time > pvp_recover_date:
+        #     current_orbs = 10
+
+        current_orbs = pvp_data['result']['t_arena']['act']
+
         if current_orbs == 0:
             self.log("No PvP orbs remaining.")
             return
-        
         while current_orbs > 0:
             oponent = self.pvp_select_opponent()
             oponent_details = self.client.pvp_enemy_player_detail(t_player_id=oponent['t_player_id'])
             self.log(f"Battling player {oponent['user_name']} - Ranking {oponent['ranking']}. Orbs remaining: {current_orbs}")
-            battle_start_data =self.client.pvp_start_battle(pvp_team, oponent['t_player_id'])
-            battle_end_data = self.client.pvp_battle_give_up()
+            self.client.pvp_start_battle(pvp_team, oponent['t_player_id'])
+            self.client.pvp_battle_give_up()
             self.client.pvp_info()
             current_orbs -=1
-
 
     def pvp_select_opponent(self):
         opponent_data = self.client.pvp_enemy_player_list()

@@ -57,3 +57,5 @@ while batch_count < batches_to_run:
     a.etna_resort_donate_items(max_innocent_rank, max_item_rank, max_item_rarity)
     #a.sell_r40_commons_with_no_innocents(item_count=20)
     batch_count += 1
+
+a.etna_resort_get_all_daily_rewards()
