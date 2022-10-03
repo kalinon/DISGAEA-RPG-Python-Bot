@@ -103,7 +103,7 @@ class API(BaseAPI):
         self.client.memory_index()
         self.client.battle_skip_parties()
         # boltrend/subscriptions
-        self.player_characters(True)
+        self.client.login_update()
 
     def addAccount(self):
         self.player_stone_sum()
@@ -127,6 +127,14 @@ class API(BaseAPI):
                     order=1)
             else:
                 break
+    
+    def present_receive_ap(self):
+        present_data = self.client.present_index(conditions=[4],order=0)
+        ap = next((x for x in present_data['result']['_items'] if x['present_id'] == 2501), None)
+        if ap is not None:
+            self.client.present_receive(receive_ids =[ap['id']], order=0, conditions=[4])
+            print(f"Claimed {ap['present_num']} AP")
+            self.o.current_ap += int(ap['present_num'])
 
     def doQuest(self, m_stage_id=101102, use_tower_attack: bool = False, team_num=None, auto_rebirth: bool = None,
                 help_t_player_id: int = 0):
@@ -356,7 +364,7 @@ class API(BaseAPI):
             elif e == 'drop_character':
                 for t in drop_result[e]:
                     self.log('unit:%s lv:%s rarity:%s*' % (
-                        self.gd.get_item(t['m_character_id'])['class_name'], t['lv'], t['rarity']))
+                        self.gd.get_character(t['m_character_id'])['class_name'], t['lv'], t['rarity']))
             elif e == 'stones':
                 self.log('+%s nether quartz' % (drop_result[e][0]['num'] - self.pd.gems))
         if event_points > 0:

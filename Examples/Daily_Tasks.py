@@ -26,7 +26,9 @@ a.buy_daily_items_from_shop()
 # Buy equipments with innocents. Will use free shop refreshes
 shop_rank = player_data['result']['status']['shop_rank']
 a.buy_all_equipment_with_innocents(shop_rank)
-a.innocent_safe_sell_items()
+# Sell all items with innocents that are below max_innocent_rank (5=rare)
+# max_item_rank is the highest item rank to be sold
+a.innocent_safe_sell_items(max_innocent_rank=5, max_item_rank=10)
 
 # Use free gacha
 if a.is_free_gacha_available():

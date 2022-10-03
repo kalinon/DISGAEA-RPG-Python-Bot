@@ -10,9 +10,10 @@ class Gatcha(Player):
         super().__init__()
 
     def get_free_gacha(self):
-        res = self.client.gacha_available()
-        if len(res['result']['private_gachas']) > 0:
-            self.client.gacha_do(is_gacha_free=True, price=0, item_type=2, num=1, m_gacha_id=100001, item_id=0, total_draw_count=self.get_free_gacha_pull_count())
+        if self.is_free_gacha_available():
+            res = self.client.gacha_do(is_gacha_free=True, price=0, item_type=2, num=1, m_gacha_id=100001, item_id=0, total_draw_count=self.get_free_gacha_pull_count())
+            unit_obtained = self.gd.get_character(res['result']['gacha_result'][0]['item_id'])
+            print(f"Obtained {res['result']['gacha_result'][0]['rarity']}★ character {unit_obtained['name']}")
 
     def is_free_gacha_available(self):
         player_data = self.client.player_index()

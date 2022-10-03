@@ -527,6 +527,27 @@ class Client:
             "m_stage_ids": m_stage_ids
         })
 
+
+    def pvp_battle_give_up(self):
+        return self.__rpc('battle/end', {
+            "m_stage_id": 0,
+            "m_tower_no": 0,
+            "equipment_id": 0,
+            "equipment_type": 0,
+            "innocent_dead_flg": 0,
+            "t_raid_status_id": 0,
+            "raid_battle_result": "",
+            "m_character_id": 0,
+            "division_battle_result": "",
+            "arena_battle_result":"eyJhbGciOiJIUzI1NiJ9.eyJUeDJFQk5oWmNGNFlkOUIyIjoxNzQ1LCJSZzhQandZQlc3ZHNKdnVrIjo1LCJKNWdtVHA3WXI0SFU4dUFOIjpbXX0.oXH33OXjnaK18IcCpSR4MzrruG7mRg1G1GWLhdaaP8U",
+            "battle_type": 9,
+            "result": 0,
+            "battle_exp_data": [],
+            "common_battle_result": "eyJhbGciOiJIUzI1NiJ9.eyJoZmJtNzg0a2hrMjYzOXBmIjoiIiwieXBiMjgydXR0eno3NjJ3eCI6MCwiZHBwY2JldzltejhjdXd3biI6MCwiemFjc3Y2amV2NGl3emp6bSI6MCwia3lxeW5pM25ubTNpMmFxYSI6MCwiZWNobTZ0aHR6Y2o0eXR5dCI6MCwiZWt1c3ZhcGdwcGlrMzVqaiI6MCwieGE1ZTMyMm1nZWo0ZjR5cSI6MH0.9DYl6QK2TkTIq81M98itbAqafdUE4nIPTYB_pp_NTd4",
+            "skip_party_update_flg": True
+        })
+
+
     #################
     # Raid Endpoints
     #################
@@ -719,10 +740,10 @@ class Client:
                           {"item_type": item_type, "id": item_id, "place_no": place_no})
         return data
 
-    # def etna_resort_lock_alchemy_effect(self, lock_flg: bool, t_weapon_effect_id=0, t_equipment_effect_id=0):
-    #     data = self.__rpc('weapon_equipment/update_effect_lottery',
-    #                       {"t_weapon_effect_id": t_weapon_effect_id, "t_equipment_effect_id": t_equipment_effect_id,
-    #                        "lock_flg": lock_flg})
+    def etna_resort_lock_alchemy_effect(self, lock_flg: bool, t_weapon_effect_id=0, t_equipment_effect_id=0):
+        data = self.__rpc('weapon_equipment/lock_effect',
+                          {"t_weapon_effect_id": t_weapon_effect_id, "t_equipment_effect_id": t_equipment_effect_id,
+                           "lock_flg": lock_flg})
         return data
 
     def etna_resort_update_alchemy_effect(self, overwrite: bool):
@@ -740,7 +761,7 @@ class Client:
         return self.__rpc('shop/equipment_shop', {})
 
     def shop_buy_equipment(self, item_type: int, itemid: List[int]):
-        return self.__rpc('shop/buy_equipment', {"item_type": item_type, "ids": [itemid]})
+        return self.__rpc('shop/buy_equipment', {"item_type": item_type, "ids": itemid})
 
     def shop_buy_item(self, itemid: int, quantity: int):
         return self.__rpc('shop/buy_item', {"id": itemid, "quantity": quantity})
@@ -1014,7 +1035,64 @@ class Client:
 
     def hospital_roulette(self):
         data = self.__rpc('hospital/roulette', {})
-        if data['error'] == 'Not the time to recover':
-            return data['error']
+        if 'api_error' in data and data['api_error']['message'] == 'Unable to restore yet':
+            return
         Logger.info(f"Hospital Roulettte - Recovered {data['result']['recovery_num']} AP")
         return data
+
+    ##########################
+    # 4D Netherworld endpoints
+    #########################
+    
+    def super_reincarnate(self,t_character_id:int, magic_element_num:int ):
+        return self.__rpc('character/super_rebirth', {"t_character_id":t_character_id,"magic_element_num":magic_element_num})
+    
+    # status_up example (atk) [{"type":2,"num":1,"karma":340}]}
+    def enhance_stats(self,t_character_id:int, status_ups ):
+        return self.__rpc('character/status_up', {"t_character_id":t_character_id,"status_ups":status_ups})
+
+    ##########################
+    # Story event endpoints
+    #########################
+    
+    def story_event_missions(self):
+        return self.__rpc('event/missions', {"m_event_id":Constants.Current_Story_Event_ID})
+
+    def story_event_daily_missions(self):
+        return self.__rpc('event/mission_dailies', {"m_event_id":Constants.Current_Story_Event_ID})
+        
+    def story_event_claim_daily_missions(self, mission_ids:List[int] = []):
+        return self.__rpc('event/receive_mission_daily', {"ids":mission_ids})
+
+    def story_event_claim_missions(self, mission_ids:List[int] = []):
+        return self.__rpc('event/receive_mission', {"ids":mission_ids})
+
+    ##########################
+    # PvP endpoints
+    #########################
+    
+    def pvp_enemy_player_list(self):
+        return self.__rpc('arena/enemy_players', {})
+
+    def pvp_enemy_player_detail(self, t_player_id:int):
+        return self.__rpc('arena/enemy_player_detail', {"t_player_id":t_player_id})
+        
+    def pvp_info(self):
+        return self.__rpc('arena/current', {})
+
+    def pvp_history(self, battle_at:int):
+        return self.__rpc('arena/history', {"battle_at":battle_at})
+
+    def pvp_start_battle(self, t_deck_no, enemy_t_player_id):
+        return self.__rpc('arena/start', {"t_deck_no":t_deck_no,"enemy_t_player_id":enemy_t_player_id,"t_arena_battle_history_id":0,"act":1})
+
+
+    def decrypt(self, content, iv):
+        res = self.c.decrypt(content,iv)
+        if 'fuji_key' in res:
+            if sys.version_info >= (3, 0):
+                self.c.key = bytes(res['fuji_key'], encoding='utf8')
+            else:
+                self.c.key = bytes(res['fuji_key'])
+            self.session_id = res['session_id']
+            print('found fuji_key:%s' % (self.c.key))  

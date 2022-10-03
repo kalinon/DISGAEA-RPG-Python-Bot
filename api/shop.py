@@ -29,9 +29,9 @@ class Shop(Player, metaclass=ABCMeta):
         # Golden candy
         self.__buy_shop_item(product_data, 107, 3)
         # Golden Bar
-        self.__buy_shop_item(product_data, 108, 3)
+        self.__buy_shop_item(product_data, 108, 2)
         # Skip ticket
-        self.__buy_shop_item(product_data, 1121, 3)
+        self.__buy_shop_item(product_data, 1121, 1)
         # BP refill
         self.__buy_shop_item(product_data, 111, 3)
 
@@ -140,49 +140,25 @@ class Shop(Player, metaclass=ABCMeta):
                 sell_list.append({'eqtype': self.pd.get_equip_type(x), 'eqid': x['id']})
             self.client.shop_sell_equipment(sell_list)
 
-    def initInnocentPerEquipment(self, minimum_effect_rank=7):
-        innocents = self.player_innocents(True)
-        equipment_innocents = {}
-        if len(innocents) >= 1:
-            self.log('generating equip-id => innocent hashmapmap...')
-            for innocent in innocents:
-                equipment_id = innocent['place_id']
-                if equipment_id in equipment_innocents:
-                    equipment_innocents[equipment_id]['innocentsArray'][innocent['place_no']] = innocent
-                    # equipment_innocents[equipment_id][innocent['place_no']]=innocent # if we want an hasmap too...
-                else:
-                    equipment_innocents[equipment_id] = {}
-                    equipment_innocents[equipment_id]['innocentsArray'] = [None] * 10
-                    equipment_innocents[equipment_id]['innocentsArray'][innocent['place_no']] = innocent
-                    # equipment_innocents[equipment_id][innocent['place_no']]=innocent # if we want an hasmap too...
-                    equipment_innocents[equipment_id]['canSell'] = innocent['effect_rank'] < minimum_effect_rank
-                if innocent['effect_rank'] >= minimum_effect_rank:
-                    equipment_innocents[equipment_id]['canSell'] = False
-            self.log('hashmap generated!')
-        return equipment_innocents
-
-    def innocent_safe_sell_items(self, min_effect_rank=5, min_item_rank=32):
+    def innocent_safe_sell_items(self, max_innocent_rank:int=5, max_item_rank:int=32):
         self.player_equipment(True)
         self.player_weapons(True)
 
-        equipments = self.initInnocentPerEquipment(min_effect_rank)
         selling = []
 
         items, skipping = self.pd.filter_items(
-            max_item_level=1, max_item_rank=min_item_rank,
+            max_item_level=1, max_item_rank=max_item_rank,
             skip_equipped=True, skip_locked=True,
             skip_max_lvl=True,
+            max_innocent_rank=max_innocent_rank
         )
         for item in items:
             _id = item['id']
-            if _id in equipments and equipments[_id]['canSell']:
-                continue
             equip_type = self.pd.get_equip_type(item)
             selling.append({'eqtype': equip_type, 'eqid': _id})
 
         if len(selling) > 0:
-            for x in selling:
-                self.log_sell(x)
+            self.log(f"Selling {len(selling)} items...")
             self.client.shop_sell_equipment(selling)
 
     def shop_use_all_tickets(self):
