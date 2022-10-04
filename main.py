@@ -297,7 +297,7 @@ class API(BaseAPI):
 
     def Complete_Overlord_Tower(self, team_no:int=1):
         tower_level =1
-        while tower_level < Constants.Highest_Tower_Level:
+        while tower_level <= Constants.Highest_Tower_Level:
             self.log(f"Clearing Overlord Tower level {tower_level}...")
             start = self.client.tower_start(m_tower_no=tower_level, deck_no=team_no)
             end = self.client.battle_end(battle_exp_data=self.get_battle_exp_data(start), m_tower_no=tower_level,
@@ -474,7 +474,6 @@ class API(BaseAPI):
                 print(f"There are {len(available_free_rewards)} free rewards available to claim.")
 
     def is_helper_in_friend_list(self, player_id):
-        friend_data = self.client.friend_index()
         all_friends = self.client.friend_index()['result']['friends']
         friend = next((x for x in all_friends if x['id'] == player_id), None)
         return friend is not None
