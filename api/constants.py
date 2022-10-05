@@ -156,7 +156,7 @@ class Item_World_Mode(IntEnum):
 
 class Item_World_Drop_Mode(IntEnum):
     Drop_Weapons_Only = 1
-    Drop_All_Items = 3
+    Drop_All_Items = 2
 
 
 class Alchemy_Effect_Type(IntEnum):
@@ -191,3 +191,22 @@ class Mission_Status (IntEnum):
     Not_Completed = 0
     Cleared = 1
     Claimed = 2
+    
+class Character_Type (IntEnum):
+    Human = 1
+    Monster = 2
+
+class Character_Gender (IntEnum):
+    Male = 1
+    Female = 2
+
+class Weapon_Type (IntEnum):
+    Sword = 1
+    Fist = 2
+    Spear = 3
+    Bow = 4
+    Gun = 5
+    Axe = 6
+    Wand = 7
+    Monster_Physical = 8
+    Monster_Magical = 9

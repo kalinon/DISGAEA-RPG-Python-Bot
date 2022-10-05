@@ -123,3 +123,12 @@ class GameData:
         subject_char_name = "%s %s" % (
             subject_char['name'], subject_char['linkage_character_ids'].index(innocent['m_character_id']) + 1)
         return subject_char_name
+
+    def get_characters_by_type(self, character_type:int):
+        return [x for x in self.characters if x['character_type'] == character_type]
+        
+    def get_characters_by_gender(self, gender:int):
+        return [x for x in self.characters if x['gender'] == gender]
+
+    def get_characters_by_forte(self, weapon_forte:int):
+        return [x for x in self.characters if x['best_weapon_type'] == weapon_forte]
