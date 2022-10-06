@@ -60,7 +60,7 @@ class Options:
     def set_region(self, r):
         if r == 1:
             self.main_url = 'https://api.rpg.disgaea-app.com/'
-            self.version = '2.11.2'
+            self.version='3.6.2'
             self.region = 1
         else:
             self.main_url = 'https://disgaea-game-live-en.boltrend.com/'

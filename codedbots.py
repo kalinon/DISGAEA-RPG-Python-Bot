@@ -9,9 +9,10 @@ import requests
 
 
 class codedbots(object):
-    def __init__(self):
+    def __init__(self,region=2):
         self.s = requests.Session()
         # self.s.proxies.update({'http': 'http://127.0.0.1:8080', 'https': 'http://127.0.0.1:8080', })
+        self.region=region
         self.license = os.getenv('BOT_TOKEN', default='')
         if len(self.license) != 64:
             print('license invalid')
@@ -30,7 +31,7 @@ class codedbots(object):
 
     def encrypt(self, data, iv):
         body = {'data': base64.b64encode(json.dumps(data).encode()), 'iv': iv, 'license': self.license,
-                'fuji_key': self.key}
+                'fuji_key': self.key, 'region':self.region}
         r = self.s.post(self.mainurl + '/encrypt', data=body, verify=False)
         if r.status_code == 200:
             return base64.b64decode(r.content)
@@ -40,7 +41,7 @@ class codedbots(object):
             return None
 
     def decrypt(self, data, iv):
-        body = {'data': data, 'iv': iv, 'fuji_key': self.key, 'license': self.license}
+        body = {'data': data, 'iv': iv, 'fuji_key': self.key, 'license': self.license, 'region':self.region}
         r = self.s.post(self.mainurl + '/decrypt', data=body, verify=False)
         if r.status_code == 200:
             return json.loads(base64.b64decode(r.content))
