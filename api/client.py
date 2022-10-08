@@ -1055,6 +1055,9 @@ class Client:
         Logger.info(f"Hospital Roulettte - Recovered {data['result']['recovery_num']} AP")
         return data
 
+    def hospital_claim_reward(self, reward_id):
+        return self.__rpc('hospital/receive_hospital', {"id":reward_id})
+
     ##########################
     # 4D Netherworld endpoints
     #########################
@@ -1103,6 +1106,39 @@ class Client:
 
     def pvp_receive_rewards(self):
         return self.__rpc('arena/receive', {})
+
+
+    ##########################
+    # Sugoroku endpoints
+    #########################
+    
+    def sugoroku_event_info(self):
+        return self.__rpc('board/current', {"m_event_id":Constants.Current_Sugoroku_Event_ID})
+
+    def sugoroku_battle_start(self, m_board_area_id:int, m_board_id:int, stage_no:int, t_character_ids: List[int], t_memory_ids :List[int], act:int=20):
+        return self.__rpc('board/battle_start', {"m_event_id":Constants.Current_Sugoroku_Event_ID,"m_board_area_id":m_board_area_id,"m_board_id":m_board_id,"stage_no":stage_no,"t_character_ids":t_character_ids,"t_memory_ids":t_memory_ids,"act":act})
+
+    def sugoroku_battle_end(self, m_board_area_id:int, m_board_id:int, stage_no:int, t_character_ids: List[int], t_memory_ids :List[int], act:int=20):
+        return self.__rpc('battle/end', {
+            "m_stage_id": 0,
+            "m_tower_no": 0,
+            "equipment_id": 0,
+            "equipment_type": 0,
+            "innocent_dead_flg": 0,
+            "t_raid_status_id": 0,
+            "raid_battle_result": "",
+            "m_character_id": 0,
+            "division_battle_result": "",
+            "arena_battle_result" : "",
+            "battle_type": 11,
+            "result": 1,
+            "battle_exp_data": [],
+            "common_battle_result": "eyJhbGciOiJIUzI1NiJ9.eyJoZmJtNzg0a2hrMjYzOXBmIjoiIiwieXBiMjgydXR0eno3NjJ3eCI6MCwiZHBwY2JldzltejhjdXd3biI6MzQyNjgsInphY3N2NmpldjRpd3pqem0iOjUsImt5cXluaTNubm0zaTJhcWEiOjAsImVjaG02dGh0emNqNHl0eXQiOjAsImVrdXN2YXBncHBpazM1amoiOjAsInhhNWUzMjJtZ2VqNGY0eXEiOjJ9.u6onRDTkAeQLZ0EmIWrVOLxgJn8DJIIrDGYMtYOfplk",
+            "skip_party_update_flg": True,
+            "m_event_id" : Constants.Current_Sugoroku_Event_ID,
+            "board_battle_result" : "eyJhbGciOiJIUzI1NiJ9.eyJjNFVkcFZ1WUV3NDVCZHhoIjpbeyJ0X2NoYXJhY3Rlcl9pZCI6OTg1Mzc5MjA4LCJocCI6MCwic3AiOjIwfSx7InRfY2hhcmFjdGVyX2lkIjo5ODUzNzkyOTUsImhwIjowLCJzcCI6MzB9LHsidF9jaGFyYWN0ZXJfaWQiOjk4NTM3OTIwMCwiaHAiOjAsInNwIjoyMH0seyJ0X2NoYXJhY3Rlcl9pZCI6OTg1Mzc5MjE5LCJocCI6MCwic3AiOjEwfSx7InRfY2hhcmFjdGVyX2lkIjo5ODUzNzkyMTcsImhwIjowLCJzcCI6MzB9XSwiZUsyVDQ5cVVqTDVNVm4zeiI6W3sid2F2ZSI6MSwicG9zIjoxLCJocCI6Mjc4N30seyJ3YXZlIjoxLCJwb3MiOjIsImhwIjoyNjI4fSx7IndhdmUiOjEsInBvcyI6MywiaHAiOjIzMjN9LHsid2F2ZSI6MSwicG9zIjo0LCJocCI6MjYyNn0seyJ3YXZlIjoxLCJwb3MiOjUsImhwIjoyNjMyfSx7IndhdmUiOjIsInBvcyI6MSwiaHAiOjIzMjN9LHsid2F2ZSI6MiwicG9zIjoyLCJocCI6Mjc4MX0seyJ3YXZlIjoyLCJwb3MiOjMsImhwIjoyNzgxfSx7IndhdmUiOjIsInBvcyI6NCwiaHAiOjI2MzJ9LHsid2F2ZSI6MiwicG9zIjo1LCJocCI6MjkzOH1dfQ.wjJaRp_gvrrVJ1bVEu3wgj6wX2FZPudz-WaXBdwfAeM"
+
+        })
 
     def decrypt(self, content, iv):
         res = self.c.decrypt(content,iv)

@@ -642,8 +642,8 @@ class EtnaResort(Items, metaclass=ABCMeta):
             prilixir_count -= 1
             if prilixir_count == 0:
                 self.log(f"{item_id} - Ran out of prilixir.")
-            current_hl -= Constants.Alchemy_Alchemize_Cost
-            if current_hl < Constants.Alchemy_Alchemize_Cost:
+            current_hl -= Constants.Alchemy_Realchemize_Cost
+            if current_hl < Constants.Alchemy_Realchemize_Cost:
                 self.log(f"{item_id} - Ran out of HL.")
 
             # Not the effect we are looking for

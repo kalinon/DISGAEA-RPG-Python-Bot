@@ -203,7 +203,8 @@ class Player(Base):
             unit_equipments = [x for x in self.player_equipment() if x['set_chara_id'] == unit_id]
             unit_weapons = [x for x in self.player_weapons() if x['set_chara_id'] == unit_id]
             unit_gear = unit_weapons + unit_equipments
-            print(f"{character['name']} - ID: {unit_id} - Level: {unit['lv']} - Equipped items:")
+            max_level = min((unit['rebirth_num'] +1) *100,9999)
+            self.log(f"{character['name']} - ID: {unit_id} - Level: {unit['lv']} / { max_level} - Equipped items:")
             for equipment in unit_gear:
                 if 'm_equipment_id' in equipment:
                     e = self.gd.get_equipment(equipment['m_equipment_id'])

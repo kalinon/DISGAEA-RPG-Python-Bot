@@ -371,7 +371,7 @@ class API(BaseAPI):
             elif e == 'drop_character':
                 for t in drop_result[e]:
                     self.log('unit:%s lv:%s rarity:%s*' % (
-                        self.gd.get_character(t['m_character_id'])['class_name'], t['lv'], t['rarity']))
+                        self.gd.get_character(t['m_character_id'])['name'], t['lv'], t['rarity']))
             elif e == 'stones':
                 self.log('+%s nether quartz' % (drop_result[e][0]['num'] - self.pd.gems))
         if event_points > 0:
@@ -422,7 +422,7 @@ class API(BaseAPI):
                         stage['m_area_id'], s, rank, stage['name']
                     ))
                     continue
-                if not stage['appear_m_stage_id'] in complete:
+                if not stage['appear_m_stage_id'] in complete and stage['appear_m_stage_id'] != 0:
                     self.log('not unlocked - area: %s stage: %s rank: %s name: %s' % (
                         stage['m_area_id'], s, rank, stage['name']
                     ))
