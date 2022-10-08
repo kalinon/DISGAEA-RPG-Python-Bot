@@ -217,7 +217,7 @@ class Bot:
             if tickets_finished:
                 break
             innocent_type = innocent['m_innocent_id']
-            innocent_rank = self.api.gd.get_innocent_rank(innocent['effect_rank'])
+            innocent_rank = innocent['effect_rank']
             if innocent_rank < initial_innocent_rank or innocent_rank >= max_innocent_rank:
                 continue
             self.api.log(
@@ -241,8 +241,7 @@ class Bot:
                     break
                 if 'result' not in res:
                     break
-                innocent_rank = self.api.gd.get_innocent_rank(
-                    res['result']['after_t_data']['innocents'][0]['effect_rank'])
+                innocent_rank = res['result']['after_t_data']['innocents'][0]['effect_rank']
                 self.api.log(
                     f"Trained innocent (type: {str(innocent_type)}) with result"
                     f" {self.api.innocent_get_training_result(res['result']['training_result'])} "
@@ -250,7 +249,7 @@ class Bot:
                 )
                 attempts += 1
             self.api.log(
-                f"Upgraded innocent (type: {innocent_type}) to rank {self.api.gd.get_innocent_rank(innocent_rank)}. "
+                f"Upgraded innocent (type: {innocent_type}) to rank {self.api.gd.get_innocent_rank(innocent_rank)} ({innocent_rank}). "
                 f"Finished training. Total attempts: {attempts}"
             )
         self.api.log(
