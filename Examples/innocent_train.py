@@ -36,7 +36,7 @@ for innocent in all_available_innocents:
     innocents_trained += 1
     while effect_rank < max_innocent_rank:
         res = a.client.innocent_training(innocent['id'])
-        if 'api_error' in res and 'message' in res['api_error'] and res['api_error']['message'] == 'Not enough item.':
+        if 'api_error' in res and 'message' in res['api_error'] and res['api_error']['message'] == 'Insufficient Items':
             print("No caretaker tickets left")
             tickets_finished = True
             break
