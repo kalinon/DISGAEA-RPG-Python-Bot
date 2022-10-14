@@ -64,8 +64,8 @@ class Event(Base, metaclass=ABCMeta):
             self.log(f"Character missions to be completed: {len(incomplete_mission_ids)}")
 
     ## TODO: is that ID static??
-    def event_buy_daily_AP(self):
+    def event_buy_daily_AP(self, ap_id:int):
         product_data = self.client.shop_index()['result']['shop_buy_products']['_items']
-        ap_pot = next((x for x in product_data if x['m_product_id'] == 278001),None)
+        ap_pot = next((x for x in product_data if x['m_product_id'] == ap_id),None)
         if ap_pot is not None and ap_pot['buy_num'] == 0:
-            self.client.shop_buy_item(itemid=278001, quantity=5)
+            self.client.shop_buy_item(itemid=ap_id, quantity=5)

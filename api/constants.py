@@ -9,7 +9,7 @@ class Constants:
     Current_Raid_Normal_Boss_ID = 1821
     Current_Raid_Badass_Boss_ID = 1822
     Current_Bingo_ID = 2
-    Current_Story_Event_ID = 178
+    Current_Story_Event_ID = 222
     Current_Sugoroku_Event_ID = 0
     Item_Survey_Deposit_Size = 10
     Weapon_Full_Error = 'Weapon Slot is full\nPlease expand slot or sell weapons'

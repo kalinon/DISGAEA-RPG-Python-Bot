@@ -351,6 +351,9 @@ class Client:
     def trophy_get_reward_daily(self, receive_all: int = 1, _id: int = 0):
         return self.__rpc('trophy/get_reward_daily', {"receive_all": receive_all, "id": _id})
 
+    def trophy_get_reward_weekly(self, receive_all: int = 1, _id: int = 0):
+        return self.__rpc('trophy/get_reward_weekly', {"receive_all": receive_all, "id": _id})
+
     def trophy_get_reward(self, receive_all: int = 1, _id: int = 0):
         return self.__rpc('trophy/get_reward', {"receive_all": receive_all, "id": _id})
 
