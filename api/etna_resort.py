@@ -645,7 +645,8 @@ class EtnaResort(Items, metaclass=ABCMeta):
         self.log(f"{item_id} - Re-rolling item - Prilixir count: {prilixir_count} - Current HL: {current_hl}")
 
         roll = True
-
+        attempt_count = 0
+        
         while roll and prilixir_count > 0 and current_hl > Constants.Alchemy_Alchemize_Cost:
             res = self.client.etna_resort_reroll_alchemy_effect(item_type, item_id, place_no)
 

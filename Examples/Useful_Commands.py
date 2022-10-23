@@ -33,3 +33,17 @@ a.present_receive_all_except_equip_and_AP()
 
 # Redeem code
 a.client.boltrend_exchange_code('Ainuko0925')
+
+##########################################################################
+# DoQuest parameters
+###########################################################################
+# team_to_use: specify which team to use to clear the quest
+team_to_use = 5
+# Friend ID. Specify a friend to use for a quest, useful for gates. Use the friend_print_full_list to get the id first
+a.friend_print_full_list()
+help_t_player_id = 1
+# use_tower_attack - set to true to use tower finishes. Useful in EXP gates to share EXP evenly
+use_tower_attack = True
+# send_friend_request, set to True to automatically send a friend request after clearing the quest
+send_friend_request = True
+a.doQuest(m_stage_id=m_stage_id, use_tower_attack=use_tower_attack, team_num=team_to_use, help_t_player_id=help_t_player_id, send_friend_request=send_friend_request)
