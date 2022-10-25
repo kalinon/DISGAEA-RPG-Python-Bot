@@ -15,8 +15,8 @@ class PvP(Base, metaclass=ABCMeta):
         pvp_data = self.client.pvp_info()
 
         if not pvp_data['result']['t_arena']['is_previous_reward_received']:
-            self.log("Claimed previous season PvP reward")
-            self.client.pvp_receive_rewards()
+            self.log("Claiming PvP season reward")
+            reward = self.client.pvp_receive_rewards()
 
         current_orbs = pvp_data['result']['t_arena']['act']
 

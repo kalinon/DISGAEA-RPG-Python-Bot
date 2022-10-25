@@ -147,12 +147,11 @@ class Bot:
                 #                     max_innocent_rank=4, max_innocent_type=Innocent_ID.RES)
             last_id = new_last_id
 
-    def do_quest(self, stage_id, use_tower_attack: bool = False, team_num=None, auto_rebirth=None, raid_team=None):
+    def do_quest(self, stage_id, team_num=None, auto_rebirth=None, raid_team=None):
         if auto_rebirth is None:
             auto_rebirth = self.api.o.auto_rebirth
 
-        self.api.doQuest(stage_id, use_tower_attack=use_tower_attack, team_num=team_num,
-                         auto_rebirth=auto_rebirth)
+        self.api.doQuest(stage_id, team_num=team_num, auto_rebirth=auto_rebirth)
         self.api.raid_check_and_send()
         if raid_team is not None:
             self.api.do_raids(raid_team)

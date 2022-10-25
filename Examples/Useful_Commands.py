@@ -1,4 +1,4 @@
-from api.constants import Constants
+from api.constants import Constants, Battle_Finish_Mode
 from main import API
 
 a = API()
@@ -37,13 +37,20 @@ a.client.boltrend_exchange_code('Ainuko0925')
 ##########################################################################
 # DoQuest parameters
 ###########################################################################
+
 # team_to_use: specify which team to use to clear the quest
 team_to_use = 5
+
 # Friend ID. Specify a friend to use for a quest, useful for gates. Use the friend_print_full_list to get the id first
 a.friend_print_full_list()
-help_t_player_id = 1
-# use_tower_attack - set to true to use tower finishes. Useful in EXP gates to share EXP evenly
-use_tower_attack = True
+help_t_player_id = 0
+
+#  Choose the battle finish mode. Random is chosen by default
+#  Battle_Finish_Mode.Random_Finish randomly choose which unit kills each enemy
+#  Battle_Finish_Mode.Tower_Finish all enemies are killed using tower attack, exp is shared evenly
+#  Battle_Finish_Mode.Single_Character the character on the leader slot will kill all enemies and get all exp
+finish_mode = Battle_Finish_Mode.Single_Character
+
 # send_friend_request, set to True to automatically send a friend request after clearing the quest
 send_friend_request = True
-a.doQuest(m_stage_id=m_stage_id, use_tower_attack=use_tower_attack, team_num=team_to_use, help_t_player_id=help_t_player_id, send_friend_request=send_friend_request)
+a.doQuest(m_stage_id=m_stage_id, team_num=team_to_use, help_t_player_id=help_t_player_id, send_friend_request=send_friend_request, finish_mode=finish_mode)

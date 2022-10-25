@@ -5,7 +5,7 @@ from api.constants import Item_World_Mode
 from dateutil import parser
 
 from api import BaseAPI
-from api.constants import Constants
+from api.constants import Constants, Battle_Finish_Mode
 
 
 class API(BaseAPI):
@@ -154,8 +154,8 @@ class API(BaseAPI):
             self.log(f"Total Nether Quartz gained: {current_nq - initial_nq}")
         self.log("Finished claiming presents.")
 
-    def doQuest(self, m_stage_id=101102, use_tower_attack: bool = False, team_num=None, auto_rebirth: bool = None,
-                help_t_player_id: int = 0, send_friend_request:bool=False):
+    def doQuest(self, m_stage_id=101102, team_num=None, auto_rebirth: bool = None,
+                help_t_player_id: int = 0, send_friend_request:bool=False, finish_mode : Battle_Finish_Mode = Battle_Finish_Mode.Random_Finish):
         if auto_rebirth is None:
             auto_rebirth = self.o.auto_rebirth
 
@@ -197,7 +197,12 @@ class API(BaseAPI):
         if 'result' not in start:
             return
 
-        exp_data = self.get_battle_exp_data_tower_finish(start) if use_tower_attack else self.get_battle_exp_data(start)
+        if finish_mode == Battle_Finish_Mode.Tower_Finish:
+            exp_data = self.get_battle_exp_data_tower_finish(start)
+        if finish_mode == Battle_Finish_Mode.Single_Character:
+            exp_data = self.get_battle_exp_data_single_unit_finish(start)
+        else:
+            exp_data = self.get_battle_exp_data(start)
 
         end = self.client.battle_end(
             battle_exp_data=exp_data, m_stage_id=m_stage_id,

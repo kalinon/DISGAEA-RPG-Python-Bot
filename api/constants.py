@@ -213,3 +213,8 @@ class Weapon_Type (IntEnum):
     Wand = 7
     Monster_Physical = 8
     Monster_Magical = 9
+
+class Battle_Finish_Mode(IntEnum):
+    Random_Finish = 1 # killing blows will be randomly split
+    Tower_Finish = 2 # Use tower finishes to share exp
+    Single_Character = 3 # Character on leader slot will kill all enemies to get all bonus exp
