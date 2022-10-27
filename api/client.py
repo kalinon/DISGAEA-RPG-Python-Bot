@@ -914,7 +914,7 @@ class Client:
         return self.__rpc('agenda/get_boost_agenda', {})
 
     def agenda_get_campaign(self,):
-        return self.__rpc('aagenda/get_agenda_campaign', {})
+        return self.__rpc('agenda/get_agenda_campaign', {})
 
     # m_agenda_id: 28 for renaming generic characters
     def agenda_start(self, m_agenda_id):
