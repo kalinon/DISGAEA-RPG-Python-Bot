@@ -372,7 +372,7 @@ class API(BaseAPI):
             if e == 'after_t_item':
                 for t in drop_result[e]:
                     i = self.gd.get_item(t['m_item_id'])
-                    self.log('%s +%s' % (i['name'], self.getGain(t)))
+                    if i is not None: self.log('%s +%s' % (i['name'], self.getGain(t)))
             elif e == 'drop_character':
                 for t in drop_result[e]:
                     self.log('unit:%s lv:%s rarity:%s*' % (
@@ -470,7 +470,7 @@ class API(BaseAPI):
             spin_result = self.client.bingo_lottery(Constants.Current_Bingo_ID, False)
             spin_index = spin_result['result']['t_bingo_data']['last_bingo_index']
             self.log(
-                f"Bingo spinned. Obtained number {spin_result['result']['t_bingo_data']['display_numbers'][spin_index]}.")
+                f"Spinning Bingo: Obtained number {spin_result['result']['t_bingo_data']['display_numbers'][spin_index]}.")
             free_reward_positions = [0, 3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33]
             bingo_rewards = spin_result['result']['rewards']
             free_rewards = [bingo_rewards[i] for i in free_reward_positions]
