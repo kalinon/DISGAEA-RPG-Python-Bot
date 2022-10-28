@@ -115,6 +115,8 @@ class Bot:
     def use_ap(self, stage_id, event_team: int = 1, raid_team=None):
         self.api.log("[*] using ap")
 
+        self.complete_story(team_num=event_team, raid_team=raid_team)
+
         if stage_id is None:
             for i in range(1, 5):
                 for unit_id in self.api.pd.deck(i):
@@ -249,7 +251,8 @@ class Bot:
                 )
                 attempts += 1
             self.api.log(
-                f"Upgraded innocent (type: {innocent_type}) to rank {self.api.gd.get_innocent_rank(innocent_rank)} ({innocent_rank}). "
+                f"Upgraded innocent (type: {innocent_type}) to rank {self.api.gd.get_innocent_rank(innocent_rank)} "
+                f"({innocent_rank}). "
                 f"Finished training. Total attempts: {attempts}"
             )
         self.api.log(
@@ -393,7 +396,7 @@ class Bot:
         inno_blacklist = [x['id'] for x in self.api.find_recipe_innocents()]
         self.api.etna_donate_innocents(max_innocent_rank=8, max_innocent_type=Innocent_ID.RES,
                                        blacklist=inno_blacklist)
-        self.api.etna_donate_innocents(max_innocent_rank=4, innocent_types=[Innocent_ID.SPD],
+        self.api.etna_donate_innocents(max_innocent_rank=8, innocent_types=[Innocent_ID.SPD, Innocent_ID.HL],
                                        blacklist=inno_blacklist)
         self.api.etna_resort_donate_items(max_item_rarity=69, remove_innocents=True)
         self.api.etna_resort_get_all_daily_rewards()
