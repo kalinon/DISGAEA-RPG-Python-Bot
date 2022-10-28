@@ -140,8 +140,8 @@ class Raid(Player, metaclass=ABCMeta):
 
             spins_left = data['result']['after_t_data']['t_events'][0]['gacha_data']['chance_stock_num']
             is_big_chance = data['result']['after_t_data']['t_events'][0]['gacha_data']['exist_big_chance']
-            innocent_type = [x for x in innocent_types if
-                             x['id'] == data['result']['after_t_data']['innocents'][0]['m_innocent_id']][0]
+            innocent_type = next((x for x in innocent_types if
+                             x['id'] == data['result']['after_t_data']['innocents'][0]['m_innocent_id']),None)
             self.log(
                 f"{special_spin}Obtained innocent of type {innocent_type['name']} and" +
                 f" value: {data['result']['after_t_data']['innocents'][0]['effect_values'][0]}")

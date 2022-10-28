@@ -15,8 +15,8 @@ from api.spar_space import SparSpace
 from api.item_survey import ItemSurvey
 from api.Event import Event
 from api.PvP import PvP
+from api.sugoroku import Sugoroku
 
-
-class BaseAPI(Bingo, Raid, AxelContest, SparSpace, FishFleet, Gatcha, Battle, EtnaResort, ItemSurvey, Event, PvP, ABC):
+class BaseAPI(Bingo, Raid, AxelContest, SparSpace, FishFleet, Gatcha, Battle, EtnaResort, ItemSurvey, Event, PvP, Sugoroku, ABC):
     def __init__(self):
         super().__init__()

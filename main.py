@@ -5,7 +5,7 @@ from api.constants import Item_World_Mode
 from dateutil import parser
 
 from api import BaseAPI
-from api.constants import Constants
+from api.constants import Constants, Battle_Finish_Mode
 
 
 class API(BaseAPI):
@@ -136,8 +136,26 @@ class API(BaseAPI):
             print(f"Claimed {ap['present_num']} AP")
             self.o.current_ap += int(ap['present_num'])
 
-    def doQuest(self, m_stage_id=101102, use_tower_attack: bool = False, team_num=None, auto_rebirth: bool = None,
-                help_t_player_id: int = 0):
+    def present_receive_all_except_equip_and_AP(self):
+        initial_nq = self.player_stone_sum()['result']['_items'][0]['num']
+        current_nq = initial_nq
+        present_data = self.client.present_index(conditions=[0,1,3,99],order=0)
+        while len(present_data['result']['_items']) > 0:
+            item_ids = []
+            for item in present_data['result']['_items']:
+                item_ids.append(item['id'])
+            if len(item_ids) > 0:
+                data =self.client.present_receive(receive_ids = item_ids, order=0, conditions=[0,1,3,99])
+                print(f"Claimed {len(item_ids)} presents")
+                if len(data['result']['stones']) > 0:
+                    current_nq = data['result']['stones'][0]['num']
+            present_data = self.client.present_index(conditions=[0,1,3,99],order=0)
+        if current_nq > initial_nq:
+            self.log(f"Total Nether Quartz gained: {current_nq - initial_nq}")
+        self.log("Finished claiming presents.")
+
+    def doQuest(self, m_stage_id=101102, team_num=None, auto_rebirth: bool = None,
+                help_t_player_id: int = 0, send_friend_request:bool=False, finish_mode : Battle_Finish_Mode = Battle_Finish_Mode.Random_Finish):
         if auto_rebirth is None:
             auto_rebirth = self.o.auto_rebirth
 
@@ -175,37 +193,26 @@ class API(BaseAPI):
             help_t_character_lv=help_player['t_character']['lv'],
             deck_no=team_num, deck=deck,
         )
+
         if 'result' not in start:
             return
 
-        exp_data = self.get_battle_exp_data_tower_finish(start) if use_tower_attack else self.get_battle_exp_data(start)
+        if finish_mode == Battle_Finish_Mode.Tower_Finish:
+            exp_data = self.get_battle_exp_data_tower_finish(start)
+        if finish_mode == Battle_Finish_Mode.Single_Character:
+            exp_data = self.get_battle_exp_data_single_unit_finish(start)
+        else:
+            exp_data = self.get_battle_exp_data(start)
 
         end = self.client.battle_end(
             battle_exp_data=exp_data, m_stage_id=m_stage_id,
             battle_type=1, result=1)
         res = self.parseReward(end)
-        return res
 
-    def doQuest_force_friend(self, m_stage_id, help_t_player_id):
-        stage = self.gd.get_stage(m_stage_id)
-        self.log('doing quest:%s [%s]' % (stage['name'], m_stage_id))
-        if stage['exp'] == 0:
-            return self.client.battle_story(m_stage_id)
-        help_player = self.battle_help_get_friend_by_id(help_t_player_id)
-        start = self.client.battle_start(
-            m_stage_id=m_stage_id,
-            help_t_player_id=help_player['t_player_id'],
-            help_t_character_id=help_player['t_character']['id'],
-            act=stage['act'],
-            help_t_character_lv=help_player['t_character']['lv'])
-        if 'result' not in start:
-            return
-        self.client.battle_help_list()
-        end = self.client.battle_end(battle_exp_data=self.get_battle_exp_data(start),
-                                     m_stage_id=m_stage_id,
-                                     battle_type=1,
-                                     result=1)
-        res = self.parseReward(end)
+        if not self.is_helper_in_friend_list(help_player['t_player_id']) and send_friend_request:
+            self.log(f"Send friend request to {help_player['name']} - Rank {help_player['rank']}")
+            self.client.friend_send_request(help_player['t_player_id'])
+
         return res
 
     def do_conquest_battle(self, m_stage_id=101102, t_character_ids=[]):
@@ -293,12 +300,17 @@ class API(BaseAPI):
              w['lv_max'], w['lock_flg'])
         )
 
-    def doTower(self, m_tower_no=1, deck_no=1):
-        start = self.client.tower_start(m_tower_no, deck_no)
-        end = self.client.battle_end(battle_exp_data=self.get_battle_exp_data(start), m_tower_no=m_tower_no,
-                                     m_stage_id=0,
-                                     battle_type=4, result=1)
-        return end
+    def Complete_Overlord_Tower(self, team_no:int=1):
+        tower_level =1
+        while tower_level <= Constants.Highest_Tower_Level:
+            self.log(f"Clearing Overlord Tower level {tower_level}...")
+            start = self.client.tower_start(m_tower_no=tower_level, deck_no=team_no)
+            end = self.client.battle_end(battle_exp_data=self.get_battle_exp_data(start), m_tower_no=tower_level,
+                                        m_stage_id=0,
+                                        battle_type=4, result=1)
+            tower_level+=1
+        self.log("Completed Overlod Tower")
+        
 
     def doItemWorld(self, equipment_id=None, equipment_type=1):
         if equipment_id is None:
@@ -360,11 +372,11 @@ class API(BaseAPI):
             if e == 'after_t_item':
                 for t in drop_result[e]:
                     i = self.gd.get_item(t['m_item_id'])
-                    self.log('%s +%s' % (i['name'], self.getGain(t)))
+                    if i is not None: self.log('%s +%s' % (i['name'], self.getGain(t)))
             elif e == 'drop_character':
                 for t in drop_result[e]:
                     self.log('unit:%s lv:%s rarity:%s*' % (
-                        self.gd.get_character(t['m_character_id'])['class_name'], t['lv'], t['rarity']))
+                        self.gd.get_character(t['m_character_id'])['name'], t['lv'], t['rarity']))
             elif e == 'stones':
                 self.log('+%s nether quartz' % (drop_result[e][0]['num'] - self.pd.gems))
         if event_points > 0:
@@ -415,7 +427,7 @@ class API(BaseAPI):
                         stage['m_area_id'], s, rank, stage['name']
                     ))
                     continue
-                if not stage['appear_m_stage_id'] in complete:
+                if not stage['appear_m_stage_id'] in complete and stage['appear_m_stage_id'] != 0:
                     self.log('not unlocked - area: %s stage: %s rank: %s name: %s' % (
                         stage['m_area_id'], s, rank, stage['name']
                     ))
@@ -458,13 +470,19 @@ class API(BaseAPI):
             spin_result = self.client.bingo_lottery(Constants.Current_Bingo_ID, False)
             spin_index = spin_result['result']['t_bingo_data']['last_bingo_index']
             self.log(
-                f"Bingo spinned. Obtained number {spin_result['result']['t_bingo_data']['display_numbers'][spin_index]}.")
+                f"Spinning Bingo: Obtained number {spin_result['result']['t_bingo_data']['display_numbers'][spin_index]}.")
             free_reward_positions = [0, 3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33]
             bingo_rewards = spin_result['result']['rewards']
             free_rewards = [bingo_rewards[i] for i in free_reward_positions]
             available_free_rewards = [x for x in free_rewards if x['status'] == 1]
             if len(available_free_rewards) > 0:
                 print(f"There are {len(available_free_rewards)} free rewards available to claim.")
+
+    def is_helper_in_friend_list(self, player_id):
+        all_friends = self.client.friend_index()['result']['friends']
+        friend = next((x for x in all_friends if x['id'] == player_id), None)
+        return friend is not None
+
 
     def dump_player_data(self, file_path: str):
         self.player_stone_sum()

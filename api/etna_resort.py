@@ -364,17 +364,25 @@ class EtnaResort(Items, metaclass=ABCMeta):
                 return False
         return True
 
+    # verify that there are no locked effects so item can be rolled
     def etna_resort_can_item_be_rolled(self, item_id):
         effects = self.pd.get_item_alchemy_effects(item_id)
         locked_effects = [x for x in effects if x['lock_flg']]
         return len(locked_effects) == 0
 
+    # verify that the effect is not locked so it can be rerolled
     def etna_resort_can_effect_be_rerolled(self, item_id: int, place_no: int):
         effects = self.pd.get_item_alchemy_effects(item_id)
         effect = next((x for x in effects if x['place_no'] == place_no), None)
         return effect is not None and not effect['lock_flg']
 
-    def etna_resort_can_effect_be_rolled(self, alchemy_effect_id: int, equipment_type: int):
+    # check that the effect is not already rolled with a higher value on that slot
+    def etna_resort_is_effect_already_rolled(self, item_id: int, place_no: int, effect_id: int, effect_target:int):
+        effects = self.pd.get_item_alchemy_effects(item_id)
+        effect = next((x for x in effects if x['place_no'] == place_no), None)
+        return effect['m_equipment_effect_type_id'] == effect_id and effect['effect_value'] >= effect_target
+
+    def etna_resort_can_effect_be_rolled_in_equipment(self, alchemy_effect_id: int, equipment_type: int):
         if equipment_type == 3:
             return alchemy_effect_id in Constants.Weapon_Alchemy_Effects
         return alchemy_effect_id in Constants.Equipment_Alchemy_Effects
@@ -460,7 +468,7 @@ class EtnaResort(Items, metaclass=ABCMeta):
             item_type = 4
             t_data_key = 'equipment_effects'
 
-        if not self.etna_resort_can_effect_be_rolled(effect_id, item_type):
+        if not self.etna_resort_can_effect_be_rolled_in_equipment(effect_id, item_type):
             self.log(f"The specified alchemy effect cannot be rolled for this equipment type. Exiting...")
             return
 
@@ -530,7 +538,7 @@ class EtnaResort(Items, metaclass=ABCMeta):
 
         possible_effects = []
         for effect_id in alchemy_effects:
-            if not self.etna_resort_can_effect_be_rolled(effect_id, item_type):
+            if not self.etna_resort_can_effect_be_rolled_in_equipment(effect_id, item_type):
                 effect = self.gd.get_alchemy_effect(effect_id)
                 self.log(f"{effect['description']} cannot be rolled for this equipment type.")
             else:
@@ -592,6 +600,7 @@ class EtnaResort(Items, metaclass=ABCMeta):
                                   alchemy_effect_id: int,
                                   place_no: int,
                                   effect_target: int = 0):
+        
         # verify value can be rolled
         if effect_target != 0:
             effect = self.gd.get_alchemy_effect(alchemy_effect_id)
@@ -600,7 +609,7 @@ class EtnaResort(Items, metaclass=ABCMeta):
                     f"The specified value is higher than the maximun possible roll ({effect['effect_value_max']}). Exiting...")
                 return
 
-                # verify slot is not locked
+        # verify slot is not locked
         if not self.etna_resort_can_effect_be_rerolled(item_id, place_no):
             self.log("The effect is locked and cannot be rerolled. Exiting...")
             return
@@ -614,7 +623,7 @@ class EtnaResort(Items, metaclass=ABCMeta):
             t_data_key = 'equipment_effects'
 
         # verify effect can be rerolled for that equipment
-        if not self.etna_resort_can_effect_be_rolled(alchemy_effect_id, item_type):
+        if not self.etna_resort_can_effect_be_rolled_in_equipment(alchemy_effect_id, item_type):
             effect = self.gd.get_alchemy_effect(alchemy_effect_id)
             self.log(f"{effect['description']} cannot be rolled for this equipment type.")
             return
@@ -625,14 +634,19 @@ class EtnaResort(Items, metaclass=ABCMeta):
             self.log(f"{effect['description']} cannot be rolled on slot {place_no}.")
             return
 
-        attempt_count = 0
+        # the same effect has already been rolled on that slot
+        if self.etna_resort_is_effect_already_rolled(item_id=item_id, place_no = place_no, effect_id=alchemy_effect_id, effect_target=effect_target):
+            effect = self.gd.get_alchemy_effect(alchemy_effect_id)
+            self.log(f"{effect['description']} is already rolled on slot {place_no} with a better or equal value.")
+            return
 
         prilixir_count = self.pd.get_item_by_m_item_id(ItemsC.Prilixir.value)['num']
         current_hl = self.pd.get_item_by_m_item_id(ItemsC.HL.value)['num']
         self.log(f"{item_id} - Re-rolling item - Prilixir count: {prilixir_count} - Current HL: {current_hl}")
 
         roll = True
-
+        attempt_count = 0
+        
         while roll and prilixir_count > 0 and current_hl > Constants.Alchemy_Alchemize_Cost:
             res = self.client.etna_resort_reroll_alchemy_effect(item_type, item_id, place_no)
 
@@ -642,8 +656,8 @@ class EtnaResort(Items, metaclass=ABCMeta):
             prilixir_count -= 1
             if prilixir_count == 0:
                 self.log(f"{item_id} - Ran out of prilixir.")
-            current_hl -= Constants.Alchemy_Alchemize_Cost
-            if current_hl < Constants.Alchemy_Alchemize_Cost:
+            current_hl -= Constants.Alchemy_Realchemize_Cost
+            if current_hl < Constants.Alchemy_Realchemize_Cost:
                 self.log(f"{item_id} - Ran out of HL.")
 
             # Not the effect we are looking for

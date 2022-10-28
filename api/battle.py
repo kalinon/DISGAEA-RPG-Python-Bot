@@ -43,6 +43,7 @@ class Battle(Player, metaclass=ABCMeta):
             deck_no=self.o.team_num, deck=self.pd.deck(self.o.team_num), skip_number=3,
         )
 
+    ## Finish battle, kills will be distributed randomly
     def get_battle_exp_data(self, start):
         res = []
         for d in start['result']['enemy_list']:
@@ -61,6 +62,7 @@ class Battle(Player, metaclass=ABCMeta):
         character.append(rand_char)
         return character
 
+    # Finish battle using tower attacks. Exp will be shared evenly
     def get_battle_exp_data_tower_finish(self, start):
         res = []
         for d in start['result']['enemy_list']:
@@ -68,6 +70,21 @@ class Battle(Player, metaclass=ABCMeta):
                 res.append({
                     "finish_member_ids": self.pd.deck(start['result']['t_deck_no']),
                     "finish_type": Battle_Finish_Type.Tower_Attack.value,
+                    "m_enemy_id": d[r]
+                })
+        return res
+
+    ## Finish battle, leader unit kills all enemies thus grabbing all bonus exp
+    def get_battle_exp_data_single_unit_finish(self, start):
+        active_party = start['result']['t_deck_no']
+        team = self.player_decks()[active_party-1] 
+        leader_unit = team['leader_t_character_id']
+        res = []
+        for d in start['result']['enemy_list']:
+            for r in d:
+                res.append({
+                    "finish_member_ids": [leader_unit],
+                    "finish_type": Battle_Finish_Type.Special_Move,
                     "m_enemy_id": d[r]
                 })
         return res

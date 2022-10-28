@@ -2,19 +2,23 @@ from enum import IntEnum
 
 
 class Constants:
-    Current_Raid_ID = 182
-    Current_Raid_Event_Point_Gacha = 64
-    Current_Raid_Innocent_Regular_Roulette = 65
-    Current_Raid_Innocent_Special_Roulette = 66
-    Current_Raid_Normal_Boss_ID = 1821
-    Current_Raid_Badass_Boss_ID = 1822
+    Current_Raid_ID = 89
+    Current_Raid_Event_Point_Gacha = 28
+    Current_Raid_Innocent_Regular_Roulette = 29
+    Current_Raid_Innocent_Special_Roulette = 30
+    Current_Raid_Normal_Boss_ID = 891
+    Current_Raid_Badass_Boss_ID = 892
+    Current_Story_Event_ID = 866
     Current_Bingo_ID = 2
-    Current_Story_Event_ID = 178
+    Current_Story_Event_ID = 222
+    Current_Sugoroku_Event_ID = 0
     Item_Survey_Deposit_Size = 10
     Weapon_Full_Error = 'Weapon Slot is full\nPlease expand slot or sell weapons'
     Armor_Full_Error = 'Armor Slot is full\nPlease expand slot or sell armor'
     Shop_Max_Free_Refresh = 5
+    Highest_Tower_Level = 50
     Alchemy_Alchemize_Cost = 6000
+    Alchemy_Realchemize_Cost = 12000
     Unique_Innocent_Character_ID = 0
     Equipment_Alchemy_Effects = [10001, 20003, 20004, 20005, 30035, 30047, 30048, 30049, 30050, 30051, 30052, 30053,
                                  30054]
@@ -26,7 +30,8 @@ class Constants:
     session_id = ''  # FILL SESSION_ID HERE
     user_id = ''  # FILL USER_ID HERE
     ticket = ''  # FILL TICKET FOR STEAM LOGIN
-    
+
+
 class Raid_Gacha_ID(IntEnum):
     SUMMER_PRINNY_EVENT_POINT = 49
     SUMMER_PRINNY_INNOCENT_REGULAR_ROULETTE = 50
@@ -155,7 +160,7 @@ class Item_World_Mode(IntEnum):
 
 class Item_World_Drop_Mode(IntEnum):
     Drop_Weapons_Only = 1
-    Drop_All_Items = 3
+    Drop_All_Items = 2
 
 
 class Alchemy_Effect_Type(IntEnum):
@@ -190,3 +195,27 @@ class Mission_Status (IntEnum):
     Not_Completed = 0
     Cleared = 1
     Claimed = 2
+    
+class Character_Type (IntEnum):
+    Human = 1
+    Monster = 2
+
+class Character_Gender (IntEnum):
+    Male = 1
+    Female = 2
+
+class Weapon_Type (IntEnum):
+    Sword = 1
+    Fist = 2
+    Spear = 3
+    Bow = 4
+    Gun = 5
+    Axe = 6
+    Wand = 7
+    Monster_Physical = 8
+    Monster_Magical = 9
+
+class Battle_Finish_Mode(IntEnum):
+    Random_Finish = 1 # killing blows will be randomly split
+    Tower_Finish = 2 # Use tower finishes to share exp
+    Single_Character = 3 # Character on leader slot will kill all enemies to get all bonus exp

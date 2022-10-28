@@ -36,4 +36,7 @@ a.event_buy_daily_AP()
 a.event_claim_daily_missions()
 
 # Claim event missions
-a.event_claim_missions()
+a.event_claim_story_missions()
+
+# Claim character missions
+a.event_claim_character_missions()
