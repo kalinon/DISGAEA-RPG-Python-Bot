@@ -21,7 +21,7 @@ class Bot:
 
     def farm_event_stage(self, times: int, stage_id: int, team: int, rebirth: bool, raid_team=None):
         for _ in range(times):
-            self.do_quest(stage_id, True, team_num=team, auto_rebirth=rebirth, raid_team=raid_team)
+            self.do_quest(stage_id, team_num=team, auto_rebirth=rebirth, raid_team=raid_team)
 
     def farm_item_world(self, team=1, min_rarity=0, min_rank=0, min_item_rank=0, min_item_level=0, item_limit=None):
         # Change the party: 1-9
@@ -55,7 +55,7 @@ class Bot:
         current = int(gate['challenge_num'])
         _max = int(gate['challenge_max'])
         while current < _max:
-            self.do_quest(gate['m_stage_id'], True, team_num=team, auto_rebirth=rebirth, raid_team=raid_team)
+            self.do_quest(gate['m_stage_id'], team_num=team, auto_rebirth=rebirth, raid_team=raid_team)
             current += 1
 
     def do_gates(self, gates_data, gem_team=7, hl_team=8, exp_team=None, raid_team=None, use_potions=False):
@@ -109,11 +109,13 @@ class Bot:
             for i in area_lt:
                 new_lt = [x for x in dic if x["m_area_id"] == i and x["rank"] == k]
                 for c in new_lt:
-                    self.do_quest(c['id'], True, team_num, True, raid_team=raid_team)
+                    self.do_quest(c['id'], team_num, True, raid_team=raid_team)
         self.api.o.use_potions = False
 
     def use_ap(self, stage_id, event_team: int = 1, raid_team=None):
         self.api.log("[*] using ap")
+
+        self.complete_story(team_num=event_team, raid_team=raid_team)
 
         if stage_id is None:
             for i in range(1, 5):
@@ -248,7 +250,8 @@ class Bot:
                 )
                 attempts += 1
             self.api.log(
-                f"Upgraded innocent (type: {innocent_type}) to rank {self.api.gd.get_innocent_rank(innocent_rank)} ({innocent_rank}). "
+                f"Upgraded innocent (type: {innocent_type}) to rank {self.api.gd.get_innocent_rank(innocent_rank)} "
+                f"({innocent_rank}). "
                 f"Finished training. Total attempts: {attempts}"
             )
         self.api.log(
@@ -392,7 +395,7 @@ class Bot:
         inno_blacklist = [x['id'] for x in self.api.find_recipe_innocents()]
         self.api.etna_donate_innocents(max_innocent_rank=8, max_innocent_type=Innocent_ID.RES,
                                        blacklist=inno_blacklist)
-        self.api.etna_donate_innocents(max_innocent_rank=4, innocent_types=[Innocent_ID.SPD],
+        self.api.etna_donate_innocents(max_innocent_rank=8, innocent_types=[Innocent_ID.SPD, Innocent_ID.HL],
                                        blacklist=inno_blacklist)
         self.api.etna_resort_donate_items(max_item_rarity=69, remove_innocents=True)
         self.api.etna_resort_get_all_daily_rewards()
