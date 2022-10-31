@@ -437,10 +437,10 @@ class API(BaseAPI):
                     continue
                 try:
                     self.doQuest(s, auto_rebirth=self.o.auto_rebirth)
-                    complete.add(s)
-                    self.raid_check_and_send()
+                    complete.add(s)                    
                     if raid_team is not None:
-                        self.do_raids(raid_team)
+                        self.raid_share_own_boss(raid_team)
+                        self.raid_farm_shared_bosses(raid_team)
                 except KeyboardInterrupt:
                     return False
                 except:
@@ -498,3 +498,8 @@ class API(BaseAPI):
         self.pd.dump_to_file(file_path, {
             "app_constants": self.client.app_constants()['result'],
         })
+
+    def complete_dark_assembly_mission(self):
+        self.client.agenda_start(28)
+        self.client.agenda_vote(28, [])
+        self.client.agenda_get_campaign()
