@@ -164,9 +164,9 @@ class Raid(Player, metaclass=ABCMeta):
                                               'm_innocent_id']), None)
                     if innocent_type is None:
                         self.log(
-                            f"\tSpecial type id = {reward_data['result']['after_t_data']['innocents'][0]['m_innocent_id']}")
+                            f"Special type id = {reward_data['result']['after_t_data']['innocents'][0]['m_innocent_id']}")
                     self.log(
-                        f"\tObtained innocent of type {innocent_type['name']} and value: {reward_data['result']['after_t_data']['innocents'][0]['effect_values'][0]}")
+                        f"Obtained innocent of type {innocent_type['name']} and value: {reward_data['result']['after_t_data']['innocents'][0]['effect_values'][0]}")
         self.log("Finished claiming raid rewards.")
 
     def raid_claim_surplus_points(self):
@@ -188,37 +188,11 @@ class Raid(Player, metaclass=ABCMeta):
         self.log(f"Exchanged {points_to_exchange} points")
 
     def raid_farm_shared_bosses(self, party_to_use:int=1):
-        boss_count = 0
         available_raid_bosses = self.raid_find_all_available_bosses()
         for raid_boss in available_raid_bosses:
             raid_stage_id = self.raid_find_stageid(raid_boss['m_raid_boss_id'], raid_boss['level'])
             if raid_stage_id != 0:
                 self.raid_battle_start(raid_stage_id, raid_boss['id'], party_to_use)
-                self.raid_battle_end_giveup(raid_stage_id, raid_boss['id'])
-                boss_count += 1
-                self.log(f"Farmed boss with level {raid_boss['level']}. Total bosses farmed: {boss_count}")
-
-    # Will check for raid bosses and will send help requests if active ones are found.
-    def raid_check_and_send(self):
-        all_bosses = self.raid_get_all_bosses()
-        if len(all_bosses) > 0:
-            self.log("Number of raid bosses found %d" % len(all_bosses))
-
-        for i in all_bosses:
-            if not i['is_discoverer']:
-                if i['current_battle_count'] < 1:
-                    self.log('There is a shared boss to fight')
-                continue
-            if not i['is_send_help']:
-                sharing_result = self.client.raid_send_help_request(i['id'])
-                self.log("Shared boss with %s users" % sharing_result['result']['send_help_count'])
-
-    def do_raids(self, team: int):
-        available_raid_bosses = self.raid_find_all_available_bosses()
-        for raid_boss in available_raid_bosses:
-            raid_stage_id = self.raid_find_stageid(raid_boss['m_raid_boss_id'], raid_boss['level'])
-            if raid_stage_id != 0:
-                self.raid_battle_start(raid_stage_id, raid_boss['id'], team)
                 self.raid_battle_end_giveup(raid_stage_id, raid_boss['id'])
                 self.raid_boss_count += 1
                 self.log(f"Farmed boss with level {raid_boss['level']}. Total bosses farmed: {self.raid_boss_count}")

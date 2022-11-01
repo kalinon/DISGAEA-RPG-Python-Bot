@@ -32,23 +32,16 @@ a.raid_claim_surplus_points()
 # Spin innocent roulette
 a.raid_spin_innocent_roulette()
 
+
 # Party that will be used to farm raids. Use the party with innocent boost characters
 raid_farming_party = 5
-boss_count = 0
+
+# Share own raid boss (will enter the fight and give up to get innocent chance bonus)
+a.raid_share_own_boss(party_to_use = raid_farming_party)
 
 # Farm raid bosses until script is stopped
 while True:
     
-    player_data = a.client.player_index()
-    
-    ### DO STUFF HERE
-    available_raid_bosses = a.raid_find_all_available_bosses()
-    for raid_boss in available_raid_bosses:        
-        raid_stage_id = a.raid_find_stageid(raid_boss['m_raid_boss_id'], raid_boss['level'])
-        if raid_stage_id != 0:
-            battle_start_data = a.raid_battle_start(raid_stage_id, raid_boss['id'], raid_farming_party)
-            battle_end_data = a.raid_battle_end_giveup(raid_stage_id, raid_boss['id'])
-            boss_count +=1
-            print(f"Farmed boss with level {raid_boss['level']}. Total bosses farmed: {boss_count}")
+    a.raid_farm_shared_bosses(party_to_use = raid_farming_party)
 
     time.sleep(10)

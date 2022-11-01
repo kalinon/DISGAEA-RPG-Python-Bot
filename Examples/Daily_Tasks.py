@@ -36,7 +36,7 @@ if a.is_free_gacha_available():
     a.get_free_gacha()
 
 # Spin bingo
-a.do_bingo()
+a.bingo_spin_roulette()
 
 # Calculate when AP is filled
 player_data = a.client.player_index()

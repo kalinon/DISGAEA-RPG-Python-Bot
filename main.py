@@ -136,6 +136,24 @@ class API(BaseAPI):
             print(f"Claimed {ap['present_num']} AP")
             self.o.current_ap += int(ap['present_num'])
 
+    def present_receive_equipment(self):        
+        claim_presents = True
+        while claim_presents:
+            present_data = self.client.present_index(conditions=[2],order=0)
+            if len(present_data['result']['_items']) == 0:
+                claim_presents = False            
+            item_ids = []
+            for item in present_data['result']['_items']:
+                item_ids.append(item['id'])
+            for batch in (item_ids[i:i + 20] for i in range(0, len(item_ids), 20)):
+                res = self.client.present_receive(receive_ids = batch, order=0, conditions=[2])
+                print(f"Claimed {len(res['result']['received_ids'])} items")
+                if len(res['result']['received_ids']) == 0 and len(batch):
+                    self.log("Cannot claim more items.")
+                    claim_presents = False
+                    break
+        self.log("Finished claiming items.")
+
     def present_receive_all_except_equip_and_AP(self):
         initial_nq = self.player_stone_sum()['result']['_items'][0]['num']
         current_nq = initial_nq
@@ -463,20 +481,6 @@ class API(BaseAPI):
         utcminus4time = datetime.datetime.utcnow() + datetime.timedelta(hours=-4)
         if utcminus4time > last_roulette_time + datetime.timedelta(hours=8):
             self.client.hospital_roulette()
-
-    def do_bingo(self):
-        self.client.bingo_index(Constants.Current_Bingo_ID)
-        if self.bingo_is_spin_available():
-            spin_result = self.client.bingo_lottery(Constants.Current_Bingo_ID, False)
-            spin_index = spin_result['result']['t_bingo_data']['last_bingo_index']
-            self.log(
-                f"Spinning Bingo: Obtained number {spin_result['result']['t_bingo_data']['display_numbers'][spin_index]}.")
-            free_reward_positions = [0, 3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33]
-            bingo_rewards = spin_result['result']['rewards']
-            free_rewards = [bingo_rewards[i] for i in free_reward_positions]
-            available_free_rewards = [x for x in free_rewards if x['status'] == 1]
-            if len(available_free_rewards) > 0:
-                print(f"There are {len(available_free_rewards)} free rewards available to claim.")
 
     def is_helper_in_friend_list(self, player_id):
         all_friends = self.client.friend_index()['result']['friends']
