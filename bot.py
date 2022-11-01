@@ -154,9 +154,9 @@ class Bot:
             auto_rebirth = self.api.o.auto_rebirth
 
         self.api.doQuest(stage_id, team_num=team_num, auto_rebirth=auto_rebirth)
-        self.api.raid_check_and_send()
         if raid_team is not None:
-            self.api.do_raids(raid_team)
+            self.api.raid_share_own_boss(party_to_use = raid_team)
+            self.api.raid_farm_shared_bosses(party_to_use = raid_team)
 
     def remake_items(self):
         items, skipped = self.api.pd.filter_items(
@@ -316,7 +316,7 @@ class Bot:
                                                                      hours=Fish_Fleet_Survey_Duration.HOURS_24)
 
             self.api.log("- checking raids")
-            self.api.do_raids(raid_team)
+            self.api.raid_farm_shared_bosses(party_to_use = raid_team)
             self.raid_claim()
 
             # self.api.log("- train innocents")
