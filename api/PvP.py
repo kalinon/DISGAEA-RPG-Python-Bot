@@ -14,7 +14,7 @@ class PvP(Base, metaclass=ABCMeta):
     def pvp_do_battle(self, pvp_team:int=1):
         pvp_data = self.client.pvp_info()
 
-        if not pvp_data['result']['t_arena']['is_previous_reward_received']:
+        if not pvp_data['result']['t_arena']['is_previous_reward_received'] or not pvp_data['result']['t_arena']['is_half_reward_received']:
             self.log("Claiming PvP season reward")
             reward = self.client.pvp_receive_rewards()
 

@@ -61,4 +61,6 @@ send_friend_request = True
 #  Battle_Finish_Mode.Single_Character the character on the leader slot will kill all enemies and get all exp
 finish_mode = Battle_Finish_Mode.Single_Character
 
+# Aply an equipment preset to a team. Index starts at 1
+a.client.apply_equipment_preset_to_team(team_number=team_to_use, equipment_preset=4)
 a.doQuest(m_stage_id=m_stage_id, team_num=team_to_use, help_t_player_id=help_t_player_id, send_friend_request=send_friend_request, finish_mode=finish_mode)
