@@ -5,7 +5,7 @@ a = API()
 
 #################################################################################################################################
 ## List of useful commands, pick whichever ones you like to build your script
-##################################################################################################################################
+#################################################################################################################################
 
 # Complete overlord Tower
 a.Complete_Overlord_Tower()
@@ -25,14 +25,21 @@ a.shop_free_inventory_space(sell_weapons=False, sell_equiment=True, items_to_sel
 # Sells all r40 items with no innocents
 a.sell_r40_commons_with_no_innocents()
 
-# Receives AP from present box
+# Redeem code
+a.client.boltrend_exchange_code('Ainuko0925')
+
+#################################################################################################################################
+## Present box methods
+#################################################################################################################################
+
+# Claims AP from present box
 a.present_receive_ap()
 
 # Claims all items from mailbox except equipments and AP
 a.present_receive_all_except_equip_and_AP()
 
-# Redeem code
-a.client.boltrend_exchange_code('Ainuko0925')
+# Claims equipments from the present box until inventory is full
+a.present_receive_equipment()
 
 ##########################################################################
 # DoQuest parameters
@@ -45,12 +52,15 @@ team_to_use = 5
 a.friend_print_full_list()
 help_t_player_id = 0
 
+# send_friend_request, set to True to automatically send a friend request after clearing the quest
+send_friend_request = True
+
 #  Choose the battle finish mode. Random is chosen by default
 #  Battle_Finish_Mode.Random_Finish randomly choose which unit kills each enemy
 #  Battle_Finish_Mode.Tower_Finish all enemies are killed using tower attack, exp is shared evenly
 #  Battle_Finish_Mode.Single_Character the character on the leader slot will kill all enemies and get all exp
 finish_mode = Battle_Finish_Mode.Single_Character
 
-# send_friend_request, set to True to automatically send a friend request after clearing the quest
-send_friend_request = True
+# Aply an equipment preset to a team. Index starts at 1
+a.client.apply_equipment_preset_to_team(team_number=team_to_use, equipment_preset=4)
 a.doQuest(m_stage_id=m_stage_id, team_num=team_to_use, help_t_player_id=help_t_player_id, send_friend_request=send_friend_request, finish_mode=finish_mode)

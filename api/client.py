@@ -1048,6 +1048,14 @@ class Client:
     def innocent_grazing(self, t_innocent_id: int, m_item_id: int):
         return self.__rpc('innocent/grazing', {"t_innocent_id": t_innocent_id, "m_item_id": m_item_id})
 
+    def apply_equipment_preset_to_team(self, team_number, equipment_preset):
+        data = self.__rpc('weapon_equipment/change_deck_equipments', {"deck_no":team_number,"equipment_deck_no":equipment_preset})
+        return data    
+
+    ##########################
+    # Hospital endpoints
+    #########################
+
     def hospital_index(self):
         return self.__rpc('hospital/index', {})
 
@@ -1152,3 +1160,4 @@ class Client:
                 self.c.key = bytes(res['fuji_key'])
             self.session_id = res['session_id']
             print('found fuji_key:%s' % (self.c.key))  
+   
