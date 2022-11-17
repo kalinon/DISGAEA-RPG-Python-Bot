@@ -2,6 +2,7 @@
 
 requirements:
 
+- Python v3.10+
 - `pip install requests`
 - `pip install python-dateutil`
 - `pip install jwt`
@@ -35,33 +36,34 @@ features:
 3. login via webpage
 4. inspect the first requests payload, it should look something like:
 
-    ```json
-    {
-      "appId": "287",
-      "account": "<string>",
-      "password": "<string>",
-      "channel": 3,
-      "captchaId": "",
-      "validate": "",
-      "sourceId": "",
-      "sign": "<string>"
-    }
-    ```
+   ```json
+   {
+     "appId": "287",
+     "account": "<string>",
+     "password": "<string>",
+     "channel": 3,
+     "captchaId": "",
+     "validate": "",
+     "sourceId": "",
+     "sign": "<string>"
+   }
+   ```
+
 5. Using the variables above set the following environmental variables:
-    ```shell
-    export STEAM_LOGIN='true'
-    export DRPG_EMAIL="<account value>"
-    export DRPG_PASS="<password value>"
-    export DRPG_SIGN="<sign value>"
-    ```
+   ```shell
+   export STEAM_LOGIN='true'
+   export DRPG_EMAIL="<account value>"
+   export DRPG_PASS="<password value>"
+   export DRPG_SIGN="<sign value>"
+   ```
 6. be sure to set your device to 3
-    ```python
-    a = API()
-    a.o.wait = 0
-    a.o.set_region(2)
-    a.o.set_device(3)
-    a.quick_login()
-    ```
+   ```python
+   a = API()
+   a.o.wait = 0
+   a.o.set_region(2)
+   a.o.set_device(3)
+   a.quick_login()
+   ```
 
 ### Set envs using python
 
