@@ -504,6 +504,6 @@ class API(BaseAPI):
         })
 
     def complete_dark_assembly_mission(self):
-        self.client.agenda_start(28)
-        self.client.agenda_vote(28, [])
+        self.client.agenda_start(136)
+        self.client.agenda_vote(136, [])
         self.client.agenda_get_campaign()

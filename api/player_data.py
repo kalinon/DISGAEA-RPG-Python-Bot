@@ -349,6 +349,8 @@ class PlayerData:
             if 'consume_t_innocent_ids' in resp['result']:
                 for i in resp['result']['consume_t_innocent_ids']:
                     self.innocents.remove(self.get_innocent_by_id(i))
+            if 't_innocent' in resp['result']:
+                self.innocents.append(resp['result']['t_innocent'])
 
     # Fetch effects on weapon based on id
     def get_weapon_effects(self, wid: int):
