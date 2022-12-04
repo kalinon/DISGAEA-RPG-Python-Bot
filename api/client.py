@@ -716,6 +716,16 @@ class Client:
             'change_innocent_list': innocents
         })
 
+    # {"deck_data":
+    # {"selectDeckNo":4,
+    # "charaIdList":["","","","","","","","",""], # example of each array "184027719,181611027,0,0,0"
+    # "names":["","","","","","","","",""], # "Party 1","Party 2",.....
+    # "t_memory_ids_list":["","","","","","","","",""] # 0,0,0,0,0
+    # }}
+    def player_update_deck(self, deck_data):
+        data = self.__rpc('player/update_deck', {"deck_data": deck_data})
+        return data
+
     #################
     # Kingdom Endpoints
     #################
@@ -810,6 +820,10 @@ class Client:
 
     def friend_send_request(self, target_t_player_id):
         return self.__rpc('friend/send_request', {"target_t_player_id":target_t_player_id})
+
+    # Use only one of the search params
+    def friend_search(self, public_id:str='', name:str='', rank:int=0):
+        return self.__rpc('friend/search', {"public_id":public_id,"name":name,"rank":rank})
 
     #################
     # Bingo Endpoints
@@ -1051,7 +1065,7 @@ class Client:
     def apply_equipment_preset_to_team(self, team_number, equipment_preset):
         data = self.__rpc('weapon_equipment/change_deck_equipments', {"deck_no":team_number,"equipment_deck_no":equipment_preset})
         return data    
-
+        
     ##########################
     # Hospital endpoints
     #########################
@@ -1109,7 +1123,7 @@ class Client:
     def pvp_info(self):
         return self.__rpc('arena/current', {})
 
-    def pvp_history(self, battle_at:int=14400):
+    def pvp_history(self, battle_at:int=0):
         return self.__rpc('arena/history', {"battle_at":battle_at})
 
     def pvp_start_battle(self, t_deck_no, enemy_t_player_id):
@@ -1160,4 +1174,3 @@ class Client:
                 self.c.key = bytes(res['fuji_key'])
             self.session_id = res['session_id']
             print('found fuji_key:%s' % (self.c.key))  
-   

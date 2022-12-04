@@ -18,6 +18,9 @@ a.client.item_use_gate_key(m_area_id = m_area_id, m_stage_id = m_stage_id)
 # Prints data for a specific team
 a.print_team_info(team_num=4)
 
+# Aply an equipment preset to a team. Index starts at 1
+a.client.apply_equipment_preset_to_team(team_number=4, equipment_preset=4)
+
 # Sells common items with no rare or above innocents. You can choose to sell either weapons or equipments and the number of items to sell
 a.shop_free_inventory_space(sell_weapons=True, sell_equiment=False, items_to_sell=30)
 a.shop_free_inventory_space(sell_weapons=False, sell_equiment=True, items_to_sell=30)
@@ -27,6 +30,9 @@ a.sell_r40_commons_with_no_innocents()
 
 # Redeem code
 a.client.boltrend_exchange_code('Ainuko0925')
+
+# Send friend request using public ID. Make sure it's betweeen quotation marks
+a.add_friend_by_public_id("82330659928")
 
 #################################################################################################################################
 ## Present box methods
@@ -61,6 +67,4 @@ send_friend_request = True
 #  Battle_Finish_Mode.Single_Character the character on the leader slot will kill all enemies and get all exp
 finish_mode = Battle_Finish_Mode.Single_Character
 
-# Aply an equipment preset to a team. Index starts at 1
-a.client.apply_equipment_preset_to_team(team_number=team_to_use, equipment_preset=4)
 a.doQuest(m_stage_id=m_stage_id, team_num=team_to_use, help_t_player_id=help_t_player_id, send_friend_request=send_friend_request, finish_mode=finish_mode)

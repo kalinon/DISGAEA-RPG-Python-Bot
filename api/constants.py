@@ -2,18 +2,19 @@ from enum import IntEnum
 
 
 class Constants:
-    Current_Raid_ID = 8156
-    Current_Raid_Event_Point_Gacha = 81561
-    Current_Raid_Innocent_Regular_Roulette = 81562
-    Current_Raid_Innocent_Special_Roulette = 81563
-    Current_Raid_Normal_Boss_ID = 81561
-    Current_Raid_Badass_Boss_ID = 81562
+    Current_Raid_ID = 195
+    Current_Raid_Event_Point_Gacha = 67
+    Current_Raid_Innocent_Regular_Roulette = 68
+    Current_Raid_Innocent_Special_Roulette = 69
+    Current_Raid_Normal_Boss_ID = 1951
+    Current_Raid_Badass_Boss_ID = 1952
     Current_Story_Event_ID = 184
     Current_Bingo_ID = 2
     Current_Sugoroku_Event_ID = 0
     Item_Survey_Deposit_Size = 10
     Weapon_Full_Error = 'Weapon Slot is full\nPlease expand slot or sell weapons'
     Armor_Full_Error = 'Armor Slot is full\nPlease expand slot or sell armor'
+    Innocent_Full_Error = 'Max possession number of Innocents reached.'
     Shop_Max_Free_Refresh = 5
     Highest_Tower_Level = 50
     Alchemy_Alchemize_Cost = 6000
@@ -218,3 +219,7 @@ class Battle_Finish_Mode(IntEnum):
     Random_Finish = 1 # killing blows will be randomly split
     Tower_Finish = 2 # Use tower finishes to share exp
     Single_Character = 3 # Character on leader slot will kill all enemies to get all bonus exp
+
+class PVP_Battle_Result(IntEnum):
+    Defeat = 0
+    Victory = 1 

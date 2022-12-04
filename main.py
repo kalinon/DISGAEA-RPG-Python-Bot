@@ -487,7 +487,6 @@ class API(BaseAPI):
         friend = next((x for x in all_friends if x['id'] == player_id), None)
         return friend is not None
 
-
     def dump_player_data(self, file_path: str):
         self.player_stone_sum()
         self.player_decks(True)
@@ -507,3 +506,63 @@ class API(BaseAPI):
         self.client.agenda_start(136)
         self.client.agenda_vote(136, [])
         self.client.agenda_get_campaign()
+
+    def player_get_deck_data(self):
+        deck_data = self.client.player_decks()
+        charaIdList = []
+        names = []
+        t_memory_ids_list = []
+
+        for team in deck_data['result']['_items']:
+            team_characters = team['t_character_ids']
+            character_ids = ""
+            sorted_keys = sorted(team_characters)
+            for key in sorted_keys:
+                unit_id = team_characters[key]
+                if(character_ids == ""):
+                    character_ids = unit_id
+                else:
+                    character_ids = "{character_ids},{unit_id}".format(character_ids=character_ids, unit_id=unit_id)
+
+            if len(team_characters) < 5:
+                zeroes_to_add = 5 - len(team_characters)
+                i = 0
+                while i < zeroes_to_add:
+                    character_ids = "{character_ids},0".format(character_ids=character_ids)
+                    i += 1 
+
+            charaIdList.append(character_ids)
+            names.append(team['name'])
+            
+            memories = ""
+            for memory in team['t_memory_ids']:
+                if(memories == ""):
+                    memories = memory
+                else:
+                    memories = "{memories},{memory}".format(memories=memories, memory=memory)
+            t_memory_ids_list.append(memories)
+
+        deck_data = {"selectDeckNo":1,"charaIdList": charaIdList,"names": names,"t_memory_ids_list":t_memory_ids_list}
+        return deck_data
+
+    # team_no index starts at 0 Deduct 1 to offset. Character ids: '149980157,115286421,86661270,181611027,0'
+    def update_team(self, team_no, character_ids):
+        x = character_ids.split(",")
+        if len(x) != 5:
+            print(f"You need to specify 5 character ids")
+            return
+        if x[0] == '0' and next((r for r in x if r != '0'),None) is not None:
+            print(f"Leader slot cannot be empty")
+            return
+        deck_data = self.player_get_deck_data()
+        deck_data['charaIdList'][team_no-1] = character_ids
+        self.client.player_update_deck(deck_data)  
+
+    # Search friend by public ID and send request
+    def add_friend_by_public_id(self, public_id:str):
+        friend_data = self.client.friend_search(public_id=public_id)  
+        if len(friend_data['result']['friends']) == 0:
+            self.log(f"No user found with public id {public_id}")
+            return
+        self.log(f"Sending request to user {friend_data['result']['friends'][0]['name']} - Rank {friend_data['result']['friends'][0]['rank']}")
+        self.client.friend_send_request(friend_data['result']['friends'][0]['id'])
