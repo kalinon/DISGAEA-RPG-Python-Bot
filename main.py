@@ -559,7 +559,9 @@ class API(BaseAPI):
         self.client.player_update_deck(deck_data)  
 
     # Search friend by public ID and send request
-    def add_friend_by_public_id(self, public_id:str):
+    def add_friend_by_public_id(self, public_id):
+        if isinstance(public_id, int):
+            public_id = str(public_id)
         friend_data = self.client.friend_search(public_id=public_id)  
         if len(friend_data['result']['friends']) == 0:
             self.log(f"No user found with public id {public_id}")

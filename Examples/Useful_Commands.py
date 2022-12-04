@@ -31,8 +31,8 @@ a.sell_r40_commons_with_no_innocents()
 # Redeem code
 a.client.boltrend_exchange_code('Ainuko0925')
 
-# Send friend request using public ID. Make sure it's betweeen quotation marks
-a.add_friend_by_public_id("82330659928")
+# Send friend request using public ID.
+a.add_friend_by_public_id(82330659928)
 
 #################################################################################################################################
 ## Present box methods
