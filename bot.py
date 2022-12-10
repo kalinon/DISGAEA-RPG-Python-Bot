@@ -155,8 +155,8 @@ class Bot:
 
         self.api.doQuest(stage_id, team_num=team_num, auto_rebirth=auto_rebirth)
         if raid_team is not None:
-            self.api.raid_share_own_boss(party_to_use = raid_team)
-            self.api.raid_farm_shared_bosses(party_to_use = raid_team)
+            self.api.raid_share_own_boss(party_to_use=raid_team)
+            self.api.raid_farm_shared_bosses(party_to_use=raid_team)
 
     def remake_items(self):
         items, skipped = self.api.pd.filter_items(
@@ -280,7 +280,7 @@ class Bot:
     def loop(self, team=9, rebirth: bool = False, farm_stage_id=None,
              iw_team: int = None, raid_team: int = None, event_team: int = None,
              gem_team: int = None, hl_team: int = None, exp_team: int = None,
-             ap_limit: int = 6000,
+             pvp_team: int = None, ap_limit: int = 6000,
              ):
         # Set defaults
         self.api.o.auto_rebirth = rebirth
@@ -304,6 +304,9 @@ class Bot:
             self.use_ap(stage_id=farm_stage_id, raid_team=raid_team)
 
         while True:
+            if pvp_team is not None:
+                self.api.pvp_do_battle(pvp_team)
+
             self.api.log("- claiming rewards and hospital")
             self.api.get_mail_and_rewards()
             self.api.spin_hospital()
@@ -316,7 +319,7 @@ class Bot:
                                                                      hours=Fish_Fleet_Survey_Duration.HOURS_24)
 
             self.api.log("- checking raids")
-            self.api.raid_farm_shared_bosses(party_to_use = raid_team)
+            self.api.raid_farm_shared_bosses(party_to_use=raid_team)
             self.raid_claim()
 
             # self.api.log("- train innocents")
