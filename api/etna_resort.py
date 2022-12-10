@@ -399,6 +399,7 @@ class EtnaResort(Items, metaclass=ABCMeta):
                     innocents.append(i)
         return innocents
 
+    # find innocents that match a specific recipe material. May or may not check the innocent rank
     def find_recipe_material_innocents(self, material, override_min_rank=False, skip_equipped=False):
         innocents = []
         m_character_id = material['m_character_id']

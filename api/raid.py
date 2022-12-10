@@ -124,9 +124,7 @@ class Raid(Player, metaclass=ABCMeta):
             self.log(f"All spins used.")
             return
 
-        ""
         while spins_left > 0 or is_big_chance is True:
-            ''
             if is_big_chance:
                 data = self.client.raid_gacha(Constants.Current_Raid_Innocent_Special_Roulette, 1)
                 special_spin = "Special Spin - "
@@ -134,8 +132,7 @@ class Raid(Player, metaclass=ABCMeta):
                 data = self.client.raid_gacha(Constants.Current_Raid_Innocent_Regular_Roulette, 1)
                 special_spin = ""
 
-            if 'error' in data and "Invalid Parameter" in data['error']:
-                self.log_err(f"Error spinning - Innocent slots are probably filled")
+            if('error' in data and "Max possession number of Innocents reached." in data['error']):
                 return
 
             spins_left = data['result']['after_t_data']['t_events'][0]['gacha_data']['chance_stock_num']
