@@ -1,7 +1,7 @@
 import random
 from abc import ABCMeta
 
-from api.constants import Constants
+from api.constants import Constants, Mission_Status
 from api.player import Player
 from data import data as gamedata
 
@@ -183,6 +183,22 @@ class Raid(Player, metaclass=ABCMeta):
         points_to_exchange = min(1000000 - exchanged_points, current_points)
         self.client.raid_exchange_surplus_points(points_to_exchange)
         self.log(f"Exchanged {points_to_exchange} points")
+
+    def raid_claim_missions(self):
+        r = self.client.raid_event_missions()
+        mission_ids = []
+        incomplete_mission_ids = []
+        
+        for mission in r['result']['missions']:
+            if mission['status'] == Mission_Status.Cleared and mission['id']:
+                mission_ids.append(mission['id'])
+            if mission['status'] == Mission_Status.Not_Completed and mission['id']:
+                incomplete_mission_ids.append(mission['id'])
+        if len(mission_ids) > 0:
+            self.client.story_event_claim_missions(mission_ids)
+            self.log(f"Claimed {len(mission_ids)} story missions")
+        if len(incomplete_mission_ids) > 0:
+            self.log(f"Story missions to be completed: {len(incomplete_mission_ids)}")
 
     def raid_farm_shared_bosses(self, party_to_use:int=1):
         available_raid_bosses = self.raid_find_all_available_bosses()

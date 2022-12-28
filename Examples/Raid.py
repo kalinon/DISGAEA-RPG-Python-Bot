@@ -32,6 +32,8 @@ a.raid_claim_surplus_points()
 # Spin innocent roulette
 a.raid_spin_innocent_roulette()
 
+# Claim raid missions
+a.raid_claim_missions()
 
 # Party that will be used to farm raids. Use the party with innocent boost characters
 raid_farming_party = 5

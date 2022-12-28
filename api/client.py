@@ -598,6 +598,9 @@ class Client:
                           {"m_event_id": Constants.Current_Raid_ID, "exchange_count": points_to_exchange})
         return data
 
+    def raid_event_missions(self):
+        return self.__rpc('event/missions', {"m_event_id":Constants.Current_Raid_ID})
+
     #################
     # Gacha Endpoints
     #################
