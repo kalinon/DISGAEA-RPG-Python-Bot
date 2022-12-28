@@ -8,7 +8,8 @@ class Constants:
     Current_Raid_Innocent_Special_Roulette = 69
     Current_Raid_Normal_Boss_ID = 1951
     Current_Raid_Badass_Boss_ID = 1952
-    Current_Story_Event_ID = 184
+    Current_Story_Event_ID = 189
+    Current_Story_Event_Area_IDs =  [1189101, 1189102, 1189103, 1189104, 1189105]
     Current_Bingo_ID = 2
     Current_Sugoroku_Event_ID = 0
     Item_Survey_Deposit_Size = 10
@@ -150,6 +151,7 @@ class Items(IntEnum):
     Prinny_Steel = 3201
     PriPrism = 4101
     Prilixir = 4201
+    Nether_Essence = 4801
 
 
 class Item_World_Mode(IntEnum):

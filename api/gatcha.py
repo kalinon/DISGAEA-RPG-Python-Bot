@@ -11,7 +11,7 @@ class Gatcha(Player):
 
     def get_free_gacha(self):
         if self.is_free_gacha_available():
-            res = self.client.gacha_do(is_gacha_free=True, price=0, item_type=2, num=1, m_gacha_id=100001, item_id=0, total_draw_count=self.get_free_gacha_pull_count())
+            res = self.client.gacha_do(is_gacha_free=True, price=0, item_type=2, num=1, m_gacha_id=100001, item_id=0, total_draw_count=self.get_gacha_pull_count())
             unit_obtained = self.gd.get_character(res['result']['gacha_result'][0]['item_id'])
             print(f"Obtained {res['result']['gacha_result'][0]['rarity']}★ character {unit_obtained['name']}")
 
@@ -22,9 +22,24 @@ class Gatcha(Player):
         serverTime = datetime.datetime.utcnow() + datetime.timedelta(hours=-4)
         return serverTime.date() > last_free_gacha_at_string_date.date()
 
-    def get_free_gacha_pull_count(self):
+    def get_gacha_pull_count(self, m_gacha_id = 100001):
         gacha_data = self.client.gacha_sums()
-        premium_banner = next((x for x in gacha_data['result']['_items'] if x['m_gacha_id'] == 100001),None)
+        premium_banner = next((x for x in gacha_data['result']['_items'] if x['m_gacha_id'] == m_gacha_id),None)
         if premium_banner is not None:
             return premium_banner['total_draw_count']
         return 0
+
+    def is_free_10pull_available(self, m_gacha_id, max_draws):
+        banner_data = self.client.gacha_sums()
+        banner = next((x for x in banner_data['result']['_items'] if x['m_gacha_id'] == m_gacha_id),None)
+        last_pull_at_string = banner['last_draw_at']
+        last_pull_at_date = parser.parse(last_pull_at_string)
+        serverTime = datetime.datetime.utcnow() + datetime.timedelta(hours=-4)
+        return serverTime.date() > last_pull_at_date.date() and banner['total_draw_count'] < max_draws
+
+    def get_free_10pull(self, m_gacha_id, max_draws):
+        if self.is_free_10pull_available(m_gacha_id, max_draws):
+            res = self.client.gacha_do(is_gacha_free=False, price=0, item_type=2, num=10, m_gacha_id=m_gacha_id, item_id=0, total_draw_count=self.get_gacha_pull_count(m_gacha_id))
+            for unit in res['result']['gacha_result']:
+                unit_obtained = self.gd.get_character(unit['item_id'])
+                print(f"Obtained {res['result']['gacha_result'][0]['rarity']}★ character {unit_obtained['name']}")

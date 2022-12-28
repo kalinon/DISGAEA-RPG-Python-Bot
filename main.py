@@ -6,6 +6,7 @@ from dateutil import parser
 
 from api import BaseAPI
 from api.constants import Constants, Battle_Finish_Mode
+from api.constants import Items as ItemsC
 
 
 class API(BaseAPI):
@@ -178,6 +179,9 @@ class API(BaseAPI):
             auto_rebirth = self.o.auto_rebirth
 
         stage = self.gd.get_stage(m_stage_id)
+        if stage is None: 
+            self.log(f"No stage with id {m_stage_id} found")
+            return
         self.log('doing quest:%s [%s]' % (stage['name'], m_stage_id))
         if stage['exp'] == 0:
             return self.client.battle_story(m_stage_id)
@@ -503,8 +507,8 @@ class API(BaseAPI):
         })
 
     def complete_dark_assembly_mission(self):
-        self.client.agenda_start(136)
-        self.client.agenda_vote(136, [])
+        self.client.agenda_start(138)
+        self.client.agenda_vote(138, [])
         self.client.agenda_get_campaign()
 
     def player_get_deck_data(self):
@@ -568,3 +572,31 @@ class API(BaseAPI):
             return
         self.log(f"Sending request to user {friend_data['result']['friends'][0]['name']} - Rank {friend_data['result']['friends'][0]['rank']}")
         self.client.friend_send_request(friend_data['result']['friends'][0]['id'])
+
+    def add_friend_by_name(self, user_name):
+        friend_data = self.client.friend_search(name=user_name)  
+        if len(friend_data['result']['friends']) == 0:
+            self.log(f"No user found with public name {user_name}")
+            return
+        self.log(f"Sending request to user {friend_data['result']['friends'][0]['name']} - Rank {friend_data['result']['friends'][0]['rank']}")
+        self.client.friend_send_request(friend_data['result']['friends'][0]['id'])
+
+    def super_reincarnate(self, character_id):
+        unit = self.pd.get_character_by_id(character_id)
+        if unit is None: 
+            self.log(f"No character with id {character_id} found")
+            return
+        if unit['lv'] < 9999:
+            self.log(f"Unit needs to be level 9999 to be able to Super Reincarnate")
+            return
+        sr_count = unit['super_rebirth_num']
+        from data import data as gamedata
+        sr_data = gamedata['super_rebirth_data']
+        next_sr = next((x for x in sr_data if x['super_rebirth_num'] == sr_count + 1),None)
+        ne_count = self.pd.get_item_by_m_item_id(ItemsC.Nether_Essence)['num']
+        if next_sr['magic_element'] > ne_count:
+            self.log(f"SR costs {next_sr['magic_element']}, you only have {ne_count} Nether Essence")
+            return
+        res = self.client.super_reincarnate(t_character_id=character_id, magic_element_num=next_sr['magic_element'])
+        char = self.gd.get_character(unit['m_character_id'])
+        self.log(f"Super Reincarnated {char['name']}. SR Count: {next_sr['super_rebirth_num']} - Karma Gained: {next_sr['karma']}")

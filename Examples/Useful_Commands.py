@@ -28,11 +28,18 @@ a.shop_free_inventory_space(sell_weapons=False, sell_equiment=True, items_to_sel
 # Sells all r40 items with no innocents
 a.sell_r40_commons_with_no_innocents()
 
+# Use shop lottery tickets
+a.shop_use_lottery_tickets(ticket_to_use=50)
+
 # Redeem code
 a.client.boltrend_exchange_code('Ainuko0925')
 
-# Send friend request using public ID.
+# Send friend request using public ID or username
 a.add_friend_by_public_id(82330659928)
+a.add_friend_by_name('usename')
+
+# Super reincarnate unit by character id (use print_team_info to get the id)
+a.super_reincarnate(character_id=207410913)
 
 #################################################################################################################################
 ## Present box methods
@@ -65,6 +72,6 @@ send_friend_request = True
 #  Battle_Finish_Mode.Random_Finish randomly choose which unit kills each enemy
 #  Battle_Finish_Mode.Tower_Finish all enemies are killed using tower attack, exp is shared evenly
 #  Battle_Finish_Mode.Single_Character the character on the leader slot will kill all enemies and get all exp
-finish_mode = Battle_Finish_Mode.Single_Character
+finish_mode = finish_mode = Battle_Finish_Mode.Tower_Finish
 
 a.doQuest(m_stage_id=m_stage_id, team_num=team_to_use, help_t_player_id=help_t_player_id, send_friend_request=send_friend_request, finish_mode=finish_mode)
