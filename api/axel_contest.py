@@ -116,7 +116,8 @@ class AxelContest(Player, metaclass=ABCMeta):
                 m_character_id=collection['m_character_id'],
                 t_character_ids=[character['id']]
             )
-            self.check_resp(start)
+            if 'api_error' in start:
+                break
 
             end = self.client.axel_context_battle_end(
                 collection['m_character_id'],

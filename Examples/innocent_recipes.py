@@ -18,7 +18,9 @@ else:
 
 r_ids = [
     # Base stats
-    1, 4, 7, 10, 13,
+    # 1, 4, 7, 10, 13,
+    # 2, 5, 8, 11, 14,
+    # 3, 6, 9, 12, 15,
     # WM Enhancer
     16,
     # Super SKill
