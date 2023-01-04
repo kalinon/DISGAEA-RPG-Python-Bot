@@ -2,14 +2,14 @@ from enum import IntEnum
 
 
 class Constants:
-    Current_Raid_ID = 195
-    Current_Raid_Event_Point_Gacha = 67
-    Current_Raid_Innocent_Regular_Roulette = 68
-    Current_Raid_Innocent_Special_Roulette = 69
+    Current_Raid_ID = 209
+    Current_Raid_Event_Point_Gacha = 70
+    Current_Raid_Innocent_Regular_Roulette = 71
+    Current_Raid_Innocent_Special_Roulette = 72
     Current_Raid_Normal_Boss_ID = 1951
     Current_Raid_Badass_Boss_ID = 1952
-    Current_Story_Event_ID = 189
-    Current_Story_Event_Area_IDs =  [1189101, 1189102, 1189103, 1189104, 1189105]
+    Current_Story_Event_ID = 201
+    Current_Story_Event_Area_IDs =  [1201101, 1201102, 1201103, 1201104, 1201105]
     Current_Bingo_ID = 2
     Current_Sugoroku_Event_ID = 0
     Item_Survey_Deposit_Size = 10
@@ -31,7 +31,6 @@ class Constants:
     session_id = ''  # FILL SESSION_ID HERE
     user_id = ''  # FILL USER_ID HERE
     ticket = ''  # FILL TICKET FOR STEAM LOGIN
-
 
 class Raid_Gacha_ID(IntEnum):
     SUMMER_PRINNY_EVENT_POINT = 49
@@ -131,6 +130,8 @@ class Innocent_ID(IntEnum):
     SPD = 6
     EXP = 7
     HL = 8
+    WM = 9
+    SkillMastery = 10
 
 
 class EquipmentType(IntEnum):

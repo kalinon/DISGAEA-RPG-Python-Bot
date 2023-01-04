@@ -711,5 +711,5 @@ class EtnaResort(Items, metaclass=ABCMeta):
         item_innocents = self.pd.get_item_innocents(item_id)
         for innocent in item_innocents:
             # If the innocent is not of the same type, graze
-            if innocent['m_character_id'] != boost_innocent_type and innocent['m_character_id'] != 0:
+            if innocent['m_character_id'] not in innocent_boost_effect['m_character_ids'] and innocent['m_character_id'] != 0:
                 self.etna_resort_graze(innocent=innocent['id'], target_character_id=boost_innocent_type)

@@ -164,10 +164,11 @@ class API(BaseAPI):
             for item in present_data['result']['_items']:
                 item_ids.append(item['id'])
             if len(item_ids) > 0:
-                data =self.client.present_receive(receive_ids = item_ids, order=0, conditions=[0,1,3,99])
-                print(f"Claimed {len(item_ids)} presents")
-                if len(data['result']['stones']) > 0:
-                    current_nq = data['result']['stones'][0]['num']
+                for batch in (item_ids[i:i + 20] for i in range(0, len(item_ids), 20)):
+                    data =self.client.present_receive(receive_ids = batch, order=0, conditions=[0,1,3,99])
+                    print(f"Claimed {len(batch)} presents")
+                    if 'stones' in data['result']:
+                        current_nq = data['result']['stones'][0]['num']
             present_data = self.client.present_index(conditions=[0,1,3,99],order=0)
         if current_nq > initial_nq:
             self.log(f"Total Nether Quartz gained: {current_nq - initial_nq}")
@@ -506,9 +507,9 @@ class API(BaseAPI):
             "app_constants": self.client.app_constants()['result'],
         })
 
-    def complete_dark_assembly_mission(self):
-        self.client.agenda_start(138)
-        self.client.agenda_vote(138, [])
+    def complete_dark_assembly_mission(self, agenda_id = 138):
+        self.client.agenda_start(agenda_id)
+        self.client.agenda_vote(agenda_id, [])
         self.client.agenda_get_campaign()
 
     def player_get_deck_data(self):

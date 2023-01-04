@@ -55,3 +55,7 @@ effect_target=1
 
 # Reroll a slot until a specific effect is obtained with max value/specified value
 a.etna_resort_reroll_effect(item_id=item_id, alchemy_effect_id=alchemy_effect_id, place_no=place_no, effect_target=0)
+
+# Will graze all innocents in an item so that they get the alchemy innocent boost
+# Item needs to have been alchemized
+a.etna_resort_graze_item_innocents_for_innocent_boost(item_id=item_id)

@@ -42,4 +42,4 @@ class Gatcha(Player):
             res = self.client.gacha_do(is_gacha_free=False, price=0, item_type=2, num=10, m_gacha_id=m_gacha_id, item_id=0, total_draw_count=self.get_gacha_pull_count(m_gacha_id))
             for unit in res['result']['gacha_result']:
                 unit_obtained = self.gd.get_character(unit['item_id'])
-                print(f"Obtained {res['result']['gacha_result'][0]['rarity']}★ character {unit_obtained['name']}")
+                print(f"Obtained {unit_obtained['base_rare']}★ character {unit_obtained['name']}")
