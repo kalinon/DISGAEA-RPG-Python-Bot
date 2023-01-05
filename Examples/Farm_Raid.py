@@ -17,13 +17,13 @@ a.config(
 a.dologin()
 
 # Farm Raid endlessly
-# use hospital roulete when available
+# use hospital roulette when available
 # When AP is filled, runs Axel contest until stage 50 for one character
 
 party_to_use = 9
 boss_count = 0
 
-# last roulete time seems to be in utc -4. Spins available every 8 hours
+# last roulette time seems to be in utc -4. Spins available every 8 hours
 lastRouleteTimeString = a.client.hospital_index()['result']['last_hospital_at']
 lastRouletteTime = parser.parse(lastRouleteTimeString)
 
@@ -32,7 +32,7 @@ current_ap = player_data['result']['status']['act']
 max_ap = player_data['result']['status']['act_max']
 ap_filled_date = datetime.datetime.utcnow() + datetime.timedelta(minutes=(max_ap - current_ap) * 2)
 
-# when ap is full run axel contest for one character to burn AP. Specify highest floot to run here
+# when ap is full run axel contest for one character to burn AP. Specify the highest floor to run here
 highest_axel_contest_level_to_clear = 100
 
 while True:

@@ -1,3 +1,4 @@
+from api.constants import Innocent_ID
 from bot import Bot, get_event_areas
 from main import API
 
@@ -22,22 +23,23 @@ bot.use_codes(codes)
 # bot.complete_story(team_num=9, raid_team=23)
 
 # # Uncomment to clear a new event area. Provide the first 4 digits of the m_area_id.
-bot.clear_event(get_event_areas(1189), team_num=26, raid_team=23)
+# bot.clear_event(get_event_areas(1201), team_num=26, raid_team=23)
 
-# 1189105311 - Extra+ (HL)
-# 1189105312 - Extra+ (EXP)
-# 1189105313 - Extra+ (1★)
-# 1189201103 - Hidden Stage -HARD-
-# bot.do_quest(1189201103, team_num=9, auto_rebirth=True)
+# 1201105311 - Extra+ (HL)
+# 1201105312 - Extra+ (EXP)
+# 1201105313 - Extra+ (1★)
+# 1201201103 - Hidden Stage -HARD-
+
+# bot.do_quest(1201201103, team_num=2, auto_rebirth=True)
 # bot.clear_inbox()
-
+# exit(0)
 # Daily tasks
 bot.daily(gem_team=22, hl_team=21, exp_team=24)
 
 # Full loop
 bot.loop(
-    team=26, rebirth=True, farm_stage_id=1189105312,
+    team=26, rebirth=True, farm_stage_id=1201105312,
     hl_team=21, gem_team=22, raid_team=23,
-    exp_team=24, iw_team=25, event_team=25,
-    ap_limit=600, pvp_team=None,
+    exp_team=24, iw_team=25, event_team=26,
+    ap_limit=200, pvp_team=None,
 )
