@@ -161,9 +161,13 @@ class Shop(Player, metaclass=ABCMeta):
             self.log(f"Selling {len(selling)} items...")
             self.client.shop_sell_equipment(selling)
 
-    def shop_use_all_tickets(self):
+    def shop_use_lottery_tickets(self, ticket_to_use:int = 0):
         tickets_left = True
-        while tickets_left:
+        # if 0 use all tickets
+        if ticket_to_use == 0:
+            ticket_to_use = 10000
+        while tickets_left and ticket_to_use > 0:
+            ticket_to_use -=1
             data = self.client.shop_gacha()
             item = None
             if data['result']['item_type'] == 4:

@@ -694,3 +694,22 @@ class EtnaResort(Items, metaclass=ABCMeta):
             if i['name'] == ticket_name:
                 return self.pd.get_item_by_m_item_id(i['id'])
         return None
+
+    # Will graze all innocents in an item so that they get the alchemy innocent boost
+    # Item needs to have been alchemized
+    def etna_resort_graze_item_innocents_for_innocent_boost(self, item_id):
+        effects = self.pd.get_item_alchemy_effects(item_id)
+        if len(effects) == 0:
+            self.log(f"Please make sure alchemy is rolled on the item")
+            return
+        innocent_boost_effect = next((x for x in effects if x['m_equipment_effect_type_id'] ==  Alchemy_Effect_Type.Innocent_Effect), None)
+        if len(innocent_boost_effect['m_character_ids']) == 1 and innocent_boost_effect['m_character_ids'][0]:
+            self.log(f"This item only has a unique innocent boost - Grazing is not possible")
+            return
+        # Get the type of the innocent that is boosted (skip unique)
+        boost_innocent_type = innocent_boost_effect['m_character_ids'][0] if innocent_boost_effect['m_character_ids'][0] != 0 else innocent_boost_effect['m_character_ids'][1]
+        item_innocents = self.pd.get_item_innocents(item_id)
+        for innocent in item_innocents:
+            # If the innocent is not of the same type, graze
+            if innocent['m_character_id'] != boost_innocent_type and innocent['m_character_id'] != 0:
+                self.etna_resort_graze(innocent=innocent['id'], target_character_id=boost_innocent_type)
