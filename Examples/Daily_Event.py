@@ -20,17 +20,18 @@ a.quick_login()
 event_team = 5
 raid_team = 6
 
-## Specify stages with daily 500% bonus
+## Run stages with daily 500% bonus
 from data import data as gamedata
 dic = gamedata['stages']
-daily_bonus_stage_IDS = [1178101209, 1178102209, 1178103209, 1178104210, 1178105209, 1178101309, 1178102309, 1178103309, 1178104310, 1178105309]
-
-for stageID in daily_bonus_stage_IDS:
-    a.doQuest(m_stage_id=stageID, team_num=event_team)
-    a.raid_share_own_boss(party_to_use=raid_team)
+rank = [1,2,3]
+for k in rank:
+    for area_id in Constants.Current_Story_Event_Area_IDs:
+        bonus_stage = [x for x in dic if x["m_area_id"]==area_id and x["rank"]==k and x["no"] == 5]
+        a.doQuest(m_stage_id=bonus_stage[0]['id'], team_num=event_team)
+        a.raid_share_own_boss(party_to_use=raid_team)
 
 # Buy 5 AP pots daily
-a.event_buy_daily_AP()
+a.event_buy_daily_AP(289001)
 
 # Claim daily missions
 a.event_claim_daily_missions()

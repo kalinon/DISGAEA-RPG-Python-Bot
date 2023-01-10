@@ -6,8 +6,8 @@ class Constants:
     Current_Raid_Event_Point_Gacha = 70
     Current_Raid_Innocent_Regular_Roulette = 71
     Current_Raid_Innocent_Special_Roulette = 72
-    Current_Raid_Normal_Boss_ID = 1951
-    Current_Raid_Badass_Boss_ID = 1952
+    Current_Raid_Normal_Boss_ID = 2091
+    Current_Raid_Badass_Boss_ID = 2092
     Current_Story_Event_ID = 201
     Current_Story_Event_Area_IDs =  [1201101, 1201102, 1201103, 1201104, 1201105]
     Current_Bingo_ID = 2

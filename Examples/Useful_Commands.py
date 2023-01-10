@@ -69,7 +69,7 @@ help_t_player_id = 0
 send_friend_request = True
 
 #  Choose the battle finish mode. Random is chosen by default
-#  Battle_Finish_Mode.Random_Finish randomly choose which unit kills each enemy
+#  Battle_Finish_Mode.Random_Finish randomly choose which unit kills each enemy (default mode)
 #  Battle_Finish_Mode.Tower_Finish all enemies are killed using tower attack, exp is shared evenly
 #  Battle_Finish_Mode.Single_Character the character on the leader slot will kill all enemies and get all exp
 finish_mode = finish_mode = Battle_Finish_Mode.Tower_Finish

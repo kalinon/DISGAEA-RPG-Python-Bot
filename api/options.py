@@ -36,6 +36,7 @@ class Options:
         self.min_item_rank: int = 0
         self.min_item_rarity: int = 0
         self.auto_rebirth: bool = False
+        self.auto_rebirth_character_ids: list[int] = []
         self.use_potions: bool = False
         self.current_ap = 0
         ## Item world options

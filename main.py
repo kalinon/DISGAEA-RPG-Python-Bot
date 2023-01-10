@@ -201,9 +201,12 @@ class API(BaseAPI):
         if team_num is None:
             team_num = self.o.team_num
 
-        deck = []
+        auto_rebirth_character_ids = []
         if auto_rebirth:
-            deck = self.pd.deck(team_num)
+            if len(self.o.auto_rebirth_character_ids) > 0:
+                 auto_rebirth_character_ids = self.o.auto_rebirth_character_ids
+            else:
+                auto_rebirth_character_ids = self.pd.deck(team_num)
 
         if help_t_player_id != 0:
             help_player = self.battle_help_get_friend_by_id(help_t_player_id)
@@ -214,7 +217,7 @@ class API(BaseAPI):
             m_stage_id=m_stage_id, help_t_player_id=help_player['t_player_id'],
             help_t_character_id=help_player['t_character']['id'], act=stage['act'],
             help_t_character_lv=help_player['t_character']['lv'],
-            deck_no=team_num, deck=deck,
+            deck_no=team_num, reincarnation_character_ids=auto_rebirth_character_ids,
         )
 
         if 'result' not in start:
@@ -374,7 +377,7 @@ class API(BaseAPI):
     def __start_item_world(self, equipment_id, equipment_type):
         start = self.client.item_world_start(equipment_id, equipment_type=equipment_type,
                                              deck_no=self.o.team_num,
-                                             deck=self.pd.deck(self.o.team_num) if self.o.auto_rebirth else [])
+                                             reincarnation_character_ids=self.pd.deck(self.o.team_num) if self.o.auto_rebirth else [])
         if start is None or 'result' not in start:
             return None, None
 

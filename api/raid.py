@@ -13,8 +13,7 @@ class Raid(Player, metaclass=ABCMeta):
         self.raid_boss_count = 0
 
     def raid_battle_start(self, stage_id, raid_status_id, raid_party):
-        return self.client.battle_start(m_stage_id=stage_id, raid_status_id=raid_status_id,
-                                        deck_no=raid_party, deck=self.pd.deck(raid_party))
+        return self.client.battle_start(m_stage_id=stage_id, raid_status_id=raid_status_id, deck_no=raid_party)
 
     def raid_battle_end_giveup(self, stage_id, raid_status_id):
         return self.client.battle_end(

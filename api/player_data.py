@@ -47,10 +47,6 @@ class PlayerData:
         f.write(json.dumps(data, indent=2, sort_keys=True))
         f.close()
 
-    @property
-    def get_current_deck(self):
-        return self.deck(self.o.team_num) if self.o.auto_rebirth else []
-
     def deck(self, team_num: int = None):
         if team_num is None:
             deck_index = self.o.deck_index
