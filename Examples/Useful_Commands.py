@@ -22,8 +22,8 @@ a.print_team_info(team_num=4)
 a.client.apply_equipment_preset_to_team(team_number=4, equipment_preset=4)
 
 # Sells common items with no rare or above innocents. You can choose to sell either weapons or equipments and the number of items to sell
-a.shop_free_inventory_space(sell_weapons=True, sell_equiment=False, items_to_sell=30)
-a.shop_free_inventory_space(sell_weapons=False, sell_equiment=True, items_to_sell=30)
+a.shop_free_inventory_space(sell_weapons=True, sell_equipment=False, items_to_sell=30)
+a.shop_free_inventory_space(sell_weapons=False, sell_equipment=True, items_to_sell=30)
 
 # Sells all r40 items with no innocents
 a.sell_r40_commons_with_no_innocents()
