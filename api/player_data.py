@@ -133,6 +133,11 @@ class PlayerData:
         index = self.innocents.index(old_inno)
         self.innocents[index] = inno
 
+    def update_character(self, char):
+        old_char = self.get_character_by_id(char['id'])
+        index = self.characters.index(old_char)
+        self.characters[index] = char
+
     # e can be an equipment id or actual equipment/weapon
     def get_item_innocents(self, e):
         if isinstance(e, int):
@@ -342,9 +347,13 @@ class PlayerData:
                 if 'items' in resp['result']['after_t_data']:
                     for i in resp['result']['after_t_data']['items']:
                         self.update_items(i)
+            if 'after_t_characters' in resp['result']:
+                for char in resp['result']['after_t_characters']:
+                    self.update_character(char)
             if 'consume_t_innocent_ids' in resp['result']:
                 for i in resp['result']['consume_t_innocent_ids']:
                     self.innocents.remove(self.get_innocent_by_id(i))
+            # craft innocent using recipe
             if 't_innocent' in resp['result']:
                 self.innocents.append(resp['result']['t_innocent'])
 

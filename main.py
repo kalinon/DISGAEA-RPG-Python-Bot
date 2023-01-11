@@ -234,6 +234,7 @@ class API(BaseAPI):
             battle_exp_data=exp_data, m_stage_id=m_stage_id,
             battle_type=1, result=1)
         res = self.parseReward(end)
+        self.check_resp(end)
 
         if not self.is_helper_in_friend_list(help_player['t_player_id']) and send_friend_request:
             self.log(f"Send friend request to {help_player['name']} - Rank {help_player['rank']}")
