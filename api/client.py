@@ -878,14 +878,17 @@ class Client:
         return self.__rpc('survey/use_bribe_item', {"m_survey_id": m_survey_id, "bribe_data": bribe_data})
 
     #################
-    # Division Endpoints
+    # Trial Endpoints
     #################
 
-    def division_index(self):
-        return self.__rpc('division/index', {})
+    def trial_index(self):
+        data = self.__rpc('division/index', {})
+        return data
 
-    def division_ranking(self, division_battle_id):
-        return self.__rpc('division/ranking', {"m_division_battle_id": division_battle_id})
+    def trial_ranking(self, m_division_battle_id):
+        data = self.__rpc('division/ranking', {"m_division_battle_id":m_division_battle_id})
+        return data
+
 
     # "result": {
     #   "after_t_division_battle_status": {
@@ -901,7 +904,7 @@ class Client:
     #     "boss_hp": 0
     #   }
     # }
-    def division_reset(self, division_battle_id):
+    def trial_reset(self, division_battle_id):
         return self.__rpc('division/reset', {"m_division_battle_id": division_battle_id})
 
     #################
@@ -1050,6 +1053,23 @@ class Client:
         return self.__rpc('character_contest/start',
                           {"act": act, "m_character_id": m_character_id, "t_character_ids": t_character_ids})
 
+    def apply_equipment_preset_to_team(self, team_number, equipment_preset):
+        data = self.__rpc('weapon_equipment/change_deck_equipments', {"deck_no":team_number,"equipment_deck_no":equipment_preset})
+        return data 
+
+    # Sample consume data "consume_t_items":[{"m_item_id":4000001,"num":432},{"m_item_id":101,"num":580000}]
+    def dispatch_prinny_from_prinny_prison(self, consume_item_data, dispatch_rarity, dispatch_num):
+        data = self.__rpc('prison/shipment', {"consume_t_items":consume_item_data,"m_character_id":30001,"rarity":dispatch_rarity,"shipping_num":dispatch_num})
+        return data 
+
+    ## Use to get characters from gate events when enough shard are received
+    def event_receive_rewards(self, event_id: int):
+        return self.__rpc('event/receive_item_rewards', {"m_event_id":event_id})
+
+    #########################
+    # Innocent endpoints
+    #########################
+    
     def innocent_remove_all(self, ids, cost: int = 0):
         return self.__rpc("innocent/remove_all", {"t_innocent_ids": ids, "cost": cost})
 
@@ -1065,10 +1085,6 @@ class Client:
     def innocent_grazing(self, t_innocent_id: int, m_item_id: int):
         return self.__rpc('innocent/grazing', {"t_innocent_id": t_innocent_id, "m_item_id": m_item_id})
 
-    def apply_equipment_preset_to_team(self, team_number, equipment_preset):
-        data = self.__rpc('weapon_equipment/change_deck_equipments', {"deck_no":team_number,"equipment_deck_no":equipment_preset})
-        return data    
-        
     ##########################
     # Hospital endpoints
     #########################
@@ -1107,10 +1123,10 @@ class Client:
     def story_event_daily_missions(self):
         return self.__rpc('event/mission_dailies', {"m_event_id":Constants.Current_Story_Event_ID})
         
-    def story_event_claim_daily_missions(self, mission_ids:List[int] = []):
+    def story_event_claim_daily_missions(self, mission_ids: list[int] = []):
         return self.__rpc('event/receive_mission_daily', {"ids":mission_ids})
 
-    def story_event_claim_missions(self, mission_ids:List[int] = []):
+    def story_event_claim_missions(self, mission_ids: list[int] = []):
         return self.__rpc('event/receive_mission', {"ids":mission_ids})
 
     ##########################
@@ -1172,16 +1188,9 @@ class Client:
         })
 
     ##########################
-    # Spar Space endpoints
+    # --------
     #########################
 
-    def trial_index(self):
-        data = self.__rpc('division/index', {})
-        return data
-
-    def trial_ranking(self, m_division_battle_id):
-        data = self.__rpc('division/ranking', {"m_division_battle_id":m_division_battle_id})
-        return data
 
     def decrypt(self, content, iv):
         res = self.c.decrypt(content,iv)
