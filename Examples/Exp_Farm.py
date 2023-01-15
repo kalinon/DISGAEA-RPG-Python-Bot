@@ -23,7 +23,7 @@ a.quick_login()
 #  Battle_Finish_Mode.Single_Character the character on the leader slot will kill all enemies and get all exp
 finish_mode = finish_mode = Battle_Finish_Mode.Tower_Finish
 
-# Select which gates to run. You can 
+# Select which gates to run 
 exp_gates_to_run = [5010120, 5010121, 5010122, 5010123, 5010124, 5010125]
 
 # Select how many times to run the gates
@@ -89,7 +89,7 @@ if use_gate_keys:
     i=0
     while i<keys_to_use:
         a.client.item_use_gate_key(m_area_id = 50101, m_stage_id = gate_to_run_with_keys)
-        a.doQuest(m_stage_id=gate_id, team_num=team_to_use, auto_rebirth = a.o.auto_rebirth, help_t_player_id=help_t_player_id, finish_mode = Battle_Finish_Mode.Single_Character)
+        a.doQuest(m_stage_id=gate_to_run_with_keys, team_num=team_to_use, auto_rebirth = a.o.auto_rebirth, help_t_player_id=help_t_player_id, finish_mode = Battle_Finish_Mode.Single_Character)
         for character_id in characters_to_super_reincarnate:
             a.super_reincarnate(character_id=character_id)
         i+=1
