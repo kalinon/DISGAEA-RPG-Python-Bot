@@ -2,14 +2,14 @@ from enum import IntEnum
 
 
 class Constants:
-    Current_Raid_ID = 209
-    Current_Raid_Event_Point_Gacha = 70
-    Current_Raid_Innocent_Regular_Roulette = 71
-    Current_Raid_Innocent_Special_Roulette = 72
-    Current_Raid_Normal_Boss_ID = 2091
-    Current_Raid_Badass_Boss_ID = 2092
-    Current_Story_Event_ID = 201
-    Current_Story_Event_Area_IDs =  [1201101, 1201102, 1201103, 1201104, 1201105]
+    Current_Raid_ID = 220
+    Current_Raid_Event_Point_Gacha = 73
+    Current_Raid_Innocent_Regular_Roulette = 74
+    Current_Raid_Innocent_Special_Roulette = 75
+    Current_Raid_Normal_Boss_ID = 2201
+    Current_Raid_Badass_Boss_ID = 2202
+    Current_Story_Event_ID = 213
+    Current_Story_Event_Area_IDs =  [1213101, 1213102, 1213103, 1213104, 1213105]
     Current_Bingo_ID = 2
     Current_Sugoroku_Event_ID = 0
     Item_Survey_Deposit_Size = 10
@@ -31,30 +31,6 @@ class Constants:
     session_id = ''  # FILL SESSION_ID HERE
     user_id = ''  # FILL USER_ID HERE
     ticket = ''  # FILL TICKET FOR STEAM LOGIN
-
-class Raid_Gacha_ID(IntEnum):
-    SUMMER_PRINNY_EVENT_POINT = 49
-    SUMMER_PRINNY_INNOCENT_REGULAR_ROULETTE = 50
-    SUMMER_PRINNY_INNOCENT_SPECIAL_ROULETTE = 51
-    MAKAI_KINGDOM_EVENT_POINT = 52
-    MAKAI_KINGDOM_INNOCENT_REGULAR_ROULETTE = 53
-    MAKAI_KINGDOM_INNOCENT_SPECIAL_ROULETTE = 54
-    SEVEN_DEADLY_SINS_EVENT_POINT = 55
-    SEVEN_DEADLY_SINS_INNOCENT_REGULAR_ROULETTE = 56
-    SEVEN_DEADLY_SINS_INNOCENT_SPECIAL_ROULETTE = 57
-    KAGEMARU_EVENT_POINT = 58
-    KAGEMARU_KINNOCENT_REGULAR_ROULETTE = 59
-    KAGEMARU_INNOCENT_SPECIAL_ROULETTE = 60
-    MADOKA_EVENT_POINT = 61
-    MADOKA_INNOCENT_REGULAR_ROULETTE = 62
-    MADOKA_INNOCENT_SPECIAL_ROULETTE = 63
-    PLEINAIR_EVENT_POINT = 64
-    PLEINAIR_INNOCENT_REGULAR_ROULETTE = 65
-    PLEINAIR_INNOCENT_SPECIAL_ROULETTE = 66
-    SANTA_TORACHIYO_EVENT_POINT = 67
-    SANTA_TORACHIYO_INNOCENT_REGULAR_ROULETTE = 68
-    SANTA_TORACHIYO_INNOCENT_SPECIAL_ROULETTE = 69
-
 
 class Raid_ID(IntEnum):
     SUMMER_PRINNY_RAID_ID = 135
