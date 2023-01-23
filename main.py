@@ -159,17 +159,24 @@ class API(BaseAPI):
         initial_nq = self.player_stone_sum()['result']['_items'][0]['num']
         current_nq = initial_nq
         present_data = self.client.present_index(conditions=[0,1,3,99],order=0)
-        while len(present_data['result']['_items']) > 0:
+        claim = True
+        while claim:
             item_ids = []
             for item in present_data['result']['_items']:
                 item_ids.append(item['id'])
             if len(item_ids) > 0:
                 for batch in (item_ids[i:i + 20] for i in range(0, len(item_ids), 20)):
                     data =self.client.present_receive(receive_ids = batch, order=0, conditions=[0,1,3,99])
-                    print(f"Claimed {len(batch)} presents")
+                    self.log(f"Claimed {len(data['result']['received_ids'])} presents")                    
                     if 'stones' in data['result']:
                         current_nq = data['result']['stones'][0]['num']
-            present_data = self.client.present_index(conditions=[0,1,3,99],order=0)
+                    if len(data['result']['received_ids']) == 0:
+                        self.log(f"Could not claim any presents. Item box is probably full...")
+                        claim = False
+                        break
+            if claim:
+                present_data = self.client.present_index(conditions=[0,1,3,99],order=0)
+                claim = len(present_data['result']['_items']) > 0
         if current_nq > initial_nq:
             self.log(f"Total Nether Quartz gained: {current_nq - initial_nq}")
         self.log("Finished claiming presents.")

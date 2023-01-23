@@ -786,6 +786,9 @@ class Client:
     def shop_buy_item(self, itemid: int, quantity: int):
         return self.__rpc('shop/buy_item', {"id": itemid, "quantity": quantity})
 
+    def shop_sell_item(self, item_ids: list[int], quantities: list[int]):
+        return self.__rpc('item/sell', {"m_item_ids":item_ids,"item_nums":quantities})
+
     def shop_sell_equipment(self, sell_equipments):
         return self.__rpc('shop/sell_equipment', {"sell_equipments": sell_equipments})
 
