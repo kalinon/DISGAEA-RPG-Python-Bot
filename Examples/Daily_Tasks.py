@@ -38,6 +38,12 @@ if a.is_free_gacha_available():
 # Spin bingo
 a.bingo_spin_roulette()
 
+# Clear available character gates
+a.clear_character_gates()
+
+#  Passes a dark assembly agenda for mission completion (make sure id is valid)
+a.complete_dark_assembly_mission(110016)
+
 # Calculate when AP is filled
 player_data = a.client.player_index()
 current_ap = player_data['result']['status']['act']

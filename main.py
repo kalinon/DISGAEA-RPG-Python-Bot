@@ -5,7 +5,7 @@ from api.constants import Item_World_Mode
 from dateutil import parser
 
 from api import BaseAPI
-from api.constants import Constants, Battle_Finish_Mode
+from api.constants import Constants, Battle_Finish_Mode, Character_Gate
 from api.constants import Items as ItemsC
 
 
@@ -159,17 +159,24 @@ class API(BaseAPI):
         initial_nq = self.player_stone_sum()['result']['_items'][0]['num']
         current_nq = initial_nq
         present_data = self.client.present_index(conditions=[0,1,3,99],order=0)
-        while len(present_data['result']['_items']) > 0:
+        claim = True
+        while claim:
             item_ids = []
             for item in present_data['result']['_items']:
                 item_ids.append(item['id'])
             if len(item_ids) > 0:
                 for batch in (item_ids[i:i + 20] for i in range(0, len(item_ids), 20)):
                     data =self.client.present_receive(receive_ids = batch, order=0, conditions=[0,1,3,99])
-                    print(f"Claimed {len(batch)} presents")
+                    self.log(f"Claimed {len(data['result']['received_ids'])} presents")                    
                     if 'stones' in data['result']:
                         current_nq = data['result']['stones'][0]['num']
-            present_data = self.client.present_index(conditions=[0,1,3,99],order=0)
+                    if len(data['result']['received_ids']) == 0:
+                        self.log(f"Could not claim any presents. Item box is probably full...")
+                        claim = False
+                        break
+            if claim:
+                present_data = self.client.present_index(conditions=[0,1,3,99],order=0)
+                claim = len(present_data['result']['_items']) > 0
         if current_nq > initial_nq:
             self.log(f"Total Nether Quartz gained: {current_nq - initial_nq}")
         self.log("Finished claiming presents.")
@@ -338,7 +345,6 @@ class API(BaseAPI):
             tower_level+=1
         self.log("Completed Overlod Tower")
         
-
     def doItemWorld(self, equipment_id=None, equipment_type=1):
         if equipment_id is None:
             self.log_err('missing equip')
@@ -586,13 +592,13 @@ class API(BaseAPI):
         self.log(f"Sending request to user {friend_data['result']['friends'][0]['name']} - Rank {friend_data['result']['friends'][0]['rank']}")
         self.client.friend_send_request(friend_data['result']['friends'][0]['id'])
 
-    def super_reincarnate(self, character_id):
+    def super_reincarnate(self, character_id, log:bool=True):
         unit = self.pd.get_character_by_id(character_id)
         if unit is None: 
             self.log(f"No character with id {character_id} found")
             return
         if unit['lv'] < 9999:
-            self.log(f"Unit needs to be level 9999 to be able to Super Reincarnate")
+            if log: self.log(f"Unit needs to be level 9999 to be able to Super Reincarnate")
             return
         sr_count = unit['super_rebirth_num']
         from data import data as gamedata
@@ -605,3 +611,38 @@ class API(BaseAPI):
         res = self.client.super_reincarnate(t_character_id=character_id, magic_element_num=next_sr['magic_element'])
         char = self.gd.get_character(unit['m_character_id'])
         self.log(f"Super Reincarnated {char['name']}. SR Count: {next_sr['super_rebirth_num']} - Karma Gained: {next_sr['karma']}")
+
+    def clear_character_gates(self):        
+        events = self.client.event_index()
+        gate_id_list = [Character_Gate.Majin_Etna, Character_Gate.Pure_Flonne, Character_Gate.Bloodis,
+                Character_Gate.Sister_Artina, Character_Gate.Killidia, Character_Gate.Pringer_X]
+        for event in events['result']['events']:
+            event_id = event['m_event_id']          
+            if event_id in gate_id_list:
+                self.clear_character_gate(event_id)
+
+    def clear_character_gate(self, character_gate:Character_Gate):        
+        run_count = 0
+        stage_id = 0
+        if character_gate == Character_Gate.Majin_Etna:
+            stage_id = 100210102
+        if character_gate == Character_Gate.Pure_Flonne:
+            stage_id = 101410102
+        if character_gate == Character_Gate.Bloodis:
+            stage_id = 102710102
+        if character_gate == Character_Gate.Sister_Artina:
+            stage_id = 103410102
+        if character_gate == Character_Gate.Killidia:
+            stage_id = 104510102
+        if character_gate == Character_Gate.Pringer_X:
+            stage_id = 108410101
+
+        event_data = self.client.event_index(event_ids=[character_gate])
+        run_count = event_data['result']['events'][0]['challenge_num']
+        while run_count < 3:
+            self.doQuest(stage_id) 
+            run_count +=1
+        event_data = self.client.event_index(event_ids=[character_gate])
+        if event_data['result']['events'][0]['is_item_reward_receivable']:
+            self.log(f"Claiming character copy")
+            r = self.client.event_receive_rewards(event_id=character_gate)
