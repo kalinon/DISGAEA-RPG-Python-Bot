@@ -218,3 +218,9 @@ class Player(Base):
         data = self.client.friend_index()
         for friend in data['result']['friends']:
             print(f"\tName: {friend['name']} - ID: {friend['id']}")
+
+    def player_get_equipment_presets(self, refresh=False):
+        if len(self.pd.equipment_presets) > 0 and not refresh:
+            return self.pd.equipment_presets
+        self.pd.equipment_presets = self.client.player_equipment_decks()['result']['_items']
+        return self.pd.equipment_presets

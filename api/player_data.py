@@ -23,6 +23,7 @@ class PlayerData:
         self.equipment_effects: [dict[Iterable]] = []
         self.clear_stages: [dict[Iterable]] = []
         self.stage_missions: [dict[Iterable]] = []
+        self.equipment_presets: [dict[Iterable]] = []
 
     def dump_to_file(self, file_path: str, extra_data=None):
         data = {
@@ -372,3 +373,19 @@ class PlayerData:
             if effect['t_equipment_id'] == eid:
                 effects.append(effect)
         return effects
+
+    def is_item_in_equipment_preset(self, item_id):
+        for preset in self.equipment_presets:
+            if self.is_item_in_equipment_gearset(item_id, preset['position1']):
+                return True
+            if self.is_item_in_equipment_gearset(item_id, preset['position2']):
+                return True
+            if self.is_item_in_equipment_gearset(item_id, preset['position3']):
+                return True
+            if self.is_item_in_equipment_gearset(item_id, preset['position4']):
+                return True
+        return False
+
+    def is_item_in_equipment_gearset(self, item_id, gear_set):
+        return gear_set['t_weapon_id'] == item_id or gear_set['t_equipment_id1'] == item_id or gear_set['t_equipment_id2'] == item_id or gear_set['t_equipment_id3'] == item_id
+
