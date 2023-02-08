@@ -167,6 +167,8 @@ class EtnaResort(Items, metaclass=ABCMeta):
                 filled = True
 
             for item in all_items:
+                if self.pd.is_item_in_equipment_preset(item['id']):
+                    continue
                 # If looking for rare innocents
                 item_innocents = self.pd.get_item_innocents(item['id'])
                 if max_innocent_rank > 0:

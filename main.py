@@ -56,7 +56,7 @@ class API(BaseAPI):
 
         self.player_character_collections()
         self.player_decks()
-
+        self.player_get_equipment_presets()
         self.player_stone_sum()
 
     def dologin(self):
@@ -105,6 +105,7 @@ class API(BaseAPI):
         self.client.battle_skip_parties()
         # boltrend/subscriptions
         self.client.login_update()
+        self.player_get_equipment_presets()
 
     def addAccount(self):
         self.player_stone_sum()

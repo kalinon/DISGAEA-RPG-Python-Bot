@@ -18,7 +18,7 @@ class Battle(Player, metaclass=ABCMeta):
         while friend is None:
             help_players = self.client.battle_help_list()['result']['help_players']
             friend = next((x for x in help_players if x['t_player_id'] == help_t_player_id), None)
-            time.sleep(1)
+            # time.sleep(1)
         return friend
 
     def battle_skip(self, m_stage_id:int, skip_number:int, help_t_player_id: int = 0):
