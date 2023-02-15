@@ -2,14 +2,14 @@ from enum import IntEnum
 
 
 class Constants:
-    Current_Raid_ID = 220
-    Current_Raid_Event_Point_Gacha = 73
-    Current_Raid_Innocent_Regular_Roulette = 74
-    Current_Raid_Innocent_Special_Roulette = 75
-    Current_Raid_Normal_Boss_ID = 2201
-    Current_Raid_Badass_Boss_ID = 2202
-    Current_Story_Event_ID = 213
-    Current_Story_Event_Area_IDs =  [1213101, 1213102, 1213103, 1213104, 1213105]
+    Current_Raid_ID = 233
+    Current_Raid_Event_Point_Gacha = 76
+    Current_Raid_Innocent_Regular_Roulette = 77
+    Current_Raid_Innocent_Special_Roulette = 78
+    Current_Raid_Normal_Boss_ID = 2331
+    Current_Raid_Badass_Boss_ID = 2332
+    Current_Story_Event_ID = 228
+    Current_Story_Event_Area_IDs =  [1228101, 1228102, 1228103, 1228104, 1228105]
     Current_Bingo_ID = 2
     Current_Sugoroku_Event_ID = 0
     Item_Survey_Deposit_Size = 10
