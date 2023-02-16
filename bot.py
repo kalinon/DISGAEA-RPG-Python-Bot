@@ -91,6 +91,8 @@ class Bot:
         self.api.get_mail_and_rewards()
         self.send_sardines()
 
+        self.api.complete_dark_assembly_mission(110016)
+
         # Buy items from HL shop
         self.api.buy_daily_items_from_shop()
 
@@ -404,7 +406,7 @@ class Bot:
         self.api.etna_resort_get_all_daily_rewards()
         self.api.log("- selling excess items")
         self.api.sell_items(max_item_rank=39, skip_max_lvl=True, only_max_lvl=False, remove_innocents=True)
-        # a.sell_items(max_item_rank=40, max_rarity=80, max_innocent_rank=7, max_innocent_type=Innocent_ID.RES)
+        self.api.sell_items(max_item_rank=40, max_rarity=85, max_innocent_rank=7, max_innocent_type=Innocent_ID.RES)
         self.api.sell_r40_commons_with_no_innocents()
 
     def use_codes(self, codes: list[str]):
