@@ -30,14 +30,14 @@ bot.api.sell_items(max_rarity=90, max_item_rank=40, remove_innocents=True)
 # 1228105311 - Extra+ (HL)
 # 1228105312 - Extra+ (EXP)
 # 1228105313 - Extra+ (1★)
-# 1230201103 - Hidden Stage -HARD-
+# 1228201103 - Hidden Stage -HARD-
 
-# bot.do_quest(1230201103, team_num=2, auto_rebirth=True)
+# bot.do_quest(1228201103, team_num=2, auto_rebirth=True)
 # bot.clear_inbox()
 # exit(0)
 # Daily tasks
 bot.do_quest(1230101001, team_num=2, auto_rebirth=True)
-bot.do_quest(1230201103, team_num=2, auto_rebirth=True)
+bot.do_quest(1228201103, team_num=2, auto_rebirth=True)
 
 bot.daily(gem_team=22, hl_team=21, exp_team=24)
 
