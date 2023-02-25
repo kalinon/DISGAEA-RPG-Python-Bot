@@ -32,6 +32,8 @@ class Gatcha(Player):
     def is_free_10pull_available(self, m_gacha_id, max_draws):
         banner_data = self.client.gacha_sums()
         banner = next((x for x in banner_data['result']['_items'] if x['m_gacha_id'] == m_gacha_id),None)
+        if banner is  None:
+            return True
         last_pull_at_string = banner['last_draw_at']
         last_pull_at_date = parser.parse(last_pull_at_string)
         serverTime = datetime.datetime.utcnow() + datetime.timedelta(hours=-4)

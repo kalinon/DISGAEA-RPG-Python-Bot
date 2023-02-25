@@ -226,7 +226,7 @@ class Bot:
             attempts = 0
             innocents_trained += 1
             tickets = self.api.get_caretaker_tickets(innocent_type)
-            while innocent_rank < max_innocent_rank:
+            while tickets != None and innocent_rank < max_innocent_rank:
                 if tickets['num'] <= 0:
                     self.api.log("No caretaker tickets left")
                     break

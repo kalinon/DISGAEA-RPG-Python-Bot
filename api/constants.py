@@ -13,9 +13,6 @@ class Constants:
     Current_Bingo_ID = 2
     Current_Sugoroku_Event_ID = 0
     Item_Survey_Deposit_Size = 10
-    Weapon_Full_Error = 'Weapon Slot is full\nPlease expand slot or sell weapons'
-    Armor_Full_Error = 'Armor Slot is full\nPlease expand slot or sell armor'
-    Innocent_Full_Error = 'Max possession number of Innocents reached.'
     Shop_Max_Free_Refresh = 5
     Highest_Tower_Level = 50
     Alchemy_Alchemize_Cost = 6000
@@ -133,6 +130,7 @@ class Item_World_Mode(IntEnum):
 class Item_World_Drop_Mode(IntEnum):
     Drop_Weapons_Only = 1
     Drop_All_Items = 2
+    
 class Alchemy_Effect_Type(IntEnum):
     Innocent_Effect = 10001
     CritRate = 20001
@@ -209,3 +207,9 @@ class Character_Gate(IntEnum):
     Sister_Artina = 34
     Killidia = 45 
     Pringer_X = 84
+
+class ErrorMessages:
+    Weapon_Full_Error = 'Weapon Slot is full\nPlease expand slot or sell weapons'
+    Armor_Full_Error = 'Armor Slot is full\nPlease expand slot or sell armor'
+    Innocent_Full_Error = 'Max possession number of Innocents reached.'
+    Raid_Battle_Finished = 'The raid Boss is already conquered'

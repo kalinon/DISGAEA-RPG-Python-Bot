@@ -1,7 +1,7 @@
 from abc import ABCMeta
 from inspect import ismemberdescriptor
 
-from api.constants import Constants, Innocent_Training_Result, Innocent_ID, Alchemy_Effect_Type
+from api.constants import Constants, Innocent_Training_Result, Innocent_ID, Alchemy_Effect_Type, ErrorMessages
 from api.constants import Items as ItemsC
 from api.items import Items
 
@@ -65,6 +65,8 @@ class EtnaResort(Items, metaclass=ABCMeta):
             equipments_to_retrieve = []
             weapons_to_donate = []
             equipments_to_donate = []
+            weapons_to_retrieve_innocent_and_donate =[]
+            equipments_to_retrieve_innocent_and_donate =[]
             finished_item_count = 0
 
             for i in items_in_depository:
@@ -82,14 +84,26 @@ class EtnaResort(Items, metaclass=ABCMeta):
                             weapons_to_retrieve.append(i['id'])
                         else:
                             equipments_to_retrieve.append(i['id'])
+                # Otherwise item can be donated
+                else:                    
+                    ## If item has rare innocents, retrieve them first, then donate 
+                    if len(innos_to_keep) > 0:
+                        if(isWeapon):
+                            weapons_to_retrieve_innocent_and_donate.append(i['id'])
+                            weapons_to_retrieve.append(i['id'])
+                        else:
+                            equipments_to_retrieve_innocent_and_donate.append(i['id'])
+                            equipments_to_retrieve.append(i['id'])
+                    ## Otherwise donate diretly
                     else:
-                        if isWeapon:
+                        if(isWeapon):
                             weapons_to_donate.append(i['id'])
                         else:
                             equipments_to_donate.append(i['id'])
 
             total_to_donate = len(weapons_to_donate) + len(equipments_to_donate)
             total_to_retrieve = len(weapons_to_retrieve) + len(equipments_to_retrieve)
+            total_to_retieve_innocent_and_donate = len(weapons_to_retrieve_innocent_and_donate) + len(equipments_to_retrieve_innocent_and_donate) 
             if finished_item_count > 0:
                 self.log(
                     f"Finished leveling {finished_item_count} equipments - {total_to_retrieve} will be retrieved, {total_to_donate} will be donated")
@@ -97,12 +111,21 @@ class EtnaResort(Items, metaclass=ABCMeta):
             if total_to_retrieve > 0:
                 result = self.client.breeding_center_pick_up(weapons_to_retrieve, equipments_to_retrieve)
 
-                if result['error'] == Constants.Armor_Full_Error or result['error'] == Constants.Weapon_Full_Error:
-                    sell_equipments = result['error'] == Constants.Armor_Full_Error
-                    sell_weapons = result['error'] == Constants.Weapon_Full_Error
+                ## No storage space left. Sell some items first and retry
+                if result['error'] == Constants.Armor_Full_Error or result['error'] == ErrorMessages.Weapon_Full_Error:
+                    sell_equipments = result['error'] == ErrorMessages.Armor_Full_Error
+                    sell_weapons = result['error'] == ErrorMessages.Weapon_Full_Error
                     self.shop_free_inventory_space(sell_weapons, sell_equipments, 20)
                     retry = True
 
+                ## Once we've retrieved the items, remove innocents and donate
+                if total_to_retieve_innocent_and_donate > 0:
+                    for weapon in weapons_to_retrieve_innocent_and_donate:
+                        self.remove_innocents(weapon)
+                    for equipment in equipments_to_retrieve_innocent_and_donate:
+                        self.remove_innocents(equipment)
+                    result = self.kingdom_weapon_equipment_entry(weapons_to_retrieve_innocent_and_donate, equipments_to_retrieve_innocent_and_donate)
+            
             if total_to_donate > 0:
                 self.kingdom_weapon_equipment_entry(weapons_to_donate, equipments_to_donate)
 
@@ -179,7 +202,7 @@ class EtnaResort(Items, metaclass=ABCMeta):
                         if deposit_count == deposit_free_slots:
                             break
 
-                            # Otherwise fill with commons of specific rank
+                # Otherwise fill with commons of specific rank
                 # fill with items with no innocents first, 
                 # if there aren't enough iterate all items once again and find items with 1 inno
                 else:
@@ -663,15 +686,12 @@ class EtnaResort(Items, metaclass=ABCMeta):
             if current_hl < Constants.Alchemy_Realchemize_Cost:
                 self.log(f"{item_id} - Ran out of HL.")
 
-            # Not the effect we are looking for
-            if not effect['m_equipment_effect_type_id'] == alchemy_effect_id:
-                continue
-
-            is_max_effect = self.gd.get_alchemy_effect(alchemy_effect_id)['effect_value_max'] == effect['effect_value']
+            is_correct_effect = effect['m_equipment_effect_type_id'] == alchemy_effect_id
+            is_max_effect = is_correct_effect and self.gd.get_alchemy_effect(alchemy_effect_id)['effect_value_max'] == effect['effect_value']
 
             # if effect is maxed finish rolling and overwrite
             # if effect target is manually specified
-            if is_max_effect or (effect_target != 0 and effect['effect_value'] >= effect_target):
+            if is_max_effect or (effect_target != 0 and effect['effect_value'] >= effect_target and is_correct_effect):
                 r = self.client.etna_resort_update_alchemy_effect(True)
                 roll = False
             else:
