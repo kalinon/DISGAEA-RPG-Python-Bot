@@ -499,7 +499,9 @@ class API(BaseAPI):
             self.client.hospital_roulette()
 
     def is_helper_in_friend_list(self, player_id):
-        all_friends = self.client.friend_index()['result']['friends']
+        resp = self.client.friend_index()
+        self.check_resp(resp)
+        all_friends = resp['result']['friends']
         friend = next((x for x in all_friends if x['id'] == player_id), None)
         return friend is not None
 

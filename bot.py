@@ -43,7 +43,7 @@ class Bot:
 
         if len(items) == 0:
             self.api.log_err('No items to farm! Where they all at?')
-            exit(1)
+            return
 
         self.api.log('found %s items to upgrade' % len(items))
 
@@ -90,6 +90,8 @@ class Bot:
     def daily(self, gem_team: int = 22, hl_team: int = 21, exp_team=None):
         self.api.get_mail_and_rewards()
         self.send_sardines()
+
+        self.api.complete_dark_assembly_mission(110016)
 
         # Buy items from HL shop
         self.api.buy_daily_items_from_shop()
@@ -144,9 +146,8 @@ class Bot:
             else:
                 self.api.sell_items(max_rarity=39, max_item_rank=40, skip_max_lvl=True, only_max_lvl=False,
                                     max_innocent_rank=4, max_innocent_type=Innocent_ID.RES)
-                # self.api.sell_items(max_rarity=70, max_item_rank=40, skip_max_lvl=True, only_max_lvl=False,
-                #                     remove_innocents=True, item_type=EquipmentType.ARMOR,
-                #                     max_innocent_rank=4, max_innocent_type=Innocent_ID.RES)
+                self.api.sell_items(max_rarity=80, max_item_rank=40, skip_max_lvl=True, only_max_lvl=False,
+                                    max_innocent_rank=4, max_innocent_type=Innocent_ID.RES)
             last_id = new_last_id
 
     def do_quest(self, stage_id, team_num=None, auto_rebirth=None, raid_team=None):
@@ -395,7 +396,8 @@ class Bot:
 
     def clean_inv(self):
         self.api.log("- donate equipment/innocents")
-        inno_blacklist = [x['id'] for x in self.api.find_recipe_innocents()]
+        # inno_blacklist = [x['id'] for x in self.api.find_recipe_innocents()]
+        inno_blacklist = []
         self.api.etna_donate_innocents(max_innocent_rank=8, max_innocent_type=Innocent_ID.RES,
                                        blacklist=inno_blacklist)
         self.api.etna_donate_innocents(max_innocent_rank=8, innocent_types=[Innocent_ID.SPD, Innocent_ID.HL],
@@ -404,7 +406,7 @@ class Bot:
         self.api.etna_resort_get_all_daily_rewards()
         self.api.log("- selling excess items")
         self.api.sell_items(max_item_rank=39, skip_max_lvl=True, only_max_lvl=False, remove_innocents=True)
-        # a.sell_items(max_item_rank=40, max_rarity=80, max_innocent_rank=7, max_innocent_type=Innocent_ID.RES)
+        self.api.sell_items(max_item_rank=40, max_rarity=85, max_innocent_rank=7, max_innocent_type=Innocent_ID.HL)
         self.api.sell_r40_commons_with_no_innocents()
 
     def use_codes(self, codes: list[str]):

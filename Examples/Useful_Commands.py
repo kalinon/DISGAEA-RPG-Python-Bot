@@ -13,7 +13,7 @@ a.Complete_Overlord_Tower()
 # Use Gate Keys - needs area ID and stage ID
 m_area_id = 50101
 m_stage_id = 5010125
-a.client.item_use_gate_key(m_area_id = m_area_id, m_stage_id = m_stage_id)
+a.client.item_use_gate_key(m_area_id=m_area_id, m_stage_id=m_stage_id)
 
 # Prints data for a specific team
 a.print_team_info(team_num=4)
@@ -72,6 +72,7 @@ send_friend_request = True
 #  Battle_Finish_Mode.Random_Finish randomly choose which unit kills each enemy (default mode)
 #  Battle_Finish_Mode.Tower_Finish all enemies are killed using tower attack, exp is shared evenly
 #  Battle_Finish_Mode.Single_Character the character on the leader slot will kill all enemies and get all exp
-finish_mode = finish_mode = Battle_Finish_Mode.Tower_Finish
+finish_mode = Battle_Finish_Mode.Tower_Finish
 
-a.doQuest(m_stage_id=m_stage_id, team_num=team_to_use, help_t_player_id=help_t_player_id, send_friend_request=send_friend_request, finish_mode=finish_mode)
+a.doQuest(m_stage_id=m_stage_id, team_num=team_to_use, help_t_player_id=help_t_player_id,
+          send_friend_request=send_friend_request, finish_mode=finish_mode)
