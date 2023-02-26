@@ -84,22 +84,22 @@ class EtnaResort(Items, metaclass=ABCMeta):
                             weapons_to_retrieve.append(i['id'])
                         else:
                             equipments_to_retrieve.append(i['id'])
-                # Otherwise item can be donated
-                else:                    
-                    ## If item has rare innocents, retrieve them first, then donate 
-                    if len(innos_to_keep) > 0:
-                        if(isWeapon):
-                            weapons_to_retrieve_innocent_and_donate.append(i['id'])
-                            weapons_to_retrieve.append(i['id'])
+                    # Otherwise item can be donated
+                    else:                    
+                        ## If item has rare innocents, retrieve them first, then donate 
+                        if len(innos_to_keep) > 0:
+                            if(isWeapon):
+                                weapons_to_retrieve_innocent_and_donate.append(i['id'])
+                                weapons_to_retrieve.append(i['id'])
+                            else:
+                                equipments_to_retrieve_innocent_and_donate.append(i['id'])
+                                equipments_to_retrieve.append(i['id'])
+                        ## Otherwise donate diretly
                         else:
-                            equipments_to_retrieve_innocent_and_donate.append(i['id'])
-                            equipments_to_retrieve.append(i['id'])
-                    ## Otherwise donate diretly
-                    else:
-                        if(isWeapon):
-                            weapons_to_donate.append(i['id'])
-                        else:
-                            equipments_to_donate.append(i['id'])
+                            if(isWeapon):
+                                weapons_to_donate.append(i['id'])
+                            else:
+                                equipments_to_donate.append(i['id'])
 
             total_to_donate = len(weapons_to_donate) + len(equipments_to_donate)
             total_to_retrieve = len(weapons_to_retrieve) + len(equipments_to_retrieve)
