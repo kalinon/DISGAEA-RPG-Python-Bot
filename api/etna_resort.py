@@ -112,7 +112,7 @@ class EtnaResort(Items, metaclass=ABCMeta):
                 result = self.client.breeding_center_pick_up(weapons_to_retrieve, equipments_to_retrieve)
 
                 ## No storage space left. Sell some items first and retry
-                if result['error'] == Constants.Armor_Full_Error or result['error'] == ErrorMessages.Weapon_Full_Error:
+                if result['error'] == ErrorMessages.Armor_Full_Error or result['error'] == ErrorMessages.Weapon_Full_Error:
                     sell_equipments = result['error'] == ErrorMessages.Armor_Full_Error
                     sell_weapons = result['error'] == ErrorMessages.Weapon_Full_Error
                     self.shop_free_inventory_space(sell_weapons, sell_equipments, 20)
