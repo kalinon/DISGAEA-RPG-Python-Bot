@@ -7,7 +7,7 @@ requirements:
 - `pip install python-dateutil`
 - `pip install jwt`
 - license key (get it from https://disgaea.codedbots.com, once you have the license key put it into `codedbots.py` on
-  line 12)
+  line 15)
 
 ![bot running](https://raw.github.com/Mila432/DISGAEA-RPG-Python-Bot/master/1.png)
 
@@ -23,7 +23,7 @@ features:
 - overlords tower supported
 - farm item world for both weapons & armor
 - catching innocents while farming item world
-- multi region support gl & jp (need jp proxy)
+- multi region support gl & jp
 - proxy support
 - leech raid bosses
 - run Axel contest
@@ -85,3 +85,17 @@ a.o.set_region(2)
 a.o.set_device(3)
 a.quick_login()
 ```
+
+## Using the both for JP
+
+1. Create an account for JP (preferrably on DMM)
+2. Get a transfer code
+3. Set region to 2
+4. Call the dologin method with the user id and one time code from the transfer
+5. After a few uses, you will run into the following error:
+
+   ```json
+      server returned error: undefined method `correct_signature?' for nil:NilClass for battle_status
+   ```
+
+When you do, open DRPG JP on a different device and use the transfer code there. You do not need to log in afterwards, once you've used the code you can use the bot once again.

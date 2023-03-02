@@ -112,10 +112,11 @@ class Client:
                     't_player_id:%s player_rank:%s' % (res['result']['t_player_id'], res['result']['player_rank']))
             self.o.pid = res['result']['t_player_id']
         if 'result' in res and 'after_t_status' in res['result']:
-            self.o.current_ap = int(res['result']['after_t_status']['act'])
-            Logger.info('%s / %s rank:%s' % (
-                res['result']['after_t_status']['act'], res['result']['after_t_status']['act_max'],
-                res['result']['after_t_status']['rank']))
+            if res['result']['after_t_status'] is not None and 'act' in res['result']['after_t_status']:
+                self.o.current_ap = int(res['result']['after_t_status']['act'])
+                Logger.info('%s / %s rank:%s' % (
+                    res['result']['after_t_status']['act'], res['result']['after_t_status']['act_max'],
+                    res['result']['after_t_status']['rank']))
         if 'result' in res and 't_innocent_id' in res['result']:
             if res['result']['t_innocent_id'] != 0:
                 Logger.info('t_innocent_id:%s' % (res['result']['t_innocent_id']))
@@ -1251,8 +1252,8 @@ class Client:
     #########################
 
 
-    def decrypt(self, content, iv):
-        res = self.c.decrypt(content,iv)
+    def decrypt(self, content, iv, region):
+        res = self.c.decrypt(content,iv, region)
         if 'fuji_key' in res:
             if sys.version_info >= (3, 0):
                 self.c.key = bytes(res['fuji_key'], encoding='utf8')

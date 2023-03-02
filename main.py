@@ -514,7 +514,7 @@ class API(BaseAPI):
                 except KeyboardInterrupt:
                     return False
                 except NoAPLeftException:
-                    exit()
+                    return
                 except:
                     self.log_err('failed stage: %s area: %s' % (s, stage['m_area_id']))
                     blacklist.add(stage['m_area_id'])
