@@ -15,9 +15,9 @@ try:
         code = lines[0] 
 except FileNotFoundError:
     print("transfercode.txt does not exist")
-    code = ''
+    code = 'TRANSFER CODE GOES HERE THE FIRST TIME YOU USE THE BOT'
 
-a.dologin(62660079170, code)
+a.dologin(91574319908, code)
 
 # This script will complete overlord tower and Story as far as you AP can get you
 # It will clear the tutorials so you can quickly farm 10k nq for your rerolling

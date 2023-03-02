@@ -91,11 +91,19 @@ a.quick_login()
 1. Create an account for JP (preferrably on DMM)
 2. Get a transfer code
 3. Set region to 2
-4. Call the dologin method with the user id and one time code from the transfer
-5. After a few uses, you will run into the following error:
+4. Use jp_reroll_example.py Call the dologin method with the user id and one time code from the transfer. Paste the code in line 18.
+
+```python
+   code = 'TRANSFER CODE GOES HERE THE FIRST TIME YOU USE THE BOT'
+```
+
+5. The bot generates a new transfer code every time. It will be stored in transfercode.txt
+6. After a few uses, you will run into the following error:
 
    ```json
       server returned error: undefined method `correct_signature?' for nil:NilClass for battle_status
    ```
 
 When you do, open DRPG JP on a different device and use the transfer code there. You do not need to log in afterwards, once you've used the code you can use the bot once again.
+
+7. If you want to reroll, copy the new transfer code into transfercode.txt
