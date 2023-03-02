@@ -116,6 +116,8 @@ class Battle_Finish_Type(IntEnum):
 
 class Items(IntEnum):
     HL = 101
+    AP_Pot = 301
+    AP_Pot_50 = 302
     Prinny_Steel = 3201
     PriPrism = 4101
     Prilixir = 4201

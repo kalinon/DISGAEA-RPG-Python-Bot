@@ -54,7 +54,7 @@ class Shop(Player, metaclass=ABCMeta):
                     item_ids = [i['id']]
                     res = self.client.shop_buy_equipment(item_type=i['item_type'], itemid=item_ids)
                     if res['error'] == ErrorMessages.Armor_Full_Error or res['error'] == ErrorMessages.Weapon_Full_Error:
-                        buy = False
+                        break
             if buy:
                 update_number = self.client.shop_equipment_shop()['result']['lineup_update_num']
                 if update_number < Constants.Shop_Max_Free_Refresh:

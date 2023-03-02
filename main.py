@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 import datetime
+import sys
+
+from api.CustomExceptions import NoAPLeftException
 from api.constants import Item_World_Mode
 
 from dateutil import parser
@@ -59,7 +62,21 @@ class API(BaseAPI):
         self.player_get_equipment_presets()
         self.player_stone_sum()
 
-    def dologin(self):
+    def dologin(self,public_id=None,inherit_code=None):
+        self.client.version_check()
+        if public_id and inherit_code:
+            public_id=str(public_id)
+            inherit_code=str(inherit_code)
+            self.client.signup()
+            self.client.login()
+            self.client.player_add(tracking_authorize=2)
+            self.client.inherit_check()
+            self.client.auth_providers()
+            if not self.client.inherit_conf_inherit(public_id=public_id,inherit_code=inherit_code):
+                self.log('wrong password or public_id')
+                exit(1)
+            self.client.inherit_exec_inherit(public_id=public_id,inherit_code=inherit_code)
+            self.client.version_check()
         self.client.login()
         self.client.app_constants()
         self.client.player_tutorial()
@@ -106,6 +123,12 @@ class API(BaseAPI):
         # boltrend/subscriptions
         self.client.login_update()
         self.player_get_equipment_presets()
+        if self.o.region==1:
+            self.client.auth_providers()
+            code=self.client.inherit_get_code()['result']
+            self.log('public_id: %s inherit_code: %s'%(code['public_id'],code['inherit_code']))
+            with open('transfercode.txt', 'w') as f:
+                f.write(code['inherit_code'])
 
     def addAccount(self):
         self.player_stone_sum()
@@ -198,7 +221,20 @@ class API(BaseAPI):
         if stage['act'] > self.current_ap:
             if self.o.use_potions:
                 self.log('not enough ap. using potion')
-                rr = self.client.item_use(use_item_id=301, use_item_num=1)
+                item_id = ItemsC.AP_Pot
+                ap_pot = self.pd.get_item_by_id(ItemsC.AP_Pot)
+                if ap_pot is None:
+                    self.log('No AP potions left')
+                    item_id = ItemsC.AP_Pot_50
+                    ap_pot = self.pd.get_item_by_id(ItemsC.AP_Pot_50)
+                    if ap_pot is None:
+                        self.log('No 50% AP potions left. Trying to claim AP from mail')
+                        self.present_receive_ap()
+                        if self.o.current_ap < stage['act']:
+                            self.log('No AP left on mail. Exiting....')
+                            raise NoAPLeftException
+                        return
+                rr = self.client.item_use(use_item_id=item_id, use_item_num=1)
                 if 'api_error' in rr and rr['api_error']['code'] == 12009:
                     self.log_err('unable to use potion')
                     return None
@@ -477,6 +513,8 @@ class API(BaseAPI):
                         self.raid_farm_shared_bosses(raid_team)
                 except KeyboardInterrupt:
                     return False
+                except NoAPLeftException:
+                    exit()
                 except:
                     self.log_err('failed stage: %s area: %s' % (s, stage['m_area_id']))
                     blacklist.add(stage['m_area_id'])
