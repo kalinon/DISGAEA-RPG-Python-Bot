@@ -86,11 +86,11 @@ a.o.set_device(3)
 a.quick_login()
 ```
 
-## Using the both for JP
+## Using the bot for JP
 
 1. Create an account for JP (preferrably on DMM)
 2. Get a transfer code
-3. Set region to 2
+3. Set region to 1
 4. Use jp_reroll_example.py Call the dologin method with the user id and one time code from the transfer. Paste the code in line 18.
 
 ```python

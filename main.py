@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import datetime
+import json
 import sys
 
 from api.CustomExceptions import NoAPLeftException
@@ -365,11 +366,12 @@ class API(BaseAPI):
     def log_upgrade_item(self, w):
         item = self.gd.get_weapon(w['m_weapon_id']) if 'm_weapon_id' in w else self.gd.get_equipment(
             w['m_equipment_id'])
-        self.log(
-            '[*] upgrade item: "%s" rarity: %s rank: %s lv: %s lv_max: %s locked: %s' %
-            (item['name'], w['rarity_value'], self.gd.get_item_rank(w), w['lv'],
-             w['lv_max'], w['lock_flg'])
-        )
+        if item is not None:
+            self.log(
+                '[*] upgrade item: "%s" rarity: %s rank: %s lv: %s lv_max: %s locked: %s' %
+                (item['name'], w['rarity_value'], self.gd.get_item_rank(w), w['lv'],
+                w['lv_max'], w['lock_flg'])
+            )
 
     def Complete_Overlord_Tower(self, team_no:int=1):
         tower_level =1
@@ -687,3 +689,50 @@ class API(BaseAPI):
         if event_data['result']['events'][0]['is_item_reward_receivable']:
             self.log(f"Claiming character copy")
             r = self.client.event_receive_rewards(event_id=character_gate)
+
+    def loginfromcache(self,):
+        
+        self.client.login_from_cache()
+        self.client.app_constants()
+        self.client.player_tutorial()
+        self.client.battle_status()
+        # player/profile
+        # player/sync
+        self.player_characters(True)
+        self.player_weapons(True)
+        self.client.player_weapon_effects(updated_at=0, page=1)
+        self.player_equipment(True)
+        self.client.player_equipment_effects(updated_at=0, page=1)
+        self.player_items(True)
+        self.client.player_clear_stages(updated_at=0, page=1)
+        self.client.player_stage_missions(updated_at=0, page=1)
+        self.player_innocents(True)
+        data= self.client.player_index()
+        if 'result' in data:
+            self.o.current_ap = int(data['result']['status']['act'])
+        self.client.player_agendas()
+        self.client.player_boosts()
+        self.player_character_collections()
+        self.player_decks()
+        self.client.friend_index()
+        self.client.player_home_customizes()
+        self.client.passport_index()
+        self.player_stone_sum()
+        self.client.player_sub_tutorials()
+        self.client.system_version_manage()
+        self.client.player_gates()
+        self.client.event_index()
+        self.client.stage_boost_index()
+        self.client.information_popup()
+        self.client.player_character_mana_potions()
+        self.client.potential_current()
+        self.client.potential_conditions()
+        self.client.character_boosts()
+        self.client.survey_index()
+        self.client.kingdom_entries()
+        self.client.breeding_center_list()
+        self.client.trophy_daily_requests()
+        self.client.weapon_equipment_update_effect_unconfirmed()
+        self.client.memory_index()
+        self.client.battle_skip_parties()
+        self.player_get_equipment_presets()

@@ -106,6 +106,17 @@ class Client:
                 self.c.key = bytes(res['fuji_key'])
             self.o.session_id = res['session_id']
             Logger.info('found fuji_key:%s' % self.c.key)
+            
+            ## Cache login data
+            login_data =  []
+            login_data.append({
+                'fuji_key': res['fuji_key'],
+                "session_id": res['session_id']
+                })
+            f = open("logindata.json", "w")
+            f.write(json.dumps(login_data, indent=2, sort_keys=True))
+            f.close()
+
         if 'result' in res and 't_player_id' in res['result']:
             if 'player_rank' in res['result']:
                 Logger.info(
@@ -346,6 +357,12 @@ class Client:
                         "uin": self.o.uin
                     })
         return data
+
+    def login_from_cache(self):
+        login_file = open("logindata.json")
+        login_data = json.load(login_file)
+        self.c.key = bytes(login_data[0]['fuji_key'], encoding='utf8')
+        self.o.session_id = login_data[0]['session_id']
 
     def common_battle_result_jwt(self, iv, mission_status: str = '',
                                  killed_character_num: int = 0, steal_hl_num: int = 0,
@@ -853,6 +870,8 @@ class Client:
         data = self.__rpc('friend/send_act', {"target_t_player_id": 0})
         if data['error'] == 'You cannot send more sardine.':
             return data['error']
+        if 'error' in data:
+            return
         Logger.info(f"Sent sardines to {data['result']['send_count_total']} friends")
 
     def friend_send_request(self, target_t_player_id):
