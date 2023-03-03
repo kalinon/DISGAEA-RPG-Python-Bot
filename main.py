@@ -223,12 +223,12 @@ class API(BaseAPI):
             if self.o.use_potions:
                 self.log('not enough ap. using potion')
                 item_id = ItemsC.AP_Pot
-                ap_pot = self.pd.get_item_by_id(ItemsC.AP_Pot)
-                if ap_pot is None:
+                ap_pot = self.pd.get_item_by_m_item_id(ItemsC.AP_Pot)
+                if ap_pot is None or ap_pot['num_total'] == 0:
                     self.log('No AP potions left')
                     item_id = ItemsC.AP_Pot_50
-                    ap_pot = self.pd.get_item_by_id(ItemsC.AP_Pot_50)
-                    if ap_pot is None:
+                    ap_pot = self.pd.get_item_by_m_item_id(ItemsC.AP_Pot_50)
+                    if ap_pot is None or ap_pot['num_total'] == 0:
                         self.log('No 50% AP potions left. Trying to claim AP from mail')
                         self.present_receive_ap()
                         if self.o.current_ap < stage['act']:

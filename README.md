@@ -6,8 +6,7 @@ requirements:
 - `pip install requests`
 - `pip install python-dateutil`
 - `pip install jwt`
-- license key (get it from https://disgaea.codedbots.com, once you have the license key put it into `codedbots.py` on
-  line 15)
+- license key (get it from https://disgaea.codedbots.com, once you have the license key either create a BOT_TOKEN environmental variable or put it into `codedbots.py` on line 15. )
 
 ![bot running](https://raw.github.com/Mila432/DISGAEA-RPG-Python-Bot/master/1.png)
 
@@ -106,4 +105,5 @@ a.quick_login()
 
 When you do, open DRPG JP on a different device and use the transfer code there. You do not need to log in afterwards, once you've used the code you can use the bot once again.
 
-7. If you want to reroll, copy the new transfer code into transfercode.txt
+8. Once you've succesfulyl logged in, you can use loginfromcache() instead of dologin. Instead of logging in again, it will resume the previous session. It will reduce the number og logins, thus making it so that the trasnfer code will break less often.
+9. If you want to reroll, copy the new transfer code into transfercode.txt
