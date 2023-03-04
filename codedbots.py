@@ -9,11 +9,10 @@ import requests
 
 
 class codedbots(object):
-    def __init__(self,region=2):
+    def __init__(self):
         self.s = requests.Session()
         # self.s.proxies.update({'http': 'http://127.0.0.1:8080', 'https': 'http://127.0.0.1:8080', })
-        self.region=region
-        self.license = os.getenv('BOT_TOKEN', default='')
+        self.license = os.getenv('BOT_TOKEN', default='LICENSE GOES HERE')
         if len(self.license) != 64:
             print('license invalid')
             exit(1)
@@ -29,9 +28,9 @@ class codedbots(object):
     def randomiv(self):
         return self.s.get(self.mainurl + '/iv', verify=False).content
 
-    def encrypt(self, data, iv):
+    def encrypt(self, data, iv, region):
         body = {'data': base64.b64encode(json.dumps(data).encode()), 'iv': iv, 'license': self.license,
-                'fuji_key': self.key, 'region':self.region}
+                'fuji_key': self.key, 'region': region}
         r = self.s.post(self.mainurl + '/encrypt', data=body, verify=False)
         if r.status_code == 200:
             return base64.b64decode(r.content)
@@ -40,8 +39,8 @@ class codedbots(object):
             time.sleep(60)
             return None
 
-    def decrypt(self, data, iv):
-        body = {'data': data, 'iv': iv, 'fuji_key': self.key, 'license': self.license, 'region':self.region}
+    def decrypt(self, data, iv, region):
+        body = {'data': data, 'iv': iv, 'fuji_key': self.key, 'license': self.license, 'region': region}
         r = self.s.post(self.mainurl + '/decrypt', data=body, verify=False)
         if r.status_code == 200:
             return json.loads(base64.b64decode(r.content))

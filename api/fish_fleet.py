@@ -12,7 +12,8 @@ class FishFleet(Player, metaclass=ABCMeta):
         super().__init__()
 
     def survey_complete_all_expeditions_and_start_again(self, use_bribes, hours):
-        server_date_time = datetime.datetime.utcnow() + datetime.timedelta(hours=-4)
+        time_delta = -4 if self.o.region == 2 else 9
+        server_date_time = datetime.datetime.utcnow() + datetime.timedelta(hours=time_delta)
         fish_fleet_data = self.client.survey_index()
         for fish_fleet in fish_fleet_data['result']['t_surveys']:
             fleet_name = self.survey_get_fleet_name(fish_fleet['m_survey_id'])

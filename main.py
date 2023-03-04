@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 import datetime
+import json
+import sys
+
+from api.CustomExceptions import NoAPLeftException
 from api.constants import Item_World_Mode
 
 from dateutil import parser
@@ -27,18 +31,9 @@ class API(BaseAPI):
         for i in range(5):
             self.get_mail()
 
-    def dofarm(self):
-        # self.buyRare()
-        self.get_mail_and_rewards()
-        if True:
-            for i in [9, 8, 7, 6, 1012, 1011, 101, 101, 101, 101, 101]:
-                self.client.shop_buy_item(itemid=i, quantity=1)
-
-        if True:
-            for i in [31, 8, 7, 1, 19, 21, 29, 24, 2, 6, 25, 26]:
-                self.client.sub_tutorial_read(m_sub_tutorial_id=i)
-
-        self.completeStory()
+    ################################################################
+    ###########      LOGIN METHODS   ###############################
+    ################################################################
 
     def quick_login(self):
         self.client.login()
@@ -59,7 +54,22 @@ class API(BaseAPI):
         self.player_get_equipment_presets()
         self.player_stone_sum()
 
-    def dologin(self):
+    # Use for JP
+    def dologin(self,public_id=None,inherit_code=None):
+        self.client.version_check()
+        if public_id and inherit_code:
+            public_id=str(public_id)
+            inherit_code=str(inherit_code)
+            self.client.signup()
+            self.client.login()
+            self.client.player_add(tracking_authorize=2)
+            self.client.inherit_check()
+            self.client.auth_providers()
+            if not self.client.inherit_conf_inherit(public_id=public_id,inherit_code=inherit_code):
+                self.log('wrong password or public_id')
+                exit(1)
+            self.client.inherit_exec_inherit(public_id=public_id,inherit_code=inherit_code)
+            self.client.version_check()
         self.client.login()
         self.client.app_constants()
         self.client.player_tutorial()
@@ -68,12 +78,12 @@ class API(BaseAPI):
         # player/sync
         self.player_characters(True)
         self.player_weapons(True)
-        self.client.player_weapon_effects(updated_at=0, page=1)
+        self.player_weapon_effects(True)
         self.player_equipment(True)
-        self.client.player_equipment_effects(updated_at=0, page=1)
+        self.player_equipment_effects(True)
         self.player_items(True)
-        self.client.player_clear_stages(updated_at=0, page=1)
-        self.client.player_stage_missions(updated_at=0, page=1)
+        # self.client.player_clear_stages(updated_at=0, page=1)
+        # self.client.player_stage_missions(updated_at=0, page=1)
         self.player_innocents(True)
         data = self.client.player_index()
         if 'result' in data:
@@ -106,11 +116,63 @@ class API(BaseAPI):
         # boltrend/subscriptions
         self.client.login_update()
         self.player_get_equipment_presets()
+        if self.o.region==1:
+            self.client.auth_providers()
+            code=self.client.inherit_get_code()['result']
+            self.log('public_id: %s inherit_code: %s'%(code['public_id'],code['inherit_code']))
+            with open('transfercode.txt', 'w') as f:
+                f.write(code['inherit_code'])
 
-    def addAccount(self):
+    # Reads from logindata.json. Avoids new login (prevents issues with JP code transfer)
+    def loginfromcache(self):
+        self.client.login_from_cache()
+        self.client.app_constants()
+        self.client.player_tutorial()
+        self.client.battle_status()
+        # player/profile
+        # player/sync
+        self.player_characters(True)
+        self.player_weapons(True)
+        self.client.player_weapon_effects(updated_at=0, page=1)
+        self.player_equipment(True)
+        self.client.player_equipment_effects(updated_at=0, page=1)
+        self.player_items(True)
+        # self.client.player_clear_stages(updated_at=0, page=1)
+        # self.client.player_stage_missions(updated_at=0, page=1)
+        self.player_innocents(True)
+        data= self.client.player_index()
+        if 'result' in data:
+            self.o.current_ap = int(data['result']['status']['act'])
+        self.client.player_agendas()
+        self.client.player_boosts()
+        self.player_character_collections()
+        self.player_decks()
+        self.client.friend_index()
+        self.client.player_home_customizes()
+        self.client.passport_index()
         self.player_stone_sum()
-        self.get_mail()
-        self.get_mail()
+        self.client.player_sub_tutorials()
+        self.client.system_version_manage()
+        self.client.player_gates()
+        self.client.event_index()
+        self.client.stage_boost_index()
+        self.client.information_popup()
+        self.client.player_character_mana_potions()
+        self.client.potential_current()
+        self.client.potential_conditions()
+        self.client.character_boosts()
+        self.client.survey_index()
+        self.client.kingdom_entries()
+        self.client.breeding_center_list()
+        self.client.trophy_daily_requests()
+        self.client.weapon_equipment_update_effect_unconfirmed()
+        self.client.memory_index()
+        self.client.battle_skip_parties()
+        self.player_get_equipment_presets()
+
+    ################################################################
+    ###########      MAIL METHODS   ################################
+    ################################################################
 
     def get_mail(self):
         did = set()
@@ -199,13 +261,26 @@ class API(BaseAPI):
         if stage['act'] > self.current_ap:
             if self.o.use_potions:
                 self.log('not enough ap. using potion')
-                rr = self.client.item_use(use_item_id=301, use_item_num=1)
+                item_id = ItemsC.AP_Pot
+                ap_pot = self.pd.get_item_by_m_item_id(ItemsC.AP_Pot)
+                if ap_pot is None or ap_pot['num_total'] == 0:
+                    self.log('No AP potions left')
+                    item_id = ItemsC.AP_Pot_50
+                    ap_pot = self.pd.get_item_by_m_item_id(ItemsC.AP_Pot_50)
+                    if ap_pot is None or ap_pot['num_total'] == 0:
+                        self.log('No 50% AP potions left. Trying to claim AP from mail')
+                        self.present_receive_ap()
+                        if self.o.current_ap < stage['act']:
+                            self.log('No AP left on mail. Exiting....')
+                            raise NoAPLeftException
+                        return
+                rr = self.client.item_use(use_item_id=item_id, use_item_num=1)
                 if 'api_error' in rr and rr['api_error']['code'] == 12009:
                     self.log_err('unable to use potion')
-                    return None
+                    raise NoAPLeftException
             else:
                 self.log('not enough ap')
-                return
+                raise NoAPLeftException
 
         if team_num is None:
             team_num = self.o.team_num
@@ -330,11 +405,12 @@ class API(BaseAPI):
     def log_upgrade_item(self, w):
         item = self.gd.get_weapon(w['m_weapon_id']) if 'm_weapon_id' in w else self.gd.get_equipment(
             w['m_equipment_id'])
-        self.log(
-            '[*] upgrade item: "%s" rarity: %s rank: %s lv: %s lv_max: %s locked: %s' %
-            (item['name'], w['rarity_value'], self.gd.get_item_rank(w), w['lv'],
-             w['lv_max'], w['lock_flg'])
-        )
+        if item is not None:
+            self.log(
+                '[*] upgrade item: "%s" rarity: %s rank: %s lv: %s lv_max: %s locked: %s' %
+                (item['name'], w['rarity_value'], self.gd.get_item_rank(w), w['lv'],
+                w['lv_max'], w['lock_flg'])
+            )
 
     def Complete_Overlord_Tower(self, team_no: int = 1):
         tower_level = 1
@@ -437,7 +513,7 @@ class API(BaseAPI):
                 ss.append(s)
         return ss
 
-    def completeStory(self, m_area_id=None, limit=None, farming_all=False, raid_team=None):
+    def completeStory(self, m_area_id=None, limit=None, farming_all=False, raid_team=None, send_friend_request:bool=False):
         ss = []
         for s in self.gd.stages:
             ss.append(s['id'])
@@ -472,13 +548,15 @@ class API(BaseAPI):
                 if stage['m_area_id'] in blacklist:
                     continue
                 try:
-                    self.doQuest(s, auto_rebirth=self.o.auto_rebirth)
-                    complete.add(s)
+                    self.doQuest(s, auto_rebirth=self.o.auto_rebirth, send_friend_request=send_friend_request)
+                    complete.add(s)                    
                     if raid_team is not None:
                         self.raid_share_own_boss(raid_team)
                         self.raid_farm_shared_bosses(raid_team)
                 except KeyboardInterrupt:
                     return False
+                except NoAPLeftException:
+                    return
                 except:
                     self.log_err('failed stage: %s area: %s' % (s, stage['m_area_id']))
                     blacklist.add(stage['m_area_id'])
@@ -496,8 +574,9 @@ class API(BaseAPI):
         # Server time is utc -4. Spins available every 8 hours
         last_roulete_time_string = self.client.hospital_index()['result']['last_hospital_at']
         last_roulette_time = parser.parse(last_roulete_time_string)
-        utcminus4time = datetime.datetime.utcnow() + datetime.timedelta(hours=-4)
-        if utcminus4time > last_roulette_time + datetime.timedelta(hours=8):
+        time_delta = -4 if self.o.region == 2 else 9
+        server_date_time = datetime.datetime.utcnow() + datetime.timedelta(hours=time_delta)
+        if server_date_time > last_roulette_time + datetime.timedelta(hours=8):
             self.client.hospital_roulette()
 
     def is_helper_in_friend_list(self, player_id):
@@ -579,8 +658,12 @@ class API(BaseAPI):
         deck_data['charaIdList'][team_no - 1] = character_ids
         self.client.player_update_deck(deck_data)
 
-        # Search friend by public ID and send request
 
+    ################################################################
+    ###########     FRIEND METHODS   ###############################
+    ################################################################
+
+    # Search friend by public ID and send request
     def add_friend_by_public_id(self, public_id):
         if isinstance(public_id, int):
             public_id = str(public_id)
@@ -601,7 +684,8 @@ class API(BaseAPI):
             f"Sending request to user {friend_data['result']['friends'][0]['name']} - Rank {friend_data['result']['friends'][0]['rank']}")
         self.client.friend_send_request(friend_data['result']['friends'][0]['id'])
 
-    def super_reincarnate(self, character_id, log: bool = True):
+
+    def super_reincarnate(self, character_id, log:bool=True):
         unit = self.pd.get_character_by_id(character_id)
         if unit is None:
             self.log(f"No character with id {character_id} found")
@@ -656,3 +740,6 @@ class API(BaseAPI):
         if event_data['result']['events'][0]['is_item_reward_receivable']:
             self.log(f"Claiming character copy")
             r = self.client.event_receive_rewards(event_id=character_gate)
+
+    def get_cleared_stages(self):
+        self.player_clear_stages()

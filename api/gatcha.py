@@ -19,8 +19,9 @@ class Gatcha(Player):
         player_data = self.client.player_index()
         last_free_gacha_at_string = player_data['result']['status']['last_free_gacha_at']
         last_free_gacha_at_string_date = parser.parse(last_free_gacha_at_string)
-        serverTime = datetime.datetime.utcnow() + datetime.timedelta(hours=-4)
-        return serverTime.date() > last_free_gacha_at_string_date.date()
+        time_delta = -4 if self.o.region == 2 else 9
+        server_date_time = datetime.datetime.utcnow() + datetime.timedelta(hours=time_delta)
+        return server_date_time.date() > last_free_gacha_at_string_date.date()
 
     def get_gacha_pull_count(self, m_gacha_id = 100001):
         gacha_data = self.client.gacha_sums()
@@ -32,6 +33,8 @@ class Gatcha(Player):
     def is_free_10pull_available(self, m_gacha_id, max_draws):
         banner_data = self.client.gacha_sums()
         banner = next((x for x in banner_data['result']['_items'] if x['m_gacha_id'] == m_gacha_id),None)
+        if banner is  None:
+            return True
         last_pull_at_string = banner['last_draw_at']
         last_pull_at_date = parser.parse(last_pull_at_string)
         serverTime = datetime.datetime.utcnow() + datetime.timedelta(hours=-4)

@@ -1,6 +1,6 @@
 from abc import ABCMeta
 
-from api.constants import Constants, Innocent_ID, EquipmentType
+from api.constants import Constants, Innocent_ID, EquipmentType, ErrorMessages, JP_ErrorMessages
 from api.player import Player
 
 
@@ -53,8 +53,9 @@ class Shop(Player, metaclass=ABCMeta):
                 if i['innocent_num'] > 0:
                     item_ids = [i['id']]
                     res = self.client.shop_buy_equipment(item_type=i['item_type'], itemid=item_ids)
-                    if res['error'] == Constants.Armor_Full_Error or res['error'] == Constants.Weapon_Full_Error:
-                        buy = False
+                    if res['error'] == ErrorMessages.Armor_Full_Error or res['error'] == ErrorMessages.Weapon_Full_Error or res['error'] == JP_ErrorMessages.Armor_Full_Error or res['error'] == JP_ErrorMessages.Weapon_Full_Error:
+                        buy=False
+                        break
             if buy:
                 update_number = self.client.shop_equipment_shop()['result']['lineup_update_num']
                 if update_number < Constants.Shop_Max_Free_Refresh:

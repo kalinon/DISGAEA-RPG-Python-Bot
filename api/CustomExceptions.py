@@ -1,0 +1,2 @@
+class NoAPLeftException(Exception):
+    pass

@@ -10,12 +10,19 @@ class Constants:
     Current_Raid_Badass_Boss_ID = 2332
     Current_Story_Event_ID = 228
     Current_Story_Event_Area_IDs =  [1228101, 1228102, 1228103, 1228104, 1228105]
+    Etna_Defense_Area_ID_GL = 0
+    Enta_Defense_Event_ID_GL = 0
+    Etna_Defense_Area_ID_JP = 1436101
+    Enta_Defense_Event_ID_JP = 436
+    Etna_Defense_Daily_Run_Limit = 10
+    UDT_Training_Area_ID_GL = 0
+    UDT_Training_Event_ID_GL = 0
+    UDT_Training_Area_ID_JP = 0
+    UDT_Training_Event_ID_JP = 0
+    UDT_Training_Daily_Run_Limit = 5
     Current_Bingo_ID = 2
     Current_Sugoroku_Event_ID = 0
     Item_Survey_Deposit_Size = 10
-    Weapon_Full_Error = 'Weapon Slot is full\nPlease expand slot or sell weapons'
-    Armor_Full_Error = 'Armor Slot is full\nPlease expand slot or sell armor'
-    Innocent_Full_Error = 'Max possession number of Innocents reached.'
     Shop_Max_Free_Refresh = 5
     Highest_Tower_Level = 50
     Alchemy_Alchemize_Cost = 6000
@@ -43,7 +50,6 @@ class Raid_ID(IntEnum):
     SAKUYA_RAID_ID = 209
     OVERLORD_PRIERE_RAID_ID = 220
     METALLIA_RAID_ID = 233
-
 
 class Raid_Boss_Level_Step(IntEnum):
     NOT_SET = 0
@@ -110,6 +116,7 @@ class Innocent_ID(IntEnum):
 class EquipmentType(IntEnum):
     WEAPON = 1
     ARMOR = 2
+
 class Battle_Finish_Type(IntEnum):
     Normal_Attack = 1
     Special_Move = 2
@@ -119,6 +126,8 @@ class Battle_Finish_Type(IntEnum):
 
 class Items(IntEnum):
     HL = 101
+    AP_Pot = 301
+    AP_Pot_50 = 302
     Prinny_Steel = 3201
     PriPrism = 4101
     Prilixir = 4201
@@ -133,6 +142,7 @@ class Item_World_Mode(IntEnum):
 class Item_World_Drop_Mode(IntEnum):
     Drop_Weapons_Only = 1
     Drop_All_Items = 2
+    
 class Alchemy_Effect_Type(IntEnum):
     Innocent_Effect = 10001
     CritRate = 20001
@@ -199,8 +209,9 @@ class Event_Types(IntEnum):
     character_Gate = 2
     Story_Event_Special_Mission = 3
     Conquest_Battle = 4
-    Event_Special_Gate = 5 
+    UDT_Training = 5 
     Raid = 6
+    Etna_Defense = 10
 
 class Character_Gate(IntEnum):
     Majin_Etna = 2
@@ -209,3 +220,15 @@ class Character_Gate(IntEnum):
     Sister_Artina = 34
     Killidia = 45 
     Pringer_X = 84
+
+class ErrorMessages:
+    Weapon_Full_Error = 'Weapon Slot is full\nPlease expand slot or sell weapons'
+    Armor_Full_Error = 'Armor Slot is full\nPlease expand slot or sell armor'
+    Innocent_Full_Error = 'Max possession number of Innocents reached.'
+    Raid_Battle_Finished = 'The raid Boss is already conquered'
+
+class JP_ErrorMessages:
+    Weapon_Full_Error = 'Weapon Slot is full\nPlease expand slot or sell weapons'
+    Armor_Full_Error = '防具の所持数がいっぱいです\n所持枠を拡張するか売却などをしてください'
+    Innocent_Full_Error = 'Max possession number of Innocents reached.'
+    Raid_Battle_Finished = 'The raid Boss is already conquered'

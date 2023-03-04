@@ -19,12 +19,12 @@ class PvP(Base, metaclass=ABCMeta):
             reward = self.client.pvp_receive_rewards()
 
         current_orbs = pvp_data['result']['t_arena']['act']
-
+        time_delta = -4 if self.o.region == 2 else 9
         if current_orbs == 0:
             # When 10 orbs are remaining it displays act=0. Calculate based on last recovery time
             pvp_recover_date_string = pvp_data['result']['t_arena']['act_at']
             pvp_recover_date = parser.parse(pvp_recover_date_string)        
-            server_time = datetime.datetime.utcnow() + datetime.timedelta(hours=-4)
+            server_time = datetime.datetime.utcnow() + datetime.timedelta(hours=time_delta)
             pvp_arena_fully_recovered_time = pvp_recover_date + datetime.timedelta(minutes=500)
             if server_time > pvp_arena_fully_recovered_time:
                 current_orbs = 10
