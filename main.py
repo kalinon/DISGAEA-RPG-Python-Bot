@@ -31,18 +31,9 @@ class API(BaseAPI):
         for i in range(5):
             self.get_mail()
 
-    def dofarm(self):
-        # self.buyRare()
-        self.get_mail_and_rewards()
-        if True:
-            for i in [9, 8, 7, 6, 1012, 1011, 101, 101, 101, 101, 101]:
-                self.client.shop_buy_item(itemid=i, quantity=1)
-
-        if True:
-            for i in [31, 8, 7, 1, 19, 21, 29, 24, 2, 6, 25, 26]:
-                self.client.sub_tutorial_read(m_sub_tutorial_id=i)
-
-        self.completeStory()
+    ################################################################
+    ###########      LOGIN METHODS   ###############################
+    ################################################################
 
     def quick_login(self):
         self.client.login()
@@ -63,6 +54,7 @@ class API(BaseAPI):
         self.player_get_equipment_presets()
         self.player_stone_sum()
 
+    # Use for JP
     def dologin(self,public_id=None,inherit_code=None):
         self.client.version_check()
         if public_id and inherit_code:
@@ -86,12 +78,12 @@ class API(BaseAPI):
         # player/sync
         self.player_characters(True)
         self.player_weapons(True)
-        self.client.player_weapon_effects(updated_at=0, page=1)
+        self.player_weapon_effects(True)
         self.player_equipment(True)
-        self.client.player_equipment_effects(updated_at=0, page=1)
+        self.player_equipment_effects(True)
         self.player_items(True)
-        self.client.player_clear_stages(updated_at=0, page=1)
-        self.client.player_stage_missions(updated_at=0, page=1)
+        # self.client.player_clear_stages(updated_at=0, page=1)
+        # self.client.player_stage_missions(updated_at=0, page=1)
         self.player_innocents(True)
         data= self.client.player_index()
         if 'result' in data:
@@ -131,10 +123,56 @@ class API(BaseAPI):
             with open('transfercode.txt', 'w') as f:
                 f.write(code['inherit_code'])
 
-    def addAccount(self):
+    # Reads from logindata.json. Avoids new login (prevents issues with JP code transfer)
+    def loginfromcache(self):        
+        self.client.login_from_cache()
+        self.client.app_constants()
+        self.client.player_tutorial()
+        self.client.battle_status()
+        # player/profile
+        # player/sync
+        self.player_characters(True)
+        self.player_weapons(True)
+        self.client.player_weapon_effects(updated_at=0, page=1)
+        self.player_equipment(True)
+        self.client.player_equipment_effects(updated_at=0, page=1)
+        self.player_items(True)
+        # self.client.player_clear_stages(updated_at=0, page=1)
+        # self.client.player_stage_missions(updated_at=0, page=1)
+        self.player_innocents(True)
+        data= self.client.player_index()
+        if 'result' in data:
+            self.o.current_ap = int(data['result']['status']['act'])
+        self.client.player_agendas()
+        self.client.player_boosts()
+        self.player_character_collections()
+        self.player_decks()
+        self.client.friend_index()
+        self.client.player_home_customizes()
+        self.client.passport_index()
         self.player_stone_sum()
-        self.get_mail()
-        self.get_mail()
+        self.client.player_sub_tutorials()
+        self.client.system_version_manage()
+        self.client.player_gates()
+        self.client.event_index()
+        self.client.stage_boost_index()
+        self.client.information_popup()
+        self.client.player_character_mana_potions()
+        self.client.potential_current()
+        self.client.potential_conditions()
+        self.client.character_boosts()
+        self.client.survey_index()
+        self.client.kingdom_entries()
+        self.client.breeding_center_list()
+        self.client.trophy_daily_requests()
+        self.client.weapon_equipment_update_effect_unconfirmed()
+        self.client.memory_index()
+        self.client.battle_skip_parties()
+        self.player_get_equipment_presets()
+
+    ################################################################
+    ###########      MAIL METHODS   ################################
+    ################################################################
 
     def get_mail(self):
         did = set()
@@ -616,6 +654,11 @@ class API(BaseAPI):
         deck_data['charaIdList'][team_no-1] = character_ids
         self.client.player_update_deck(deck_data)  
 
+
+    ################################################################
+    ###########     FRIEND METHODS   ###############################
+    ################################################################
+
     # Search friend by public ID and send request
     def add_friend_by_public_id(self, public_id):
         if isinstance(public_id, int):
@@ -634,6 +677,7 @@ class API(BaseAPI):
             return
         self.log(f"Sending request to user {friend_data['result']['friends'][0]['name']} - Rank {friend_data['result']['friends'][0]['rank']}")
         self.client.friend_send_request(friend_data['result']['friends'][0]['id'])
+
 
     def super_reincarnate(self, character_id, log:bool=True):
         unit = self.pd.get_character_by_id(character_id)
@@ -690,49 +734,5 @@ class API(BaseAPI):
             self.log(f"Claiming character copy")
             r = self.client.event_receive_rewards(event_id=character_gate)
 
-    def loginfromcache(self,):
-        
-        self.client.login_from_cache()
-        self.client.app_constants()
-        self.client.player_tutorial()
-        self.client.battle_status()
-        # player/profile
-        # player/sync
-        self.player_characters(True)
-        self.player_weapons(True)
-        self.client.player_weapon_effects(updated_at=0, page=1)
-        self.player_equipment(True)
-        self.client.player_equipment_effects(updated_at=0, page=1)
-        self.player_items(True)
-        self.client.player_clear_stages(updated_at=0, page=1)
-        self.client.player_stage_missions(updated_at=0, page=1)
-        self.player_innocents(True)
-        data= self.client.player_index()
-        if 'result' in data:
-            self.o.current_ap = int(data['result']['status']['act'])
-        self.client.player_agendas()
-        self.client.player_boosts()
-        self.player_character_collections()
-        self.player_decks()
-        self.client.friend_index()
-        self.client.player_home_customizes()
-        self.client.passport_index()
-        self.player_stone_sum()
-        self.client.player_sub_tutorials()
-        self.client.system_version_manage()
-        self.client.player_gates()
-        self.client.event_index()
-        self.client.stage_boost_index()
-        self.client.information_popup()
-        self.client.player_character_mana_potions()
-        self.client.potential_current()
-        self.client.potential_conditions()
-        self.client.character_boosts()
-        self.client.survey_index()
-        self.client.kingdom_entries()
-        self.client.breeding_center_list()
-        self.client.trophy_daily_requests()
-        self.client.weapon_equipment_update_effect_unconfirmed()
-        self.client.memory_index()
-        self.client.battle_skip_parties()
-        self.player_get_equipment_presets()
+    def get_cleared_stages(self):
+        self.player_clear_stages()

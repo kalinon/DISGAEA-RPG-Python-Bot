@@ -10,6 +10,12 @@ class Constants:
     Current_Raid_Badass_Boss_ID = 2332
     Current_Story_Event_ID = 228
     Current_Story_Event_Area_IDs =  [1228101, 1228102, 1228103, 1228104, 1228105]
+    Etna_Defense_Area_ID_GL = 0
+    Etna_Defense_Area_ID_JP = 1436101
+    Etna_Defense_Daily_Run_Limit = 10
+    UDT_Training_Area_ID_GL = 0
+    UDT_Training_Area_ID_JP = 0
+    UDT_Training_Daily_Run_Limit = 5
     Current_Bingo_ID = 2
     Current_Sugoroku_Event_ID = 0
     Item_Survey_Deposit_Size = 10
@@ -40,7 +46,6 @@ class Raid_ID(IntEnum):
     SAKUYA_RAID_ID = 209
     OVERLORD_PRIERE_RAID_ID = 220
     METALLIA_RAID_ID = 233
-
 
 class Raid_Boss_Level_Step(IntEnum):
     NOT_SET = 0
@@ -107,6 +112,7 @@ class Innocent_ID(IntEnum):
 class EquipmentType(IntEnum):
     WEAPON = 1
     ARMOR = 2
+
 class Battle_Finish_Type(IntEnum):
     Normal_Attack = 1
     Special_Move = 2
@@ -199,8 +205,9 @@ class Event_Types(IntEnum):
     character_Gate = 2
     Story_Event_Special_Mission = 3
     Conquest_Battle = 4
-    Event_Special_Gate = 5 
+    UDT_Training = 5 
     Raid = 6
+    Etna_Defense = 10
 
 class Character_Gate(IntEnum):
     Majin_Etna = 2
