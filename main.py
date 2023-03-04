@@ -511,7 +511,7 @@ class API(BaseAPI):
                 ss.append(s)
         return ss
 
-    def completeStory(self, m_area_id=None, limit=None, farming_all=False, raid_team=None):
+    def completeStory(self, m_area_id=None, limit=None, farming_all=False, raid_team=None, send_friend_request:bool=False):
         ss = []
         for s in self.gd.stages:
             ss.append(s['id'])
@@ -546,7 +546,7 @@ class API(BaseAPI):
                 if stage['m_area_id'] in blacklist:
                     continue
                 try:
-                    self.doQuest(s, auto_rebirth=self.o.auto_rebirth)
+                    self.doQuest(s, auto_rebirth=self.o.auto_rebirth, send_friend_request=send_friend_request)
                     complete.add(s)                    
                     if raid_team is not None:
                         self.raid_share_own_boss(raid_team)
