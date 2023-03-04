@@ -75,7 +75,7 @@ class API(BaseAPI):
         self.client.player_clear_stages(updated_at=0, page=1)
         self.client.player_stage_missions(updated_at=0, page=1)
         self.player_innocents(True)
-        data= self.client.player_index()
+        data = self.client.player_index()
         if 'result' in data:
             self.o.current_ap = int(data['result']['status']['act'])
         self.client.player_agendas()
@@ -129,26 +129,26 @@ class API(BaseAPI):
                     order=1)
             else:
                 break
-    
+
     def present_receive_ap(self):
-        present_data = self.client.present_index(conditions=[4],order=0)
+        present_data = self.client.present_index(conditions=[4], order=0)
         ap = next((x for x in present_data['result']['_items'] if x['present_id'] == 2501), None)
         if ap is not None:
-            self.client.present_receive(receive_ids =[ap['id']], order=0, conditions=[4])
+            self.client.present_receive(receive_ids=[ap['id']], order=0, conditions=[4])
             print(f"Claimed {ap['present_num']} AP")
             self.o.current_ap += int(ap['present_num'])
 
-    def present_receive_equipment(self):        
+    def present_receive_equipment(self):
         claim_presents = True
         while claim_presents:
-            present_data = self.client.present_index(conditions=[2],order=0)
+            present_data = self.client.present_index(conditions=[2], order=0)
             if len(present_data['result']['_items']) == 0:
-                claim_presents = False            
+                claim_presents = False
             item_ids = []
             for item in present_data['result']['_items']:
                 item_ids.append(item['id'])
             for batch in (item_ids[i:i + 20] for i in range(0, len(item_ids), 20)):
-                res = self.client.present_receive(receive_ids = batch, order=0, conditions=[2])
+                res = self.client.present_receive(receive_ids=batch, order=0, conditions=[2])
                 print(f"Claimed {len(res['result']['received_ids'])} items")
                 if len(res['result']['received_ids']) == 0 and len(batch):
                     self.log("Cannot claim more items.")
@@ -159,7 +159,7 @@ class API(BaseAPI):
     def present_receive_all_except_equip_and_AP(self):
         initial_nq = self.player_stone_sum()['result']['_items'][0]['num']
         current_nq = initial_nq
-        present_data = self.client.present_index(conditions=[0,1,3,99],order=0)
+        present_data = self.client.present_index(conditions=[0, 1, 3, 99], order=0)
         claim = True
         while claim:
             item_ids = []
@@ -167,8 +167,8 @@ class API(BaseAPI):
                 item_ids.append(item['id'])
             if len(item_ids) > 0:
                 for batch in (item_ids[i:i + 20] for i in range(0, len(item_ids), 20)):
-                    data =self.client.present_receive(receive_ids = batch, order=0, conditions=[0,1,3,99])
-                    self.log(f"Claimed {len(data['result']['received_ids'])} presents")                    
+                    data = self.client.present_receive(receive_ids=batch, order=0, conditions=[0, 1, 3, 99])
+                    self.log(f"Claimed {len(data['result']['received_ids'])} presents")
                     if 'stones' in data['result']:
                         current_nq = data['result']['stones'][0]['num']
                     if len(data['result']['received_ids']) == 0:
@@ -176,19 +176,20 @@ class API(BaseAPI):
                         claim = False
                         break
             if claim:
-                present_data = self.client.present_index(conditions=[0,1,3,99],order=0)
+                present_data = self.client.present_index(conditions=[0, 1, 3, 99], order=0)
                 claim = len(present_data['result']['_items']) > 0
         if current_nq > initial_nq:
             self.log(f"Total Nether Quartz gained: {current_nq - initial_nq}")
         self.log("Finished claiming presents.")
 
     def doQuest(self, m_stage_id=101102, team_num=None, auto_rebirth: bool = None,
-                help_t_player_id: int = 0, send_friend_request:bool=False, finish_mode : Battle_Finish_Mode = Battle_Finish_Mode.Random_Finish):
+                help_t_player_id: int = 0, send_friend_request: bool = False,
+                finish_mode: Battle_Finish_Mode = Battle_Finish_Mode.Random_Finish):
         if auto_rebirth is None:
             auto_rebirth = self.o.auto_rebirth
 
         stage = self.gd.get_stage(m_stage_id)
-        if stage is None: 
+        if stage is None:
             self.log(f"No stage with id {m_stage_id} found")
             return
         self.log('doing quest:%s [%s]' % (stage['name'], m_stage_id))
@@ -212,7 +213,7 @@ class API(BaseAPI):
         auto_rebirth_character_ids = []
         if auto_rebirth:
             if len(self.o.auto_rebirth_character_ids) > 0:
-                 auto_rebirth_character_ids = self.o.auto_rebirth_character_ids
+                auto_rebirth_character_ids = self.o.auto_rebirth_character_ids
             else:
                 auto_rebirth_character_ids = self.pd.deck(team_num)
 
@@ -296,12 +297,12 @@ class API(BaseAPI):
         equipments = self.player_equipment(False)
 
         if self.options.item_world_mode == Item_World_Mode.Run_Weapons_Only:
-            items  = weapons
+            items = weapons
         elif self.options.item_world_mode == Item_World_Mode.Run_Equipment_Only:
-            items  = equipments
+            items = equipments
         else:
             items = equipments + weapons
-            
+
         item_list = []
         for w in filter(self.__item_filter, items):
             item_list.append(w)
@@ -335,17 +336,17 @@ class API(BaseAPI):
              w['lv_max'], w['lock_flg'])
         )
 
-    def Complete_Overlord_Tower(self, team_no:int=1):
-        tower_level =1
+    def Complete_Overlord_Tower(self, team_no: int = 1):
+        tower_level = 1
         while tower_level <= Constants.Highest_Tower_Level:
             self.log(f"Clearing Overlord Tower level {tower_level}...")
             start = self.client.tower_start(m_tower_no=tower_level, deck_no=team_no)
             end = self.client.battle_end(battle_exp_data=self.get_battle_exp_data(start), m_tower_no=tower_level,
-                                        m_stage_id=0,
-                                        battle_type=4, result=1)
-            tower_level+=1
+                                         m_stage_id=0,
+                                         battle_type=4, result=1)
+            tower_level += 1
         self.log("Completed Overlod Tower")
-        
+
     def doItemWorld(self, equipment_id=None, equipment_type=1):
         if equipment_id is None:
             self.log_err('missing equip')
@@ -385,7 +386,8 @@ class API(BaseAPI):
     def __start_item_world(self, equipment_id, equipment_type):
         start = self.client.item_world_start(equipment_id, equipment_type=equipment_type,
                                              deck_no=self.o.team_num,
-                                             reincarnation_character_ids=self.pd.deck(self.o.team_num) if self.o.auto_rebirth else [])
+                                             reincarnation_character_ids=self.pd.deck(
+                                                 self.o.team_num) if self.o.auto_rebirth else [])
         if start is None or 'result' not in start:
             return None, None
 
@@ -471,7 +473,7 @@ class API(BaseAPI):
                     continue
                 try:
                     self.doQuest(s, auto_rebirth=self.o.auto_rebirth)
-                    complete.add(s)                    
+                    complete.add(s)
                     if raid_team is not None:
                         self.raid_share_own_boss(raid_team)
                         self.raid_farm_shared_bosses(raid_team)
@@ -520,7 +522,7 @@ class API(BaseAPI):
             "app_constants": self.client.app_constants()['result'],
         })
 
-    def complete_dark_assembly_mission(self, agenda_id = 138):
+    def complete_dark_assembly_mission(self, agenda_id=138):
         self.client.agenda_start(agenda_id)
         self.client.agenda_vote(agenda_id, [])
         self.client.agenda_get_campaign()
@@ -537,7 +539,7 @@ class API(BaseAPI):
             sorted_keys = sorted(team_characters)
             for key in sorted_keys:
                 unit_id = team_characters[key]
-                if(character_ids == ""):
+                if (character_ids == ""):
                     character_ids = unit_id
                 else:
                     character_ids = "{character_ids},{unit_id}".format(character_ids=character_ids, unit_id=unit_id)
@@ -547,20 +549,21 @@ class API(BaseAPI):
                 i = 0
                 while i < zeroes_to_add:
                     character_ids = "{character_ids},0".format(character_ids=character_ids)
-                    i += 1 
+                    i += 1
 
             charaIdList.append(character_ids)
             names.append(team['name'])
-            
+
             memories = ""
             for memory in team['t_memory_ids']:
-                if(memories == ""):
+                if (memories == ""):
                     memories = memory
                 else:
                     memories = "{memories},{memory}".format(memories=memories, memory=memory)
             t_memory_ids_list.append(memories)
 
-        deck_data = {"selectDeckNo":1,"charaIdList": charaIdList,"names": names,"t_memory_ids_list":t_memory_ids_list}
+        deck_data = {"selectDeckNo": 1, "charaIdList": charaIdList, "names": names,
+                     "t_memory_ids_list": t_memory_ids_list}
         return deck_data
 
     # team_no index starts at 0 Deduct 1 to offset. Character ids: '149980157,115286421,86661270,181611027,0'
@@ -569,35 +572,38 @@ class API(BaseAPI):
         if len(x) != 5:
             print(f"You need to specify 5 character ids")
             return
-        if x[0] == '0' and next((r for r in x if r != '0'),None) is not None:
+        if x[0] == '0' and next((r for r in x if r != '0'), None) is not None:
             print(f"Leader slot cannot be empty")
             return
         deck_data = self.player_get_deck_data()
-        deck_data['charaIdList'][team_no-1] = character_ids
-        self.client.player_update_deck(deck_data)  
+        deck_data['charaIdList'][team_no - 1] = character_ids
+        self.client.player_update_deck(deck_data)
 
-    # Search friend by public ID and send request
+        # Search friend by public ID and send request
+
     def add_friend_by_public_id(self, public_id):
         if isinstance(public_id, int):
             public_id = str(public_id)
-        friend_data = self.client.friend_search(public_id=public_id)  
+        friend_data = self.client.friend_search(public_id=public_id)
         if len(friend_data['result']['friends']) == 0:
             self.log(f"No user found with public id {public_id}")
             return
-        self.log(f"Sending request to user {friend_data['result']['friends'][0]['name']} - Rank {friend_data['result']['friends'][0]['rank']}")
+        self.log(
+            f"Sending request to user {friend_data['result']['friends'][0]['name']} - Rank {friend_data['result']['friends'][0]['rank']}")
         self.client.friend_send_request(friend_data['result']['friends'][0]['id'])
 
     def add_friend_by_name(self, user_name):
-        friend_data = self.client.friend_search(name=user_name)  
+        friend_data = self.client.friend_search(name=user_name)
         if len(friend_data['result']['friends']) == 0:
             self.log(f"No user found with public name {user_name}")
             return
-        self.log(f"Sending request to user {friend_data['result']['friends'][0]['name']} - Rank {friend_data['result']['friends'][0]['rank']}")
+        self.log(
+            f"Sending request to user {friend_data['result']['friends'][0]['name']} - Rank {friend_data['result']['friends'][0]['rank']}")
         self.client.friend_send_request(friend_data['result']['friends'][0]['id'])
 
-    def super_reincarnate(self, character_id, log:bool=True):
+    def super_reincarnate(self, character_id, log: bool = True):
         unit = self.pd.get_character_by_id(character_id)
-        if unit is None: 
+        if unit is None:
             self.log(f"No character with id {character_id} found")
             return
         if unit['lv'] < 9999:
@@ -606,25 +612,26 @@ class API(BaseAPI):
         sr_count = unit['super_rebirth_num']
         from data import data as gamedata
         sr_data = gamedata['super_rebirth_data']
-        next_sr = next((x for x in sr_data if x['super_rebirth_num'] == sr_count + 1),None)
+        next_sr = next((x for x in sr_data if x['super_rebirth_num'] == sr_count + 1), None)
         ne_count = self.pd.get_item_by_m_item_id(ItemsC.Nether_Essence)['num']
         if next_sr['magic_element'] > ne_count:
             self.log(f"SR costs {next_sr['magic_element']}, you only have {ne_count} Nether Essence")
             return
         res = self.client.super_reincarnate(t_character_id=character_id, magic_element_num=next_sr['magic_element'])
         char = self.gd.get_character(unit['m_character_id'])
-        self.log(f"Super Reincarnated {char['name']}. SR Count: {next_sr['super_rebirth_num']} - Karma Gained: {next_sr['karma']}")
+        self.log(
+            f"Super Reincarnated {char['name']}. SR Count: {next_sr['super_rebirth_num']} - Karma Gained: {next_sr['karma']}")
 
-    def clear_character_gates(self):        
+    def clear_character_gates(self):
         events = self.client.event_index()
         gate_id_list = [Character_Gate.Majin_Etna, Character_Gate.Pure_Flonne, Character_Gate.Bloodis,
-                Character_Gate.Sister_Artina, Character_Gate.Killidia, Character_Gate.Pringer_X]
+                        Character_Gate.Sister_Artina, Character_Gate.Killidia, Character_Gate.Pringer_X]
         for event in events['result']['events']:
-            event_id = event['m_event_id']          
+            event_id = event['m_event_id']
             if event_id in gate_id_list:
                 self.clear_character_gate(event_id)
 
-    def clear_character_gate(self, character_gate:Character_Gate):        
+    def clear_character_gate(self, character_gate: Character_Gate):
         run_count = 0
         stage_id = 0
         if character_gate == Character_Gate.Majin_Etna:
@@ -643,8 +650,8 @@ class API(BaseAPI):
         event_data = self.client.event_index(event_ids=[character_gate])
         run_count = event_data['result']['events'][0]['challenge_num']
         while run_count < 3:
-            self.doQuest(stage_id) 
-            run_count +=1
+            self.doQuest(stage_id)
+            run_count += 1
         event_data = self.client.event_index(event_ids=[character_gate])
         if event_data['result']['events'][0]['is_item_reward_receivable']:
             self.log(f"Claiming character copy")

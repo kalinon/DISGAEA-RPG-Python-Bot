@@ -37,13 +37,13 @@ class Bot:
 
         items = self.api.items_to_upgrade()
         if len(items) == 0:
-            self.remake_items()
-            self.refine_items(min_rarity=89, min_item_rank=40, limit=5)
+            # self.remake_items()
+            self.refine_items(min_rarity=90, min_item_rank=40, limit=5)
             items = self.api.items_to_upgrade()
 
         if len(items) == 0:
             self.api.log_err('No items to farm! Where they all at?')
-            return
+            exit(1)
 
         self.api.log('found %s items to upgrade' % len(items))
 
@@ -161,7 +161,7 @@ class Bot:
 
     def remake_items(self):
         items, skipped = self.api.pd.filter_items(
-            min_rarity=100,
+            min_rarity=90,
             max_rarity=100,
             min_item_rank=40,
             only_max_lvl=True,
@@ -349,13 +349,13 @@ class Bot:
 
             # Then do normal farm
             self.farm_item_world(
-                team=iw_team, min_rarity=0, min_rank=40,
-                min_item_rank=40, min_item_level=0,
-                item_limit=10
+                team=iw_team,
+                min_rank=40,
+                min_item_rank=40
             )
 
             # self.remake_items()
-            self.clear_inbox()
+            # self.clear_inbox()
 
     def train_recipe_innocents(self):
         for i in self.api.find_recipe_innocents(override_min_rank=True):
@@ -406,7 +406,7 @@ class Bot:
         self.api.etna_resort_get_all_daily_rewards()
         self.api.log("- selling excess items")
         self.api.sell_items(max_item_rank=39, skip_max_lvl=True, only_max_lvl=False, remove_innocents=True)
-        self.api.sell_items(max_item_rank=40, max_rarity=85, max_innocent_rank=7, max_innocent_type=Innocent_ID.HL)
+        # self.api.sell_items(max_item_rank=40, max_rarity=85, max_innocent_rank=7, max_innocent_type=Innocent_ID.HL,  only_max_lvl=False,)
         self.api.sell_r40_commons_with_no_innocents()
 
     def use_codes(self, codes: list[str]):

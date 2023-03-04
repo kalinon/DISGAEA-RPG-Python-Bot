@@ -17,11 +17,6 @@ bot.use_codes(codes)
 # a.dump_player_data("./player_data.json")
 # exit(0)
 
-bot.clear_inbox()
-# exit(0)
-
-bot.api.sell_items(max_rarity=90, max_item_rank=40, remove_innocents=True)
-
 # bot.complete_story(team_num=9, raid_team=23)
 
 # # Uncomment to clear a new event area. Provide the first 4 digits of the m_area_id.

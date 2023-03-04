@@ -290,13 +290,15 @@ class EtnaResort(Items, metaclass=ABCMeta):
         while retry:
             attempt_count += 1
             res = self.client.etna_resort_refine(item_type, item_id)
-            if 'success_type' in res['result']:
+            if 'result' in res and 'success_type' in res['result']:
                 result = res['result']['success_type']
                 retry = False
                 if item_type == 3:
                     final_rarity = res['result']['t_weapon']['rarity_value']
                 else:
                     final_rarity = res['result']['t_equipment']['rarity_value']
+            else:
+                retry = False
         self.log(
             f"Refined item. Attempts used {attempt_count}. Rarity increase: {result}. Current rarity {final_rarity}")
         e['rarity_value'] = final_rarity
@@ -379,7 +381,7 @@ class EtnaResort(Items, metaclass=ABCMeta):
         return effect is not None and not effect['lock_flg']
 
     # check that the effect is not already rolled with a higher value on that slot
-    def etna_resort_is_effect_already_rolled(self, item_id: int, place_no: int, effect_id: int, effect_target:int):
+    def etna_resort_is_effect_already_rolled(self, item_id: int, place_no: int, effect_id: int, effect_target: int):
         effects = self.pd.get_item_alchemy_effects(item_id)
         effect = next((x for x in effects if x['place_no'] == place_no), None)
         return effect['m_equipment_effect_type_id'] == effect_id and effect['effect_value'] >= effect_target
@@ -603,7 +605,7 @@ class EtnaResort(Items, metaclass=ABCMeta):
                                   alchemy_effect_id: int,
                                   place_no: int,
                                   effect_target: int = 0):
-        
+
         # verify value can be rolled
         if effect_target != 0:
             effect = self.gd.get_alchemy_effect(alchemy_effect_id)
@@ -638,7 +640,8 @@ class EtnaResort(Items, metaclass=ABCMeta):
             return
 
         # the same effect has already been rolled on that slot
-        if self.etna_resort_is_effect_already_rolled(item_id=item_id, place_no = place_no, effect_id=alchemy_effect_id, effect_target=effect_target):
+        if self.etna_resort_is_effect_already_rolled(item_id=item_id, place_no=place_no, effect_id=alchemy_effect_id,
+                                                     effect_target=effect_target):
             effect = self.gd.get_alchemy_effect(alchemy_effect_id)
             self.log(f"{effect['description']} is already rolled on slot {place_no} with a better or equal value.")
             return
@@ -649,7 +652,7 @@ class EtnaResort(Items, metaclass=ABCMeta):
 
         roll = True
         attempt_count = 0
-        
+
         while roll and prilixir_count > 0 and current_hl > Constants.Alchemy_Alchemize_Cost:
             res = self.client.etna_resort_reroll_alchemy_effect(item_type, item_id, place_no)
 
@@ -704,14 +707,18 @@ class EtnaResort(Items, metaclass=ABCMeta):
         if len(effects) == 0:
             self.log(f"Please make sure alchemy is rolled on the item")
             return
-        innocent_boost_effect = next((x for x in effects if x['m_equipment_effect_type_id'] ==  Alchemy_Effect_Type.Innocent_Effect), None)
+        innocent_boost_effect = next(
+            (x for x in effects if x['m_equipment_effect_type_id'] == Alchemy_Effect_Type.Innocent_Effect), None)
         if len(innocent_boost_effect['m_character_ids']) == 1 and innocent_boost_effect['m_character_ids'][0]:
             self.log(f"This item only has a unique innocent boost - Grazing is not possible")
             return
         # Get the type of the innocent that is boosted (skip unique)
-        boost_innocent_type = innocent_boost_effect['m_character_ids'][0] if innocent_boost_effect['m_character_ids'][0] != 0 else innocent_boost_effect['m_character_ids'][1]
+        boost_innocent_type = innocent_boost_effect['m_character_ids'][0] if innocent_boost_effect['m_character_ids'][
+                                                                                 0] != 0 else \
+        innocent_boost_effect['m_character_ids'][1]
         item_innocents = self.pd.get_item_innocents(item_id)
         for innocent in item_innocents:
             # If the innocent is not of the same type, graze
-            if innocent['m_character_id'] not in innocent_boost_effect['m_character_ids'] and innocent['m_character_id'] != 0:
+            if innocent['m_character_id'] not in innocent_boost_effect['m_character_ids'] and innocent[
+                'm_character_id'] != 0:
                 self.etna_resort_graze(innocent=innocent['id'], target_character_id=boost_innocent_type)
