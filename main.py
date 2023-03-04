@@ -276,10 +276,10 @@ class API(BaseAPI):
                 rr = self.client.item_use(use_item_id=item_id, use_item_num=1)
                 if 'api_error' in rr and rr['api_error']['code'] == 12009:
                     self.log_err('unable to use potion')
-                    return None
+                    raise NoAPLeftException
             else:
                 self.log('not enough ap')
-                return
+                raise NoAPLeftException
 
         if team_num is None:
             team_num = self.o.team_num
@@ -572,8 +572,9 @@ class API(BaseAPI):
         # Server time is utc -4. Spins available every 8 hours
         last_roulete_time_string = self.client.hospital_index()['result']['last_hospital_at']
         last_roulette_time = parser.parse(last_roulete_time_string)
-        utcminus4time = datetime.datetime.utcnow() + datetime.timedelta(hours=-4)
-        if utcminus4time > last_roulette_time + datetime.timedelta(hours=8):
+        time_delta = -4 if self.o.region == 2 else 9
+        server_date_time = datetime.datetime.utcnow() + datetime.timedelta(hours=time_delta)
+        if server_date_time > last_roulette_time + datetime.timedelta(hours=8):
             self.client.hospital_roulette()
 
     def is_helper_in_friend_list(self, player_id):

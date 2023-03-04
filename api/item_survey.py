@@ -4,7 +4,7 @@ from abc import ABCMeta
 from dateutil import parser
 
 from api import Shop
-from api.constants import Constants, EquipmentType, Innocent_ID, ErrorMessages
+from api.constants import Constants, EquipmentType, Innocent_ID, ErrorMessages, JP_ErrorMessages
 
 
 class ItemSurvey(Shop, metaclass=ABCMeta):
@@ -34,9 +34,9 @@ class ItemSurvey(Shop, metaclass=ABCMeta):
             if len(weapons_finished) > 0 or len(equipments_finished) > 0:
                 self.log(f"\tRetrieving {len(weapons_finished)} weapons and {len(equipments_finished)} items")
                 result = self.client.item_world_survey_end(weapons_finished, equipments_finished, False)
-                if result['error'] == ErrorMessages.Armor_Full_Error or result['error'] == ErrorMessages.Weapon_Full_Error:
-                    sell_equipments = result['error'] == ErrorMessages.Armor_Full_Error
-                    sell_weapons = result['error'] == ErrorMessages.Weapon_Full_Error
+                if result['error'] == ErrorMessages.Armor_Full_Error or result['error'] == ErrorMessages.Weapon_Full_Error or result['error'] == JP_ErrorMessages.Armor_Full_Error or result['error'] == JP_ErrorMessages.Weapon_Full_Error:
+                    sell_equipments = result['error'] == ErrorMessages.Armor_Full_Error or JP_ErrorMessages.Armor_Full_Error
+                    sell_weapons = result['error'] == ErrorMessages.Weapon_Full_Error or JP_ErrorMessages.Weapon_Full_Error
                     self.shop_free_inventory_space(sell_weapons, sell_equipments, 10)
                     retry = True
         if auto_donate and (len(weapons_finished) > 0 or len (equipments_finished)> 0):

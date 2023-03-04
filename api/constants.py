@@ -11,10 +11,14 @@ class Constants:
     Current_Story_Event_ID = 228
     Current_Story_Event_Area_IDs =  [1228101, 1228102, 1228103, 1228104, 1228105]
     Etna_Defense_Area_ID_GL = 0
+    Enta_Defense_Event_ID_GL = 0
     Etna_Defense_Area_ID_JP = 1436101
+    Enta_Defense_Event_ID_JP = 436
     Etna_Defense_Daily_Run_Limit = 10
     UDT_Training_Area_ID_GL = 0
+    UDT_Training_Event_ID_GL = 0
     UDT_Training_Area_ID_JP = 0
+    UDT_Training_Event_ID_JP = 0
     UDT_Training_Daily_Run_Limit = 5
     Current_Bingo_ID = 2
     Current_Sugoroku_Event_ID = 0
@@ -220,5 +224,11 @@ class Character_Gate(IntEnum):
 class ErrorMessages:
     Weapon_Full_Error = 'Weapon Slot is full\nPlease expand slot or sell weapons'
     Armor_Full_Error = 'Armor Slot is full\nPlease expand slot or sell armor'
+    Innocent_Full_Error = 'Max possession number of Innocents reached.'
+    Raid_Battle_Finished = 'The raid Boss is already conquered'
+
+class JP_ErrorMessages:
+    Weapon_Full_Error = 'Weapon Slot is full\nPlease expand slot or sell weapons'
+    Armor_Full_Error = '防具の所持数がいっぱいです\n所持枠を拡張するか売却などをしてください'
     Innocent_Full_Error = 'Max possession number of Innocents reached.'
     Raid_Battle_Finished = 'The raid Boss is already conquered'

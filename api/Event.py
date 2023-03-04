@@ -72,18 +72,29 @@ class Event(Player, metaclass=ABCMeta):
 
     ## Set event type. Constants need to be up to date
     def clear_event(self, event_type:Event_Types, team_to_use:int=1):        
-        events = self.client.event_index()
+        
         if event_type == Event_Types.UDT_Training: 
-            event_area_id = Constants.UDT_Training_Area_ID_GL if self.o.region == 2 else Constants.UDT_Training_Area_ID_GL  
+            event_area_id = Constants.UDT_Training_Area_ID_GL if self.o.region == 2 else Constants.UDT_Training_Area_ID_JP  
+            event_id = Constants.UDT_Training_Event_ID_GL if self.o.region == 2 else Constants.UDT_Training_Event_ID_JP  
             daily_run_limit = Constants.UDT_Training_Daily_Run_Limit         
         if event_type == Event_Types.Etna_Defense:
             event_area_id = Constants.Etna_Defense_Area_ID_GL if self.o.region == 2 else Constants.Etna_Defense_Area_ID_JP
+            event_id = Constants.Enta_Defense_Event_ID_GL if self.o.region == 2 else Constants.Enta_Defense_Event_ID_JP  
             daily_run_limit = Constants.Etna_Defense_Daily_Run_Limit
             
-        self.clear_etna_or_udt_event(team_to_use=team_to_use, event_area_id=event_area_id, daily_run_limit=daily_run_limit)
+        self.clear_etna_or_udt_event(team_to_use=team_to_use, event_area_id=event_area_id, daily_run_limit=daily_run_limit, event_id=event_id)
 
-    def clear_etna_or_udt_event(self, team_to_use:int=1, event_area_id:int=0, daily_run_limit = 0):        
-        number_of_runs = 0
+    def clear_etna_or_udt_event(self, team_to_use:int=1, event_area_id:int=0, daily_run_limit:int = 0, event_id:int=0):    
+
+        events = self.client.event_index()   
+        event = next((x for x in events['result']['events'] if x["m_event_id"] == event_id), None)
+        if event is None:
+            self.log("Event not found")
+            return
+        number_of_runs = event['challenge_num']
+        if number_of_runs == daily_run_limit:
+            self.log("Reached daily challenge limit for the event")
+            return
         from data import data as gamedata
         dic = gamedata['stages']
         event_stages = [x for x in dic if x["m_area_id"] == event_area_id]
